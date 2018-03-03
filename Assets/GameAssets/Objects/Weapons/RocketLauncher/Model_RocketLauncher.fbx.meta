@@ -1,0 +1,169 @@
+fileFormatVersion: 2
+guid: 9dd4ab1e2e9eace46b7c27ad34cde97e
+timeCreated: 1515096993
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: RocketLauncher_Body
+    100004: RocketLauncher_Reloader
+    100006: RocketLauncher_Reloader.001
+    100008: RocketLauncher_Reloader.002
+    100010: RocketLauncher_Reloader.003
+    100012: RocketLauncher_Reloader.004
+    100014: RocketLauncher_Reloader.005
+    100016: RocketLauncher_Reloader.006
+    100018: RocketLauncher_Reloader.007
+    100020: RocketLauncher_Reloader.008
+    100022: RocketLauncher_Reloader.009
+    100024: RocketLauncher_Reloader.010
+    100026: RocketLauncher_Reloader.011
+    100028: RocketLauncher_Reloader.012
+    100030: RocketLauncher_Reloader.013
+    400000: //RootNode
+    400002: RocketLauncher_Body
+    400004: RocketLauncher_Reloader
+    400006: RocketLauncher_Reloader.001
+    400008: RocketLauncher_Reloader.002
+    400010: RocketLauncher_Reloader.003
+    400012: RocketLauncher_Reloader.004
+    400014: RocketLauncher_Reloader.005
+    400016: RocketLauncher_Reloader.006
+    400018: RocketLauncher_Reloader.007
+    400020: RocketLauncher_Reloader.008
+    400022: RocketLauncher_Reloader.009
+    400024: RocketLauncher_Reloader.010
+    400026: RocketLauncher_Reloader.011
+    400028: RocketLauncher_Reloader.012
+    400030: RocketLauncher_Reloader.013
+    2100000: WeaponMain.001
+    2100002: Weapon2.001
+    2100004: WeaponMain.011
+    2100006: Weapon2.010
+    2100008: WeaponGlow2
+    2300000: RocketLauncher_Body
+    2300002: RocketLauncher_Reloader
+    2300004: RocketLauncher_Reloader.001
+    2300006: RocketLauncher_Reloader.002
+    2300008: RocketLauncher_Reloader.003
+    2300010: RocketLauncher_Reloader.004
+    2300012: RocketLauncher_Reloader.005
+    2300014: RocketLauncher_Reloader.006
+    2300016: RocketLauncher_Reloader.007
+    2300018: RocketLauncher_Reloader.008
+    2300020: RocketLauncher_Reloader.009
+    2300022: RocketLauncher_Reloader.010
+    2300024: RocketLauncher_Reloader.011
+    2300026: RocketLauncher_Reloader.012
+    2300028: RocketLauncher_Reloader.013
+    3300000: RocketLauncher_Body
+    3300002: RocketLauncher_Reloader
+    3300004: RocketLauncher_Reloader.001
+    3300006: RocketLauncher_Reloader.002
+    3300008: RocketLauncher_Reloader.003
+    3300010: RocketLauncher_Reloader.004
+    3300012: RocketLauncher_Reloader.005
+    3300014: RocketLauncher_Reloader.006
+    3300016: RocketLauncher_Reloader.007
+    3300018: RocketLauncher_Reloader.008
+    3300020: RocketLauncher_Reloader.009
+    3300022: RocketLauncher_Reloader.010
+    3300024: RocketLauncher_Reloader.011
+    3300026: RocketLauncher_Reloader.012
+    3300028: RocketLauncher_Reloader.013
+    4300000: RocketLauncher_Reloader.013
+    4300002: RocketLauncher_Reloader.012
+    4300004: RocketLauncher_Reloader.011
+    4300006: RocketLauncher_Reloader.010
+    4300008: RocketLauncher_Reloader.009
+    4300010: RocketLauncher_Reloader.008
+    4300012: RocketLauncher_Reloader.007
+    4300014: RocketLauncher_Reloader.006
+    4300016: RocketLauncher_Reloader.005
+    4300018: RocketLauncher_Reloader.004
+    4300020: RocketLauncher_Reloader.003
+    4300022: RocketLauncher_Reloader.002
+    4300024: RocketLauncher_Reloader.001
+    4300026: RocketLauncher_Reloader
+    4300028: RocketLauncher_Body
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.4
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
