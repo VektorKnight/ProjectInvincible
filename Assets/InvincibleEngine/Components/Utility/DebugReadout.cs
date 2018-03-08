@@ -51,9 +51,6 @@ namespace InvincibleEngine.Components.Utility {
             AddField("FPS");
             _fpsCounter = new FpsCounter();
             
-            AddField("Local Players");
-            UpdateField("Local Players", $"{GameManager.LocalPlayerCount}");
-            
             AddField("Pool Unique");
             AddField("Pool Active");
             AddField("Pool Total");
