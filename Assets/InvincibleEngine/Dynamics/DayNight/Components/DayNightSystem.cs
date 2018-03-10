@@ -1,6 +1,7 @@
 ﻿using InvincibleEngine.Components.Utility;
-using InvincibleEngine.VektorLibrary.Utility;
 using UnityEngine;
+using VektorLibrary.Math;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.Dynamics.DayNight.Components {
     /// <summary>
@@ -78,8 +79,8 @@ namespace InvincibleEngine.Dynamics.DayNight.Components {
             
             // Update the current time and wrap it if necessary
             _currentTime += Time.deltaTime * _timeScale;
-            _currentTime = VektorUtility.WrapFloat(_currentTime, TIME_MORNING, SECONDS_PER_DAY);
-            DebugReadout.UpdateField("Time", $"{_currentTime:n0}");
+            _currentTime = VektorMath.WrapFloat(_currentTime, TIME_MORNING, SECONDS_PER_DAY);
+            if (DebugReadout.Enabled) DebugReadout.UpdateField("Time", $"{_currentTime:n0}");
             
             // Update the skybox & ambient light
             var timeKey = _currentTime / SECONDS_PER_DAY;

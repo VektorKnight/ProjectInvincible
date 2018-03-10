@@ -1,6 +1,8 @@
-﻿using InvincibleEngine.InputSystem;
-using InvincibleEngine.VektorLibrary.Utility;
+﻿using System.Runtime.InteropServices;
+using InvincibleEngine.InputSystem;
 using UnityEngine;
+using VektorLibrary.Math;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.CameraSystem {
     /// <summary>
@@ -45,7 +47,8 @@ namespace InvincibleEngine.CameraSystem {
         private float _zoomValue, _refV;
         
         // Private: Anti-Clip
-        private float _groundHeight;
+        private readonly LowPassFloat _terrainHeight = new LowPassFloat(32);
+        private float _heightOffset;
         
         // Initialization
         private void Start() {
@@ -80,8 +83,11 @@ namespace InvincibleEngine.CameraSystem {
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
             // Apply rig and camera transform values
-            transform.position = new Vector3( transform.position.x + _inputValues.x, _groundHeight, transform.position.z + _inputValues.z);
-            _camera.transform.localPosition = Vector3.up * _heightValue;
+            // TODO: A jerk occurs when zooming into geometry rapidly, should try to fix this eventually
+            // TODO: Might be related to the asynchronicity of the Update and FixedUpdate callbacks
+            _heightOffset = _heightValue - _heightRange.x < _terrainHeight ? _terrainHeight : 0f;
+            transform.position = new Vector3( transform.position.x + _inputValues.x, 0f, transform.position.z + _inputValues.z);
+            _camera.transform.localPosition = Vector3.up * (_heightValue + _heightOffset);
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
         }
         
@@ -90,7 +96,7 @@ namespace InvincibleEngine.CameraSystem {
             // Ensure we stay above any geometry
             var groundCheckRay = new Ray(new Vector3(transform.position.x, _maxRayLength, transform.position.z), Vector3.down);
             RaycastHit rayHit;
-            _groundHeight = Physics.Raycast(groundCheckRay, out rayHit, _maxRayLength, _antiClipMask) ? rayHit.point.y : 0f;
+            _terrainHeight.AddSample(Physics.Raycast(groundCheckRay, out rayHit, _maxRayLength, _antiClipMask) ? rayHit.point.y : _terrainHeight);
         }
     }
 }

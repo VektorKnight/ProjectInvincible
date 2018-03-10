@@ -1,8 +1,9 @@
 ﻿using System.Linq;
-using InvincibleEngine.VektorLibrary.AI.Systems;
-using InvincibleEngine.VektorLibrary.AI.Utility;
-using InvincibleEngine.VektorLibrary.Utility;
 using UnityEngine;
+using VektorLibrary.AI.Systems;
+using VektorLibrary.AI.Utility;
+using VektorLibrary.Math;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.Components.AI {
 	/// <summary>
@@ -74,7 +75,7 @@ namespace InvincibleEngine.Components.AI {
 			
 			// Calculate the average position from the path nodes
 			var pathVectors = _pathNodes.Select(pos => pos.position);
-			_nodeAverage = _pathNodes.Length > 0 ? VektorUtility.GetVectorAverage(pathVectors) : _spawnPosition;
+			_nodeAverage = _pathNodes.Length > 0 ? VektorMath.GetVectorAverage(pathVectors) : _spawnPosition;
 			
 			// Calculate optimized path values
 			_sqrPathEpsilon = Mathf.Pow(_pathEpsilon, 2f);
@@ -129,7 +130,7 @@ namespace InvincibleEngine.Components.AI {
 			}
 			
 			// Exit this state if we've traversed too far from the last path node
-			var pathDistance = VektorUtility.PlanarDistance(_pathNodes[_pathIndex].position, transform.position, Vector3.up);
+			var pathDistance = VektorMath.PlanarDistance(_pathNodes[_pathIndex].position, transform.position, Vector3.up);
 			if (pathDistance > _maxStrayDistance) {
 				_stateMachine.RemoveTask();
 				return;

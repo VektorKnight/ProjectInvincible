@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using InvincibleEngine.Components.Generic;
-using InvincibleEngine.VektorLibrary.Utility;
 using UnityEngine;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.Managers {
 	/// <summary>

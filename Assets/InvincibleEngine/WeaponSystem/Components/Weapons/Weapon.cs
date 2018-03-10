@@ -1,8 +1,8 @@
 ﻿using InvincibleEngine.Managers;
-using InvincibleEngine.VektorLibrary.Utility;
 using InvincibleEngine.WeaponSystem.Components.Projectiles;
 using InvincibleEngine.WeaponSystem.Interfaces;
 using UnityEngine;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.WeaponSystem.Components.Weapons {
     /// <summary>

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using InvincibleEngine.Managers;
-using InvincibleEngine.VektorLibrary.Utility;
 using UnityEngine;
 using UnityEngine.UI;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.Components.Utility {
     /// <summary>
@@ -26,8 +26,11 @@ namespace InvincibleEngine.Components.Utility {
         private FpsCounter _fpsCounter;
         
         // Private: State
-        private bool _readoutEnabled;
+        private bool _enabled;
         
+        // Property: State
+        public static bool Enabled => Instance._enabled;
+
         // Initialization
         private void Awake() {
             // Enforce Singleton Instance
@@ -38,7 +41,7 @@ namespace InvincibleEngine.Components.Utility {
             DontDestroyOnLoad(gameObject);
             
             // Display the readout by default if dev build or editor
-            if (Debug.isDebugBuild) _readoutEnabled = true;
+            if (Debug.isDebugBuild) _enabled = true;
             
             // Set up some default readouts
             AddField("Vektor Games");
@@ -51,20 +54,20 @@ namespace InvincibleEngine.Components.Utility {
             AddField("FPS");
             _fpsCounter = new FpsCounter();
             
-            AddField("Pool Unique");
-            AddField("Pool Active");
-            AddField("Pool Total");
+           //AddField("Pool Unique");
+           //AddField("Pool Active");
+           //AddField("Pool Total");
         }
         
         // Toggle display the of readout
         public static void ToggleReadout() {
-            if (Instance._readoutEnabled) {
+            if (Instance._enabled) {
                 Instance._debugText.enabled = false;
-                Instance._readoutEnabled = false;
+                Instance._enabled = false;
             }
             else {
                 Instance._debugText.enabled = true;
-                Instance._readoutEnabled = true;
+                Instance._enabled = true;
             }
         }
         
@@ -72,11 +75,11 @@ namespace InvincibleEngine.Components.Utility {
         public static void ToggleReadout(bool state) {
             if (state) {
                 Instance._debugText.enabled = true;
-                Instance._readoutEnabled = true;
+                Instance._enabled = true;
             }
             else {
                 Instance._debugText.enabled = false;
-                Instance._readoutEnabled = false;
+                Instance._enabled = false;
             }
         }
         
@@ -113,13 +116,13 @@ namespace InvincibleEngine.Components.Utility {
             if (Input.GetKeyDown(Instance._toggleKey)) ToggleReadout();
             
             // Exit if the readout is disabled
-            if (!_readoutEnabled) return;
+            if (!_enabled) return;
             
             // Update FPS Counter
             UpdateField("FPS", $"{Instance._fpsCounter.UpdateValues()} (Δ{Time.deltaTime * 1000f:n1}ms)");
             
             // Update Pool Stats
-            ///UpdateField("Pool Unique", GlobalObjectManager.UniquePoolCount.ToString());
+            //UpdateField("Pool Unique", GlobalObjectManager.UniquePoolCount.ToString());
             //UpdateField("Pool Active", GlobalObjectManager.ActiveObjectCount.ToString());
             //UpdateField("Pool Total", GlobalObjectManager.TotalObjectCount.ToString());
             
