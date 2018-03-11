@@ -1,17 +1,22 @@
 ﻿using InvincibleEngine.EntityFramework.Interfaces;
 using UnityEngine;
+using VektorLibrary.EntityFramework.Interfaces;
+using VektorLibrary.EntityFramework.Singletons;
 
 namespace InvincibleEngine.EntityFramework.Components {
-    public abstract class EntityBehavior : MonoBehaviour, IGameEntity {
+    public abstract class EntityBehavior : MonoBehaviour, IBehavior {
         
         // Private: Entity Tick Delta
         private float _lastEntityCall;
         
-        // Property: State
+        // Property: Initialized
         public bool Initialized { get; private set; }
         
+        // Property: Terminating
+        public bool Terminating { get; private set; }
+
         // Unity Initialization
-        private void Start() {
+        private void Awake() {
             // Exit if already initialized
             if (Initialized) return;
             
@@ -33,5 +38,10 @@ namespace InvincibleEngine.EntityFramework.Components {
         public abstract void EntityUpdate(float entityDelta);
 
         public abstract void RenderUpdate(float renderDelta);
+        
+        public virtual void Terminate() {
+            Terminating = true;
+            Destroy(this);
+        }
     }
 }

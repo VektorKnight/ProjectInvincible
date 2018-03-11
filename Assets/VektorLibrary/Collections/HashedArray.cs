@@ -1,35 +1,57 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace VektorLibrary.Collections {
-    public class HashedArray<T> {  
-        // Private: HashSet, Array, and Free Stack
+    /// <summary>
+    /// *WORK IN PROGRESS*
+    /// Effectively a combination of a Dictionary and Array.
+    /// Lookup efficiency of a Dictionary with the iteration efficiency of an array.
+    /// Can be a bit heavy on memory for certain types compared to other collections.
+    /// * Does not currently support insertion and item order is not guaranteed to be preserved.
+    /// Original Author: VektorKnight
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class HashedArray<T> : ICollection<T> {  
+        // Private: Dictionary, Array, and Free Stack
         private readonly Dictionary<T, int> _itemDictionary;
         private readonly Stack<int> _freeIndices;
         private T[] _itemArray;
         
-        // Private: Last Free Index
-        private int _nextFreeIndex;
+        // Private: Last Free Index & Initial Size
+        private readonly int _initialSize;
+        private int _lastFreeIndex;
         
         // Properties: Array Capacity and HashSet Count
         public int Capacity => _itemArray.Length;
         public int Count => _itemDictionary.Count;
-        public int Length => _nextFreeIndex - 1;
+        public int LastIndex => _lastFreeIndex - 1;
+        public bool IsReadOnly { get; }
         
         // Operator: Index []
-        public T this[int index] => (index >= 0 && index < _itemArray.Length) ? _itemArray[index] : default(T);
+        public T this[int index] {
+            get { return _itemArray[index]; }
+            set {
+                if (_itemDictionary.ContainsValue(index)) 
+                    _itemDictionary.Remove(_itemArray[index]);
+                _itemDictionary.Add(value, index);
+                _itemArray[index] = value;
+            }
+        }
 
         // Class Constructor: Initial Capacity / Default Max
         public HashedArray(int initial) {
             // Initialize the HashSet and Array
+            _initialSize = initial;
             _itemDictionary = new Dictionary<T, int>();
             _itemArray = new T[initial];
             _freeIndices = new Stack<int>();
         }
         
         /// <summary>
-        /// Adds an item at the last free index or at the end of the current elements.
+        /// Adds an item at the last free index or at a free index from the stack.
         /// </summary>
         /// <param name="item">The item to add.</param>
         public void Add(T item) {
@@ -45,25 +67,44 @@ namespace VektorLibrary.Collections {
             }
             
             // Try to add the item at the next free index and resize it if necessary
-            if (_nextFreeIndex == _itemArray.Length) Array.Resize(ref _itemArray, _itemArray.Length * 2);
-            _itemDictionary.Add(item, _nextFreeIndex);
-            _itemArray[_nextFreeIndex] = item;
-            _nextFreeIndex++;
+            if (_lastFreeIndex == _itemArray.Length) Array.Resize(ref _itemArray, _itemArray.Length * 2);
+            _itemDictionary.Add(item, _lastFreeIndex);
+            _itemArray[_lastFreeIndex] = item;
+            _lastFreeIndex++;
         }
         
+        /// <summary>
+        /// Clear all items from the collection and reset the state.
+        /// </summary>
+        public void Clear() {
+            _itemArray = new T[_initialSize];
+            _itemDictionary.Clear();
+            _freeIndices.Clear();
+        }
+        
+        /// <summary>
+        /// Copy the items within this collection to a specified array.
+        /// </summary>
+        /// <param name="array"></param>
+        /// <param name="arrayIndex"></param>
+        public void CopyTo(T[] array, int arrayIndex) {
+            _itemDictionary.Keys.CopyTo(array, arrayIndex);
+        }
+
         /// <summary>
         /// Remove a specified item from the collection.
         /// </summary>
         /// <param name="item">The item to remove.</param>
-        public void Remove(T item) {
-            // Exit if the item does not exist in the collection
-            if (!_itemDictionary.ContainsKey(item)) return;
+        public bool Remove(T item) {
+            // Return false if the item does not exist in the collection
+            if (!_itemDictionary.ContainsKey(item)) return false;
             
             // Remove the specified item
             var itemIndex = _itemDictionary[item];
             _itemDictionary.Remove(item);
             _itemArray[itemIndex] = default(T);
             _freeIndices.Push(itemIndex);
+            return true;
         }
         
         /// <summary>
@@ -73,6 +114,16 @@ namespace VektorLibrary.Collections {
         /// <returns></returns>
         public bool Contains(T item) {
             return _itemDictionary.ContainsKey(item);
+        }
+        
+        // Public method to get an enumerator from the internal array
+        public IEnumerator<T> GetEnumerator() {
+            return (IEnumerator<T>) _itemArray.GetEnumerator();
+        }
+        
+        // Get an enumerator from the internal array
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
     }
 }
