@@ -30,9 +30,18 @@ namespace InvincibleEngine.Managers {
                 this.message = message;
             }
         }
+        
+        public class G_ENT :INetMessage {
+            public ushort EntityID;
+            public List<object> SyncFields;
+        }
     }
 
-
+    public static class NetInterface {
+        public static List<object> GetSyncFields(this GameObject input) {
+            return null;
+        }
+    }    
 
     public class NetManager : MonoBehaviour {
 
@@ -150,6 +159,7 @@ namespace InvincibleEngine.Managers {
                         n.Name = SteamFriends.GetFriendPersonaName(SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i));
                         
                         LobbyMembers.Add(n);
+                        
                     }
                 }
                 yield return new WaitForSeconds(1 / LobbyUpdatesPerSecond);

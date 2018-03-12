@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using UnityEngine;
+using System.Reflection;
+using System.Linq;
+using System.Runtime.Serialization;
 
-namespace InvincibleEngine {
+namespace Source {
     public class AmbiguousTypeHolder {
         public AmbiguousTypeHolder(object _obj, Type _type) {
             obj = _obj;
@@ -16,7 +16,7 @@ namespace InvincibleEngine {
         public object obj;
         public Type type;
     }
-    public static class VektorSerialize {
+    public static class HexSerialize {
         
         /// <summary>
         /// Accepts a list of classes, serializes into an array of bytes with proper headers
@@ -173,7 +173,7 @@ namespace InvincibleEngine {
         public static byte[] ToByte(object src) {
 
             //if this object is one of our own, serialize in classic way
-            if(src.GetType().Namespace=="Source.Networking") {
+            if(src.GetType().Namespace.Contains("Source")) {
                 List<byte> n = new List<byte>();
                 n.Zip(src, 1400);
                 return n.ToArray();
