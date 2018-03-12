@@ -8,6 +8,9 @@ namespace VektorLibrary.Utility {
     public class ObjectPool : System.IDisposable {
         // Object to Pool
         private GameObject _pooledObject;
+        
+        // Private: Pool Allocation
+        private readonly bool _preAllocate;
 
         // Properties: Object Counts
         public int MaxObjects { get; }
@@ -20,14 +23,15 @@ namespace VektorLibrary.Utility {
 
         // Exceptions
         private static readonly ObjectPoolException MissingComponentException = new ObjectPoolException("Specified object must have at least one PooledBehavior attached!");
-        private static readonly ObjectPoolException DynamicOverloadException = new ObjectPoolException("Dynamic pool has reached the maximum number of objects.");
+        private static readonly ObjectPoolException OverloadException = new ObjectPoolException("This pool has reached it's maximum size or all available objects are in use.");
         private static readonly ObjectPoolException InvalidReturnException =   new ObjectPoolException("Returned object does not belong to this Object Pool");
 
         // Constructor
-        public ObjectPool (GameObject poolObject, int maxObjects, bool prePopulate = false) {
+        public ObjectPool (GameObject poolObject, int maxObjects, bool preAllocate = false) {
             // Throw an exception if the specified object does not have a PooledBehavior attached
             if (poolObject.GetComponent<PooledBehavior>() == null) throw MissingComponentException;
-            
+
+            _preAllocate = true;
             _pooledObject = poolObject;
             MaxObjects = maxObjects;
             
@@ -41,26 +45,36 @@ namespace VektorLibrary.Utility {
         /// <param name="position">Desired world position of the object.</param>
         /// <param name="rotation">Desired world rotation of the object.</param>
         /// <returns></returns>
-        /// <exception cref="DynamicOverloadException">Thrown if this pool has reached it's maximum size.</exception>
+        /// <exception cref="OverloadException">Thrown if this pool has reached it's maximum size.</exception>
         public GameObject GetObject(Vector3 position, Quaternion rotation) {
-            // If objects are available, return one
+            // Throw an exception if there are no objects available in a pre-allocated pool
+            if (_openSet.Count == 0 && _preAllocate) throw OverloadException;
+            
+            // Throw an exception if the open set is empty and we cannot allocate more
+            if (_openSet.Count == 0 && TotalObjects >= MaxObjects) throw OverloadException;          
+            
+            // Grab an object from the open set if possible and return it
+            GameObject gameObject;
+            PooledBehavior pooledBehavior;
             if (_openSet.Count > 0) {
                 // Grab the object and set it's transform
-                var obj = _openSet.Pop();
-                obj.transform.SetPositionAndRotation(position, rotation);
+                gameObject = _openSet.Pop();
+                gameObject.transform.SetPositionAndRotation(position, rotation);
                 
-                // Activate and return the object.
-                obj.SetActive(true);
-                return obj;
+                // Activate the object, invoke the retrieved
+                gameObject.SetActive(true);
+                pooledBehavior = gameObject.GetComponent<PooledBehavior>();
+                pooledBehavior?.OnRetrieved();
+                return gameObject;
             }
             
-            // If no objects are available and we are below the limit, create one
-            if (TotalObjects >= MaxObjects) throw DynamicOverloadException;
-            {
-                var obj = Object.Instantiate(_pooledObject, position, rotation);
-                _objects.Add(obj);
-                return obj;
-            }
+            // Instantiate a new object, initialize it, and add it to the owned objects set
+            gameObject = Object.Instantiate(_pooledObject, position, rotation);
+            pooledBehavior = gameObject.GetComponent<PooledBehavior>();
+            pooledBehavior?.Initialize();
+            pooledBehavior?.OnRetrieved();
+            _objects.Add(gameObject);  
+            return gameObject;
         }
         
         /// <summary>
@@ -71,6 +85,10 @@ namespace VektorLibrary.Utility {
         public void ReturnObject(GameObject obj) {
             // Throw an exception if the object does not belong to this pool.
             if (!_objects.Contains(obj)) throw InvalidReturnException;
+            
+            // Invoke the returned callback
+            var pooledBehavior = obj.GetComponent<PooledBehavior>();
+            pooledBehavior?.OnReturned();
             
             // Disable the object and return it to the open set
             obj.SetActive(false);

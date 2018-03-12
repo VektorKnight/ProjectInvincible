@@ -17,3 +17,4 @@ namespace VektorLibrary.EntityFramework.Components {
             throw new System.NotImplementedException();
         }
     }
+}
