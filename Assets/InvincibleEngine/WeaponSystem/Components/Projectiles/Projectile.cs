@@ -60,7 +60,7 @@ namespace InvincibleEngine.WeaponSystem.Components.Projectiles {
 		protected virtual void SpawnImpactEffect(Vector3 position, Quaternion rotation) {
 			if (ImpactEffect == null) return;
 
-			GlobalObjectManager.GetObject(ImpactEffect.gameObject, position, rotation);
+			ObjectManager.GetObject(ImpactEffect.gameObject, position, rotation);
 		}
 		
 		// Despawn the projectile instance

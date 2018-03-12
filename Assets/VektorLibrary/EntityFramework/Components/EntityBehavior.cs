@@ -1,24 +1,20 @@
-﻿using InvincibleEngine.EntityFramework.Interfaces;
-using UnityEngine;
+﻿using UnityEngine;
 using VektorLibrary.EntityFramework.Interfaces;
 using VektorLibrary.EntityFramework.Singletons;
 
-namespace InvincibleEngine.EntityFramework.Components {
-    public abstract class EntityBehavior : MonoBehaviour, IBehavior {
+namespace VektorLibrary.EntityFramework.Components {
+    public abstract class EntityBehavior : MonoBehaviour, IEntity {
         
-        // Private: Entity Tick Delta
-        private float _lastEntityCall;
-        
-        // Property: Initialized
-        public bool Initialized { get; private set; }
+        // Property: Registered
+        public bool Registered { get; private set; }
         
         // Property: Terminating
         public bool Terminating { get; private set; }
 
         // Unity Initialization
-        private void Awake() {
+        private void Start() {
             // Exit if already initialized
-            if (Initialized) return;
+            if (Registered) return;
             
             // Register with the Entity Manager
             EntityManager.RegisterBehavior(this);
@@ -28,18 +24,23 @@ namespace InvincibleEngine.EntityFramework.Components {
         protected virtual void OnDestroy() {
             EntityManager.UnregisterBehavior(this);
         }
-
-        public virtual void Initialize() {
-            Initialized = true;
-        }
-
-        public abstract void PhysicsUpdate(float physicsDelta);
-
-        public abstract void EntityUpdate(float entityDelta);
-
-        public abstract void RenderUpdate(float renderDelta);
         
-        public virtual void Terminate() {
+        // Behavior regisration callback
+        public virtual void OnRegister() {
+            Registered = true;
+        }
+        
+        // Physics update callback
+        public virtual void OnPhysicsUpdate(float physicsDelta) { }
+        
+        // Entity update callback
+        public virtual void OnEntityUpdate(float entityDelta) { }
+        
+        // Render update callback
+        public virtual void OnRenderUpdate(float renderDelta) { }
+        
+        // Termination
+        public virtual void OnTerminate() {
             Terminating = true;
             Destroy(this);
         }

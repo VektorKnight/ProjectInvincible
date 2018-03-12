@@ -90,7 +90,7 @@ namespace InvincibleEngine.WeaponSystem.Components.Weapons {
             // Grab a projectile from the multi-pool
             var aimVector = Vector3.Normalize(CameraAimPoint - Muzzle.position);
             var rotation = Quaternion.LookRotation(aimVector + (Variance * Random.insideUnitSphere));
-            var projectile = GlobalObjectManager.GetObject(Projectile.gameObject, Muzzle.position, rotation);
+            var projectile = ObjectManager.GetObject(Projectile.gameObject, Muzzle.position, rotation);
             projectile.GetComponent<Projectile>().Initialize(OwnerId);
         }
         

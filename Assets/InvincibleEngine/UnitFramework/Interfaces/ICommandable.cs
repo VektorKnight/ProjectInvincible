@@ -1,4 +1,4 @@
-﻿using InvincibleEngine.EntityFramework.Enums;
+﻿using InvincibleEngine.UnitFramework.Enums;
 
 namespace InvincibleEngine.EntityFramework.Interfaces {
     public interface ICommandable {

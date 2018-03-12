@@ -1,37 +1,37 @@
 ﻿namespace VektorLibrary.EntityFramework.Interfaces {
-    public interface IBehavior {
-        // Property: Initialized
-        bool Initialized { get; }
+    public interface IEntity {
+        // Property: Registered
+        bool Registered { get; }
         
         // Property: Terminating
         bool Terminating { get; }
 
         /// <summary>
-        /// Called when a behavior is registered.
+        /// Called immediately after this behavior is registered with the manager.
         /// </summary>
-        void Initialize();
+        void OnRegister();
         
         /// <summary>
         /// Called everytime Physics.Simulate() is called.
         /// </summary>
         /// <param name="physicsDelta"></param>
-        void PhysicsUpdate(float physicsDelta);
+        void OnPhysicsUpdate(float physicsDelta);
         
         /// <summary>
         /// Called immediately after PhysicsUpdate.
         /// </summary>
         /// <param name="entityDelta"></param>
-        void EntityUpdate(float entityDelta);
+        void OnEntityUpdate(float entityDelta);
         
         /// <summary>
         /// Called once per frame.
         /// </summary>
         /// <param name="renderDelta"></param>
-        void RenderUpdate(float renderDelta);
+        void OnRenderUpdate(float renderDelta);
         
         /// <summary>
         /// Called when a behavior is unregistered.
         /// </summary>
-        void Terminate();
+        void OnTerminate();
     }
 }

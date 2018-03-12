@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using InvincibleEngine.InputSystem;
 using UnityEngine;
+using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
 
@@ -9,7 +10,7 @@ namespace InvincibleEngine.CameraSystem {
     /// Overhead camera suitable for RTS-style games.
     /// Author: VektorKnight
     /// </summary>
-    public class OverheadCamera : MonoBehaviour {
+    public class OverheadCamera : EntityBehavior {
         // Unity Inspector
         [Header("Camera View")]
         [SerializeField] private Vector2 _heightRange = new Vector2(10f, 100f);
@@ -51,9 +52,9 @@ namespace InvincibleEngine.CameraSystem {
         private float _heightOffset;
         
         // Initialization
-        private void Start() {
+        public override void OnRegister() {
             // Exit if already initialized
-            if (_initialized) return;
+            if (Registered) return;
             
             // Ensure the camera reference has been set
             if (_camera == null) {
@@ -61,21 +62,21 @@ namespace InvincibleEngine.CameraSystem {
                 return;
             }
             
-            // Initialization complete
-            _initialized = true;
+            // Call base method
+            base.OnRegister();
         }
         
         // Unity Update
-        private void Update() {
+        public override void OnRenderUpdate(float renderDelta) {
             // Exit if not initialized
-            if (!_initialized) return;
+            if (!Registered) return;
             
             // Get input values
-            _inputValues.x = Input.GetAxis(_inputMap.MovementX) * _panSpeed * Time.deltaTime;
-            _inputValues.z = Input.GetAxis(_inputMap.MovementY) * _panSpeed * Time.deltaTime;
-            _inputValues.y += Input.GetAxis(_inputMap.ZoomAxis) * _zoomSpeed * Time.deltaTime;
+            _inputValues.x = Input.GetAxis(_inputMap.MovementX) * _panSpeed * renderDelta;
+            _inputValues.z = Input.GetAxis(_inputMap.MovementY) * _panSpeed * renderDelta;
+            _inputValues.y += Input.GetAxis(_inputMap.ZoomAxis) * _zoomSpeed * renderDelta;
             _inputValues.y = Mathf.Clamp01(_inputValues.y);
-            _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * Time.deltaTime);
+            _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * renderDelta);
             
             // Interpolate control values
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);
@@ -92,7 +93,7 @@ namespace InvincibleEngine.CameraSystem {
         }
         
         // Physics Update
-        private void FixedUpdate() {
+        public override void OnPhysicsUpdate(float physicsDelta) {
             // Ensure we stay above any geometry
             var groundCheckRay = new Ray(new Vector3(transform.position.x, _maxRayLength, transform.position.z), Vector3.down);
             RaycastHit rayHit;

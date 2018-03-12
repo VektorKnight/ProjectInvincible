@@ -22,12 +22,11 @@ namespace VektorLibrary.Collections {
         
         // Private: Last Free Index & Initial Size
         private readonly int _initialSize;
-        private int _lastFreeIndex;
-        
+
         // Properties: Array Capacity and HashSet Count
         public int Capacity => _itemArray.Length;
         public int Count => _itemDictionary.Count;
-        public int LastIndex => _lastFreeIndex - 1;
+        public int LastIndex { get; private set; }
         public bool IsReadOnly { get; }
         
         // Operator: Index []
@@ -67,10 +66,10 @@ namespace VektorLibrary.Collections {
             }
             
             // Try to add the item at the next free index and resize it if necessary
-            if (_lastFreeIndex == _itemArray.Length) Array.Resize(ref _itemArray, _itemArray.Length * 2);
-            _itemDictionary.Add(item, _lastFreeIndex);
-            _itemArray[_lastFreeIndex] = item;
-            _lastFreeIndex++;
+            if (LastIndex == _itemArray.Length) Array.Resize(ref _itemArray, _itemArray.Length * 2);
+            _itemDictionary.Add(item, LastIndex);
+            _itemArray[LastIndex] = item;
+            LastIndex++;
         }
         
         /// <summary>
@@ -118,7 +117,7 @@ namespace VektorLibrary.Collections {
         
         // Public method to get an enumerator from the internal array
         public IEnumerator<T> GetEnumerator() {
-            return (IEnumerator<T>) _itemArray.GetEnumerator();
+            return _itemArray.AsEnumerable().Cast<T>().GetEnumerator();
         }
         
         // Get an enumerator from the internal array

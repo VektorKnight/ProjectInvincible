@@ -1,10 +1,12 @@
-﻿using InvincibleEngine.EntityFramework.Components;
-using InvincibleEngine.EntityFramework.Interfaces;
-using UnityEngine;
+﻿using UnityEngine;
 using VektorLibrary.Collections;
+using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.EntityFramework.Interfaces;
 
 namespace VektorLibrary.EntityFramework.Singletons {
+    /// <summary>
+    /// Manages entities implementing the IBehavior interface and relevant update callbacks.
+    /// </summary>
     public class EntityManager : MonoBehaviour {    
         // Singleton Instance Accessor
         public static EntityManager Instance { get; private set; }
@@ -14,31 +16,27 @@ namespace VektorLibrary.EntityFramework.Singletons {
         public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
         
         // Private: Entity Behaviors
-        private HashedArray<IBehavior> _entityBehaviors;
+        private HashedArray<IEntity> _behaviors;
         
         // Private: State
         private bool _initialized;
         
-        // Private: Physics Step
-        private float _physicsMaxDelta;
-        private float _physicsAccumulator;
+        // Private: Fixed Timestep
+        private float _stepMaxDelta;
+        private float _stepAccumulator;
+        private bool _physicsSimulated;
         
-        // Private: Physics Step
-        private float _entityMaxDelta;
-        private float _entityAccumulator;
-        private float _entityLastUpdate;
-        private int _entityLastIndex;
-        private bool _entityIncompleteLoop;
-        
-        // Preload
+        // Preload Method
         [RuntimeInitializeOnLoadMethod]
         private static void Preload() {
             // Ensure this singleton initializes at startup
             if (Instance == null) Instance = new GameObject("EntityManager").AddComponent<EntityManager>();
-            Instance.Initialize();
             
             // Ensure this singleton does not get destroyed on scene load
-            DontDestroyOnLoad(Instance);
+            DontDestroyOnLoad(Instance.gameObject);
+            
+            // Initialize the instance
+            Instance.Initialize();
         }
         
         // Initialization
@@ -54,42 +52,30 @@ namespace VektorLibrary.EntityFramework.Singletons {
             Physics.autoSimulation = false;
             
             // Initialize the Entity behaviors array and index stack
-            _entityBehaviors = new HashedArray<IBehavior>(1024);
+            _behaviors = new HashedArray<IEntity>(1024);
             
             // Calculate max deltas
-            _physicsMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
+            _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
             
             // We're done here
             _initialized = true;
         }
         
         // Register an entity behavior
-        public static void RegisterBehavior(EntityBehavior behavior) {
+        public static void RegisterBehavior(IEntity behavior) {
             // Add the behavior to the collection and initialize it
-            Instance._entityBehaviors.Add(behavior);
-            behavior.Initialize();
+            Instance._behaviors.Add(behavior);
+            behavior.OnRegister();
         }
         
         // Unregister an entity behavior
-        public static void UnregisterBehavior(EntityBehavior behavior) {
+        public static void UnregisterBehavior(IEntity behavior) {
             // Exit if the behavior is not registered
-            if (!Instance._entityBehaviors.Contains(behavior)) return;
+            if (!Instance._behaviors.Contains(behavior)) return;
             
             // Remove the behavior
-            Instance._entityBehaviors.Remove(behavior);
-            behavior.Terminate();
-        }
-        
-        // Update the render callback
-        private void UpdateRenderTick() {
-            // Invoke callback on all registered objects
-            // No touchy, leave as a for-loop for optimization
-            for (var i = 0; i < _entityBehaviors.LastIndex; i++) {
-                var behavior = _entityBehaviors[i];
-                if (behavior == null) continue;
-                if (!behavior.Initialized || behavior.Terminating) continue;
-                behavior.RenderUpdate(Time.deltaTime);
-            }
+            Instance._behaviors.Remove(behavior);
+            behavior.OnTerminate();
         }
         
         // Unity Update
@@ -98,32 +84,42 @@ namespace VektorLibrary.EntityFramework.Singletons {
             if (!_initialized) return;
            
             // Calculate minimum of delta time and max delta
-            var deltaTime = Mathf.Min(Time.deltaTime, _physicsMaxDelta);
+            var deltaTime = Mathf.Min(Time.deltaTime, _stepMaxDelta);
             
             // Add delta time to the accumulator
-            _physicsAccumulator += deltaTime;
+            _stepAccumulator += deltaTime;
             
-            // Step the physics simulation and callback as needed
-            while (_physicsAccumulator >= FIXED_TIMESTEP) {
-                // Step the simulation by delta time
-                Physics.Simulate(deltaTime);
+            // Iterate through the behaviors
+            for (var i = 0; i < _behaviors.LastIndex; i++) {
+                // Reference the current behavior
+                var behavior = _behaviors[i];
                 
-                // Invoke the callback on all registered objects
-                // No touchy, leave as a for-loop for optimization
-                for (var i = 0; i < _entityBehaviors.LastIndex; i++) {
-                    var behavior = _entityBehaviors[i];
-                    if (behavior == null) continue;
-                    if (!behavior.Initialized || behavior.Terminating) continue;
-                    behavior.PhysicsUpdate(deltaTime);
-                    behavior.EntityUpdate(deltaTime);
+                // Handle fixed timestep callbacks and physics simulation
+                while (_stepAccumulator >= FIXED_TIMESTEP) {
+                    // Step the physics simulation if necessary
+                    if (!_physicsSimulated) {
+                        Physics.Simulate(deltaTime);
+                        _physicsSimulated = true;
+                    }
+                    
+                    // Subtract the timestep/count from the accumulator
+                    _stepAccumulator -= FIXED_TIMESTEP / _behaviors.LastIndex;
+                    
+                    // Check for any flags         
+                    if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                    
+                    // Invoke the fixed timestep callbacks as necessary
+                    behavior.OnPhysicsUpdate(deltaTime);
+                    behavior.OnEntityUpdate(deltaTime);
                 }
                 
-                // Subtract delta time from the accumulator
-                _physicsAccumulator -= deltaTime;
+                // Check for any flags and invoke the render callback if necessary    
+                if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                behavior.OnRenderUpdate(deltaTime);
             }
             
-            // Update Render Callback
-            UpdateRenderTick();
+            // Reset the physics simulated flag
+            _physicsSimulated = false;
         }
     }
 }

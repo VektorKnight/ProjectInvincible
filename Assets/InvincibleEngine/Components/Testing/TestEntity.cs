@@ -1,18 +1,10 @@
 ﻿using UnityEngine;
-using InvincibleEngine.EntityFramework.Components;
+using VektorLibrary.EntityFramework.Components;
 
 namespace InvincibleEngine.Components.Testing {
     public class TestEntity : EntityBehavior {
-        public override void PhysicsUpdate(float physicsDelta) {
-            return;
-        }
-
-        public override void EntityUpdate(float entityDelta) {
-            return;
-        }
-
-        public override void RenderUpdate(float renderDelta) {
-            return;
+        public override void OnRenderUpdate(float renderDelta) {
+            transform.position += Vector3.up * Mathf.Sin(Time.time);
         }
     }
 }

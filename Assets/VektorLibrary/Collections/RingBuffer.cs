@@ -4,14 +4,30 @@ namespace VektorLibrary.Collections {
     /// <summary>
     /// Ring buffer implementation.
     /// Original Author: Techgeek1
+    /// Edits By: VektorKnight
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class RingBuffer<T> {
         private T[] _buffer;
         private int _head = -1;
-        private int _tail = 0;
-        private int _count = 0;
-        private int _mask = 0;
+        private int _tail;
+        private int _count;
+        private int _mask;
+        
+        // Properties: Head, Tail, Count
+        public T Head => _buffer[_head];
+        public T Tail => _buffer[_tail];
+        public int Count => _count;
+        
+        // Operator: [index]
+        public T this[int index] {
+            get {
+                return _buffer[(_tail + index) & _mask];
+            }
+            set {
+                _buffer[(_tail + index) & _mask] = value;
+            }
+        }
 
         /// <summary>
         /// Ring buffer implementation
@@ -41,7 +57,7 @@ namespace VektorLibrary.Collections {
             if (_count == 0)
                 throw new IndexOutOfRangeException();
 
-            T value = _buffer[_tail];
+            var value = _buffer[_tail];
             _tail = (_tail + 1) & _mask;
             _count--;
 
@@ -56,9 +72,9 @@ namespace VektorLibrary.Collections {
             _buffer[0] = default(T);// Just setting the first one to 0 to save clearing the entire buffer
         }
 
-        private bool IsPowerOf2(int value) {
+        private static bool IsPowerOf2(int value) {
             // Find nearest power of 2
-            int v = value;
+            var v = value;
             v--;
             v |= v >> 1;
             v |= v >> 2;
@@ -68,21 +84,6 @@ namespace VektorLibrary.Collections {
             v++;
 
             return value == v;
-        }
-
-        public T Head => _buffer[_head];
-
-        public T Tail => _buffer[_tail];
-
-        public int Count => _count;
-
-        public T this[int index] {
-            get {
-                return _buffer[(_tail + index) & _mask];
-            }
-            set {
-                _buffer[(_tail + index) & _mask] = value;
-            }
         }
     }
 }

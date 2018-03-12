@@ -36,7 +36,7 @@ namespace InvincibleEngine.Components.Generic {
 			
             // Try to return this object to the multi-pool
             try {
-                GlobalObjectManager.MultiObjectPool.ReturnObject(gameObject);
+                ObjectManager.MultiObjectPool.ReturnObject(gameObject);
             }
             catch (System.Exception ex) {
                 // Catch the exception and warn the user

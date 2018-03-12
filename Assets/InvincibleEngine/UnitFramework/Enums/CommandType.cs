@@ -1,4 +1,4 @@
-﻿namespace InvincibleEngine.EntityFramework.Enums {
+﻿namespace InvincibleEngine.UnitFramework.Enums {
     public enum CommandType {
         Move,
         Attack,

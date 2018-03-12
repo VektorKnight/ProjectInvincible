@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using InvincibleEngine.Managers;
 using UnityEngine;
 using UnityEngine.UI;
-using VektorLibrary.Utility;
 
-namespace InvincibleEngine.Components.Utility {
+namespace VektorLibrary.Utility {
     /// <summary>
     /// Utility class for drawing various debug readouts to the game screen.
     /// </summary>
