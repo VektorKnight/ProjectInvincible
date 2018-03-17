@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using InvincibleEngine.Networking;
 using Newtonsoft.Json;
+using InvincibleEngine.Managers;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
@@ -32,7 +33,13 @@ namespace InvincibleEngine.Managers {
                 this.message = message;
             }
         }
-        
+
+        //Lobby data change request from client to host
+        public class L_PDU : INetMessage {
+
+        }        
+
+        //Entity update
         public class G_ENT :INetMessage {
             public ushort EntityID;
             public List<object> SyncFields;
@@ -40,11 +47,40 @@ namespace InvincibleEngine.Managers {
     }
 
     /// <summary>
+    /// Data for lobby members in the game, created only by servers
+    /// </summary>
+    public class LobbyMember {
+        public LobbyMember(int team, ulong steamID) {
+            Team = team;
+            SteamID = steamID;
+        }
+
+        public int Team;
+        public ulong SteamID;
+
+        public string Name { get { return SteamFriends.GetFriendPersonaName((CSteamID)SteamID); } }
+    }
+
+    /// <summary>
+    /// Game chat log from any and all sources
+    /// </summary>
+    [Serializable]
+    public static class ChatLog {
+        public static string chat;
+        public static void PostChat(string input) {
+            chat += $"\n{input}";
+        }
+    }
+
+    /// <summary>
     /// Custom attributes for field syncing
     /// </summary>
-    public class SyncField : Attribute { }
+    public class SyncField : Attribute { bool ditry; }
     public class SyncEvent : Attribute { }
 
+    /// <summary>
+    /// Network manager, in charge of all network behavior in the game
+    /// </summary>
     public class NetManager : SteamHelper {
 
         //Singleton Implementation
@@ -59,28 +95,6 @@ namespace InvincibleEngine.Managers {
             Hosting, Connected, Stopped
         }
 
-        //information about the lobby member
-        [Serializable]
-        public struct LobbyMember {
-            public LobbyMember(int team, ulong steamID) {
-                Team = team;
-                SteamID = steamID;
-            }
-
-            public int Team;
-            public ulong SteamID;
-
-            public string Name { get { return SteamFriends.GetFriendPersonaName((CSteamID)SteamID); } }           
-        }
-        
-        //Stores chat log of active lobby
-        public static class ChatLog {
-            public static string chat;
-            public static void PostChat(string input) {
-                chat += $"\n{input}";
-            }         
-        }
-        
         //ID of game lobby
         [Header("Lobby Data")]
         public CSteamID CurrentLobbyID;
@@ -90,6 +104,8 @@ namespace InvincibleEngine.Managers {
 
         //Update parameters
         public int LobbyUpdatesPerSecond = 1;
+
+        //Exposed network data
 
         public  void Start() {
 
@@ -142,15 +158,9 @@ namespace InvincibleEngine.Managers {
                 
                 //if we are a host, always update the lobby metadata
                 if (networkState==NetworkState.Hosting) {
-                    LobbyMembers.Clear();
+                    
+                    //get number of players in lobby
                     int numPlayers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
-
-                    Debug.Log("\t Number of players currently in lobby : " + numPlayers);
-                    for (int i = 0; i < numPlayers; i++) {
-                        LobbyMember n = new LobbyMember();
-                        n.SteamID = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i).m_SteamID;
-                        LobbyMembers.Add(n);
-                    }
 
                     //set lobby data
                     string data = JsonConvert.SerializeObject(LobbyMembers);
@@ -187,24 +197,24 @@ namespace InvincibleEngine.Managers {
             b_CreateLobby = true;
         }
         public override void OnCreateLobby(LobbyCreated_t pCallback) {
+
+            //We are no longer trying to make a lobby
             b_CreateLobby = false;
+
+            //if create lobby suceeded 
             if (pCallback.m_eResult == EResult.k_EResultOK) {
+
+                //Set proper values
                 Debug.Log("Lobby creation succeded");
                 networkState = NetworkState.Hosting;
                 CurrentLobbyID = (CSteamID)pCallback.m_ulSteamIDLobby;
-                LobbyMembers.Add(new LobbyMember(0, ));
+
+                //create lobby member for the current user
+                LobbyMembers.Add(new LobbyMember(0, (ulong)SteamUser.GetSteamID()));
             }
             else {
                 Debug.Log($"Lobby creation failed because {pCallback.m_eResult}");
             }
-        }
-
-        /// <summary>
-        /// Join lobby by selected index
-        /// </summary>
-        /// <param name="index"></param>
-        public void JoinLobby(int index) {
-            SteamMatchmaking.JoinLobby(lobbyIDS[index]);
         }
 
         /// <summary>
@@ -226,10 +236,37 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         /// <param name="pCallback"></param>
         public override void OnGetLobbyInfo(LobbyDataUpdate_t pCallback) {
+
+            //iterate through all lobbies to 
             for (int i = 0; i < lobbyIDS.Count; i++) {
                 if (lobbyIDS[i].m_SteamID == pCallback.m_ulSteamIDLobby) {
-                    Debug.Log("Lobby " + i + " :: " + SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "name"));
+                    Debug.Log("Lobby " + i + " :: " + SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "0"));
                     return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Join lobby by selected index
+        /// </summary>
+        /// <param name="index"></param>
+        public void JoinLobby(int index) {
+            SteamMatchmaking.JoinLobby(lobbyIDS[index]);
+        }
+
+        /// <summary>
+        /// Lobby Chatroom state has changed, usually when users leave or join
+        /// </summary>
+        /// <param name="param"></param>
+        protected override void OnLobbyChatUpdate(LobbyChatUpdate_t param) {
+
+            //Only act upon this if we are hosting
+            if (networkState == NetworkState.Hosting) {
+                CSteamID user = (CSteamID)param.m_ulSteamIDUserChanged;
+
+                //if a user just left remove them from the list
+                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) {
+                    LobbyMembers.Remove(LobbyMembers.Find(o => o.SteamID == param.m_ulSteamIDUserChanged));
                 }
             }
         }
@@ -240,11 +277,24 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         /// <param name="pCallback"></param>
         public override void OnLobbyEntered(LobbyEnter_t pCallback) {
+
+            //if the lobby is joined sucessfully
             if (pCallback.m_EChatRoomEnterResponse == 1) {
-                Debug.Log("Successfully joined lobby");
-                CurrentLobbyID = (CSteamID)pCallback.m_ulSteamIDLobby;
-                networkState = NetworkState.Connected;
+
+                //if we are hosting a user just joined
+                if (networkState == NetworkState.Hosting) {
+                    
+                }
+
+                //if we are not hosting we just joined a lobby
+                else {
+                    Debug.Log("Successfully joined lobby");
+                    CurrentLobbyID = (CSteamID)pCallback.m_ulSteamIDLobby;
+                    networkState = NetworkState.Connected;
+                }
             }
+
+            //if the lobby join failed
             else {
                 Debug.Log($"Failed to join lobby, {pCallback.m_EChatRoomEnterResponse}");
             }
@@ -278,6 +328,11 @@ namespace InvincibleEngine.Managers {
             buffer.Zip(message, 4096);
             SteamMatchmaking.SendLobbyChatMsg(CurrentLobbyID, buffer.ToArray(), buffer.Count);
         }
+
+        /// <summary>
+        /// Called if lobby chat message is recieved
+        /// </summary>
+        /// <param name="pCallback"></param>
         public override void OnLobbyChatMsg(LobbyChatMsg_t pCallback) {
             //TODO: if message is our own ignore
 
@@ -289,6 +344,8 @@ namespace InvincibleEngine.Managers {
             int messageSize;
             messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)pCallback.m_iChatID, out source, a_buffer, 4096, out chatEntryType);
             buffer = a_buffer.ToList().GetRange(0, messageSize);
+
+            //Resolver for all types of lobby messages
             foreach (AmbiguousTypeHolder n in HexSerialize.Unzip(buffer)) {
                 if (n.type == typeof(NetMessage.L_CHT)) {
                     NetMessage.L_CHT src = (NetMessage.L_CHT)n.obj;

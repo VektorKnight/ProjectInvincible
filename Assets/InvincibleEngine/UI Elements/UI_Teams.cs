@@ -8,12 +8,10 @@ namespace InvincibleEngine.UI_Elements {
 
         public GameObject Teams;
         public GameObject PlayerCardPrefab;
-
-        int CurrentElements = 0;
-
+        
         //remove all player cards, spawn new ones according to whos in the lobby
         void Update() {
-            if (CurrentElements != NetManager.Singleton.LobbyMembers.Count) {
+            if (Teams.transform.childCount != NetManager.Singleton.LobbyMembers.Count) {
 
                 //destroy all current ones
                 foreach (Transform n in Teams.transform) {
@@ -22,7 +20,7 @@ namespace InvincibleEngine.UI_Elements {
 
                 //create new player cards
                 try {
-                    foreach (NetManager.LobbyMember n in NetManager.Singleton.LobbyMembers) {
+                    foreach (LobbyMember n in NetManager.Singleton.LobbyMembers) {
                         UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
                         x.NameText.text = n.Name;
 
@@ -31,8 +29,7 @@ namespace InvincibleEngine.UI_Elements {
                 catch(NullReferenceException) {
                     Debug.Log("List of players is null, possible JSON error");
                 }
-                //reset active sum
-                CurrentElements = NetManager.Singleton.LobbyMembers.Count;
+               
             }
         }
     }

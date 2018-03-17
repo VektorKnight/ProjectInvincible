@@ -12,7 +12,7 @@ namespace InvincibleEngine.UI_Elements {
             Input.text = "";
         }
         private void Update() {
-            Chat.text = NetManager.ChatLog.chat;
+            Chat.text = ChatLog.chat;
         }
     }
 }

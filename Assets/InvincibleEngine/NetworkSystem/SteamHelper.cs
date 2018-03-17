@@ -22,9 +22,10 @@ public class SteamHelper : MonoBehaviour {
     protected Callback<LobbyDataUpdate_t> m_lobbyInfo;
     protected Callback<GameLobbyJoinRequested_t> m_LobbyJoinRequest;
     protected Callback<LobbyChatMsg_t> m_LobbyChatMsg;
-    
+    protected Callback<LobbyChatUpdate_t> m_LobbyChatUpdate;
 
-   
+
+
 
     public virtual void OnLobbyChatMsg(LobbyChatMsg_t param) {
 
@@ -47,6 +48,9 @@ public class SteamHelper : MonoBehaviour {
     }
 
     public virtual void OnCreateLobby(LobbyCreated_t param) {
+
+    }
+    protected virtual void OnLobbyChatUpdate(LobbyChatUpdate_t param) {
 
     }
 
