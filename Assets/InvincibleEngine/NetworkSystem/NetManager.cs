@@ -203,7 +203,7 @@ namespace InvincibleEngine.Managers {
         }
 
         public Texture2D GetSmallAvatar(ulong user) {
-            int FriendAvatar = SteamFriends.GetSmallFriendAvatar((CSteamID)user);
+            int FriendAvatar = SteamFriends.GetMediumFriendAvatar((CSteamID)user);
             uint ImageWidth;
             uint ImageHeight;
             bool success = SteamUtils.GetImageSize(FriendAvatar, out ImageWidth, out ImageHeight);
