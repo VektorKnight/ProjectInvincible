@@ -162,6 +162,28 @@ namespace InvincibleEngine.Managers {
                     //get number of players in lobby
                     int numPlayers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
 
+
+                    //if the number of players changed, someone left or joined
+                    if (numPlayers != LobbyMembers.Count) {
+                        
+                        Debug.Log("\t Number of players currently in lobby : " + numPlayers);
+                        for (int i = 0; i < numPlayers; i++) {
+                            CSteamID n = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i);
+
+                            //if we find a lobby member that matches the one on the server
+                            //do nothing since he is there
+                            if (LobbyMembers.Find(o => o.SteamID == (ulong)n) != null) {
+                                break;
+                            }
+
+                            //if we find a player in the lobby that isnt in our list, add him
+                            else {
+                                LobbyMembers.Add(new LobbyMember(1, (ulong)n));
+                            }
+                            
+                        }
+                    }
+
                     //set lobby data
                     string data = JsonConvert.SerializeObject(LobbyMembers);
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", data);
