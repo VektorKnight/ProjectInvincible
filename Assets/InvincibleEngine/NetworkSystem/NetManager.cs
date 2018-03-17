@@ -202,8 +202,26 @@ namespace InvincibleEngine.Managers {
             }
         }
 
-        public void GetPlayerProfileImage(uint ID) {
-            SteamFriends.GetSmallFriendAvatar((CSteamID)ID);
+        public Texture2D GetSmallAvatar(ulong user) {
+            int FriendAvatar = SteamFriends.GetSmallFriendAvatar((CSteamID)user);
+            uint ImageWidth;
+            uint ImageHeight;
+            bool success = SteamUtils.GetImageSize(FriendAvatar, out ImageWidth, out ImageHeight);
+
+            if (success && ImageWidth > 0 && ImageHeight > 0) {
+                byte[] Image = new byte[ImageWidth * ImageHeight * 4];
+                Texture2D returnTexture = new Texture2D((int)ImageWidth, (int)ImageHeight, TextureFormat.RGBA32, false, true);
+                success = SteamUtils.GetImageRGBA(FriendAvatar, Image, (int)(ImageWidth * ImageHeight * 4));
+                if (success) {
+                    returnTexture.LoadRawTextureData(Image);
+                    returnTexture.Apply();
+                }
+                return returnTexture;
+            }
+            else {
+                Debug.LogError("Couldn't get avatar.");
+                return new Texture2D(0, 0);
+            }
         }
 
         #region Steam Direct Call Backs
@@ -324,7 +342,6 @@ namespace InvincibleEngine.Managers {
                 Debug.Log($"Failed to join lobby, {pCallback.m_EChatRoomEnterResponse}");
             }
         }
-
 
         /// <summary>
         /// Called when we were invited to join a lobby, for now just join it
