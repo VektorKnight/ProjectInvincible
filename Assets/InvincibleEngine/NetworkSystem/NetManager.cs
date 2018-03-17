@@ -175,7 +175,7 @@ namespace InvincibleEngine.Managers {
                             //if we find a lobby member that matches the one on the server
                             //do nothing since he is there
                             if (LobbyMembers.Contains(LobbyMembers.Find(o => o.SteamID == (ulong)n))) {
-                                break;
+                                continue;
                             }
 
                             //if we find a player in the lobby that isnt in our list, add him

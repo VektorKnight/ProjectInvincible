@@ -130,7 +130,7 @@ namespace InvincibleEngine.Networking {
 
                 //grab object name header from segment
                 string header = (string)FromByte(n.SubList<byte>(1).ToArray(), typeof(string));
-                Type headerType = Type.GetType("Source.Networking.NetMessage+" + header);
+                Type headerType = Type.GetType("InvincibleEngine.Managers.NetMessage+" + header);
 
                 //create object from magic
                 var obj = FormatterServices.GetUninitializedObject(headerType);
@@ -240,7 +240,7 @@ namespace InvincibleEngine.Networking {
 
         public static object FromByte(byte[] src, Type type) {
             //if object is ours, deserialize in classic way
-            if (src.GetType().Namespace == "Source") {
+            if (src.GetType().Namespace == "InvincibleEngine") {
                 return Unzip(src.ToList())[0].obj;
             }
             if (type == typeof(float)) {
