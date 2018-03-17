@@ -24,7 +24,7 @@ namespace InvincibleEngine.UI_Elements {
                         UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
                         x.NameText.text = n.Name;
                         x.SetTeamColor(NetManager.Singleton.Teams[n.Team]);
-                        x.PlayerCard = NetManager.Singleton.GetSmallAvatar(n.SteamID);
+                        x.SetProfileImage(NetManager.Singleton.GetSmallAvatar(n.SteamID));
                     }
                 }
                 catch(NullReferenceException) {
