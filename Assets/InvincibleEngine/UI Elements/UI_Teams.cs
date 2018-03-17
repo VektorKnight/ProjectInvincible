@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using InvincibleEngine.Managers;
 using UnityEngine;
 
@@ -7,30 +8,31 @@ namespace InvincibleEngine.UI_Elements {
 
         public GameObject Teams;
         public GameObject PlayerCardPrefab;
-        void Start() {
-            StartCoroutine("UIUpdate");
-        }
 
+        int CurrentElements = 0;
 
         //remove all player cards, spawn new ones according to whos in the lobby
-        IEnumerator UIUpdate() {
-            while (true) {
+        void Update() {
+            if (CurrentElements != NetManager.Singleton.LobbyMembers.Count) {
 
                 //destroy all current ones
                 foreach (Transform n in Teams.transform) {
                     Destroy(n.gameObject);
                 }
-                
 
-                foreach (NetManager.LobbyMember n in NetManager.Singleton.LobbyMembers) {
-                    UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
-                    x.NameText.text = n.Name;
-                    if(NetManager.Singleton.IsLobbyOwner) {
+                //create new player cards
+                try {
+                    foreach (NetManager.LobbyMember n in NetManager.Singleton.LobbyMembers) {
+                        UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
+                        x.NameText.text = n.Name;
 
                     }
                 }
-                
-                yield return new WaitForSeconds(0.1f);
+                catch(NullReferenceException) {
+                    Debug.Log("List of players is null, possible JSON error");
+                }
+                //reset active sum
+                CurrentElements = NetManager.Singleton.LobbyMembers.Count;
             }
         }
     }

@@ -6,8 +6,9 @@ using UnityEngine;
 using System.Reflection;
 using System.Linq;
 using System.Runtime.Serialization;
+using InvincibleEngine.Managers;
 
-namespace Source {
+namespace InvincibleEngine.Networking {
     public class AmbiguousTypeHolder {
         public AmbiguousTypeHolder(object _obj, Type _type) {
             obj = _obj;
@@ -16,8 +17,14 @@ namespace Source {
         public object obj;
         public Type type;
     }
+
+    public class SyncFieldIndexer {
+        public byte Index;
+        public object Data;
+    }
+
     public static class HexSerialize {
-        
+
         /// <summary>
         /// Accepts a list of classes, serializes into an array of bytes with proper headers
         /// </summary>
@@ -34,7 +41,7 @@ namespace Source {
 
         //packs collection of items into data, stops when reaching maxBuffer and returns false if exceding max buffer
         public static bool Zip(this List<byte> source, object input, int maxBuffer) {
-            
+
             //byte representation of this segment
             List<byte> bytes = new List<byte>();
 
@@ -51,15 +58,15 @@ namespace Source {
                 ///instead of the variable size syncfield raw data, that portion is replaced with
                 ///[1 byte size][1 byte first element size][first element as zipped message][...]
                 byte[] b;
-               
+
                 if (IsGenericEnumerable(f.GetType())) {
                     Debug.Log("found collection");
 
                     List<byte> p = new List<byte>();
-                    foreach(var n in (IEnumerable)f) {
-                        Debug.Log("forech going for f"+n.GetType());
+                    foreach (var n in (IEnumerable)f) {
+                        Debug.Log("forech going for f" + n.GetType());
                         List<byte> x = new List<byte>();
-                        if(!x.Zip(n, maxBuffer)) {
+                        if (!x.Zip(n, maxBuffer)) {
                             return false;
                         }
                         p.InsertRange(0, x);
@@ -79,18 +86,18 @@ namespace Source {
 
             ///at this moment the segment reads [1 byte size header][syncfield raw data] repeated for 
             ///all variables
-           
+
             //now tag the segment with all headers and add to the collection
             byte[] typeHeader = ToByte(input.GetType().Name);
             bytes.InsertRange(0, typeHeader);
             bytes.Insert(0, (byte)typeHeader.Length);
 
             //size header
-            ushort m = (ushort)bytes.Count;            
-            bytes.InsertRange(0,ToByte(m));
+            ushort m = (ushort)bytes.Count;
+            bytes.InsertRange(0, ToByte(m));
 
             //segment is processed and ready, check if the destination list can store it
-            if(bytes.Count > (maxBuffer - source.Count)) {
+            if (bytes.Count > (maxBuffer - source.Count)) {
                 Debug.Log("MAX BUFFER HIT");
                 return false;
             }
@@ -114,26 +121,26 @@ namespace Source {
             List<AmbiguousTypeHolder> returns = new List<AmbiguousTypeHolder>();
 
             //keep going through the list until all data has been unpacked
-            while(dataToUnpack.Count>0) {
+            while (dataToUnpack.Count > 0) {
                 segments.Add(dataToUnpack.SubList<byte>(2));
             }
 
             //we have all segments decoded, iterate through each 
-            foreach(List<byte> n in segments) {
+            foreach (List<byte> n in segments) {
 
                 //grab object name header from segment
-                string header = (string)FromByte(n.SubList<byte>(1).ToArray(),typeof(string));
-                Type headerType = Type.GetType("Source.Networking.NetMessage+"+header);
+                string header = (string)FromByte(n.SubList<byte>(1).ToArray(), typeof(string));
+                Type headerType = Type.GetType("Source.Networking.NetMessage+" + header);
 
                 //create object from magic
                 var obj = FormatterServices.GetUninitializedObject(headerType);
 
                 //determine what fields will be grabbed from rest of segment
                 FieldInfo[] fieldInfo = GetReflectionFields(headerType);
-                
+
                 //iterate through remainder of segment getting all data from reflection fields
                 List<object> setFields = new List<object>();
-                for(int i=0;i<fieldInfo.Length;i++) {
+                for (int i = 0; i < fieldInfo.Length; i++) {
 
                     //determine type
                     Type type = fieldInfo[i].FieldType;
@@ -142,16 +149,16 @@ namespace Source {
                     List<byte> c = n.SubList<byte>(1);
                     //add field
                     //if dealing with collection usw different meathod
-                    if(IsGenericEnumerable(type)) {
+                    if (IsGenericEnumerable(type)) {
                         Type IType = type.GetGenericArguments()[0];
                         var Result = Activator.CreateInstance(typeof(List<>).MakeGenericType(IType));
                         List<byte> x = c;
-                        while(x.Count>0) {
+                        while (x.Count > 0) {
                             Debug.Log(x.Count);
                             object objTemp = Unzip(x.SubList<byte>(1))[0].obj;
-                            Result.GetType().GetMethod("Add").Invoke(Result, new[] { objTemp });                            
+                            Result.GetType().GetMethod("Add").Invoke(Result, new[] { objTemp });
                         }
-                        Result.GetType().GetMethod("Reverse",new Type[] { }).Invoke(Result, new object[] { });
+                        Result.GetType().GetMethod("Reverse", new Type[] { }).Invoke(Result, new object[] { });
                         setFields.Add(Result);
 
                     }
@@ -159,7 +166,7 @@ namespace Source {
                         setFields.Add(FromByte(c.ToArray(), type));
                     }
                 }
-                
+
                 //set all values of fields to data in segment
                 SetReflectionFields(obj, setFields.ToArray());
 
@@ -173,7 +180,7 @@ namespace Source {
         public static byte[] ToByte(object src) {
 
             //if this object is one of our own, serialize in classic way
-            if(src.GetType().Namespace.Contains("Source")) {
+            if (src.GetType().Namespace.Contains("InvincibleEngine")) {
                 List<byte> n = new List<byte>();
                 n.Zip(src, 1400);
                 return n.ToArray();
@@ -193,10 +200,10 @@ namespace Source {
             if (src is ushort) {
                 return BitConverter.GetBytes((ushort)src);
             }
-            if(src is ulong) {
+            if (src is ulong) {
                 return BitConverter.GetBytes((ulong)src);
             }
-            if(src is short) {
+            if (src is short) {
                 return BitConverter.GetBytes((Int16)src);
             }
             if (src is bool) {
@@ -226,7 +233,7 @@ namespace Source {
             if (src is byte) {
                 return new byte[(byte)src];
             }
-           
+
             Debug.LogError($"Writer could not resolve type {src.GetType()}");
             return null;
         }
@@ -255,10 +262,10 @@ namespace Source {
             if (type == typeof(short)) {
                 return BitConverter.ToInt16(src, 0);
             }
-            if(type==typeof(ushort)) {
+            if (type == typeof(ushort)) {
                 return BitConverter.ToUInt16(src, 0);
             }
-            if(type == typeof(ulong)) {
+            if (type == typeof(ulong)) {
                 return BitConverter.ToUInt64(src, 0);
             }
             if (type == typeof(Vector3)) {
@@ -274,14 +281,14 @@ namespace Source {
                 vect.y = BitConverter.ToSingle(src, 1 * sizeof(float));
                 return vect;
             }
-            if (type ==typeof(byte)) {
+            if (type == typeof(byte)) {
                 return src[0];
             }
             Debug.LogError($"Writer could not resolve type {type}");
             return null;
         }
 
-       
+
         public static T[] SubArray<T>(this T[] data, int index, int length) {
             T[] result = new T[length];
             Array.Copy(data, index, result, 0, length);
@@ -329,7 +336,18 @@ namespace Source {
         public static FieldInfo[] GetReflectionFields(Type type) {
             //summon fields
             List<FieldInfo> allFields = type.GetFields(BindingFlags.Instance | BindingFlags.Public).ToList<FieldInfo>();
-           
+
+            //determine if any have custom attributes
+            foreach (FieldInfo prop in allFields) {
+                object[] attrs = prop.GetCustomAttributes(true);
+                foreach (object attr in attrs) {
+                    SyncField authAttr = attr as SyncField;
+                    if (authAttr == null) {
+                        allFields.Remove(prop);
+                    }
+                }
+            }
+
             //Debug.Log($"Found {syncFields.Count} fields");
             return allFields.OrderBy(o => o.Name).ToArray();
         }
@@ -348,6 +366,53 @@ namespace Source {
                 f[i].SetValue(target, set[i]);
             }
 
+        }
+
+        // Gameobject Manipulation Methods
+        public static List<Component> GetComponentsSorted(GameObject input) {
+            List<Component> components = new List<Component>();
+            foreach (Component n in input.GetComponents<Component>()) {
+
+                //we only care about those components that are ours and sort them
+                if (n.GetType().ToString().Contains("InvincibleEngine")) {
+                    components.Add(n);
+                    components.OrderBy(o => o.GetType().ToString());
+                }
+            }
+            return components;
+
+        }
+
+        /// <summary>
+        /// Get all fields from all subclasses in the gameobject
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static List<SyncFieldIndexer> GetObjectSyncFields(this GameObject input) {
+
+            //search through all components for those that are our own scripts
+            List<SyncFieldIndexer> Fields = new List<SyncFieldIndexer>();
+            
+            try {
+               foreach(Component n in GetComponentsSorted(input)) {
+
+                }
+                
+            }
+            finally {
+
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Set all feilds from all subclasses in the gameobject
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
+        public static bool SetObjectSyncFields(this GameObject input, List<object> fields) {
+            return true;
         }
     }
 }
