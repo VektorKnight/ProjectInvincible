@@ -49,6 +49,7 @@ namespace InvincibleEngine.Managers {
     /// <summary>
     /// Data for lobby members in the game, created only by servers
     /// </summary>
+    [Serializable]
     public class LobbyMember {
         public LobbyMember(int team, ulong steamID) {
             Team = team;
@@ -99,6 +100,7 @@ namespace InvincibleEngine.Managers {
         [Header("Lobby Data")]
         public CSteamID CurrentLobbyID;
         public List<CSteamID> lobbyIDS;
+        [SerializeField]
         public List<LobbyMember> LobbyMembers = new List<LobbyMember>();
         public LobbyMember LocalPlayer;            
 
