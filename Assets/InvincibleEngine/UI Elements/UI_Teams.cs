@@ -23,7 +23,7 @@ namespace InvincibleEngine.UI_Elements {
                     foreach (LobbyMember n in NetManager.Singleton.LobbyMembers) {
                         UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
                         x.NameText.text = n.Name;
-
+                        x.SetTeamColor(NetManager.Singleton.Teams[n.Team]);
                     }
                 }
                 catch(NullReferenceException) {

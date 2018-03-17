@@ -95,6 +95,7 @@ namespace InvincibleEngine.Managers {
         public enum NetworkState {
             Hosting, Connected, Stopped
         }
+        public Color[] Teams;
 
         //ID of game lobby
         [Header("Lobby Data")]
