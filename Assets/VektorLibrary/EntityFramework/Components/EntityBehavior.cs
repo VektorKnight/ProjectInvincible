@@ -40,7 +40,7 @@ namespace VektorLibrary.EntityFramework.Components {
         public virtual void OnRenderUpdate(float renderDelta) { }
         
         // Termination
-        public virtual void OnTerminate() {
+        public virtual void Terminate() {
             Terminating = true;
             Destroy(this);
         }

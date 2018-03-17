@@ -75,7 +75,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
             
             // Remove the behavior
             Instance._behaviors.Remove(behavior);
-            behavior.OnTerminate();
+            behavior.Terminate();
         }
         
         // Unity Update
@@ -90,7 +90,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
             _stepAccumulator += deltaTime;
             
             // Iterate through the behaviors
-            for (var i = 0; i < _behaviors.LastIndex; i++) {
+            for (var i = 0; i < _behaviors.TailIndex; i++) {
                 // Reference the current behavior
                 var behavior = _behaviors[i];
                 
@@ -103,7 +103,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
                     }
                     
                     // Subtract the timestep/count from the accumulator
-                    _stepAccumulator -= FIXED_TIMESTEP / _behaviors.LastIndex;
+                    _stepAccumulator -= FIXED_TIMESTEP / _behaviors.TailIndex;
                     
                     // Check for any flags         
                     if (behavior == null || !behavior.Registered || behavior.Terminating) continue;

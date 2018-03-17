@@ -75,7 +75,7 @@ namespace InvincibleEngine.Components.AI {
 			
 			// Calculate the average position from the path nodes
 			var pathVectors = _pathNodes.Select(pos => pos.position);
-			_nodeAverage = _pathNodes.Length > 0 ? VektorMath.GetVectorAverage(pathVectors) : _spawnPosition;
+			_nodeAverage = _pathNodes.Length > 0 ? VektorMath.VectorAverage(pathVectors.ToArray()) : _spawnPosition;
 			
 			// Calculate optimized path values
 			_sqrPathEpsilon = Mathf.Pow(_pathEpsilon, 2f);

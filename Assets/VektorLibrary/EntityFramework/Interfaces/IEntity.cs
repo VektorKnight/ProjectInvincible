@@ -32,6 +32,6 @@
         /// <summary>
         /// Called when a behavior is unregistered.
         /// </summary>
-        void OnTerminate();
+        void Terminate();
     }
 }

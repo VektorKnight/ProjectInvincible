@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VektorLibrary.Math;
 
 namespace VektorLibrary.Utility {
 	/// <summary>
@@ -71,140 +72,7 @@ namespace VektorLibrary.Utility {
 			else return Vector3.zero;
 		}
 	}
-	
-	// PID Controller (WIP)
-	[Serializable]
-	public class PidController : ICloneable {
 
-		[Tooltip("Proportional constant (counters current error)")]
-		[SerializeField] private float _kProportion;
-
-		[Tooltip("Integral constant (counters cumulated error)")] 
-		[SerializeField] private float _kIntegral;
-
-		[Tooltip("Derivative constant (fights oscillation)")]
-		[SerializeField] private float _kDerivative;
-
-		[Tooltip("Clamp the PID output to the specified range")] 
-		[SerializeField] private float[] _range = {0f, 1f};
-
-		private float _lastError;
-		private float _integral;
-		private float _derivative;
-		private float _value;
-		
-		/// <summary>
-		/// Create a new PidController
-		/// </summary>
-		/// <param name="kP">Proportional constant</param>
-		/// <param name="kI">Integral constant</param>
-		/// <param name="kD">Derivative constant</param>
-		/// <param name="range">Range of the Pid output, i.e [0f,1f]</param>
-		public PidController(float kP = 1f, float kI = 1f, float kD = 1f, float[] range = null) {
-			_kProportion = kP;
-			_kIntegral = kI;
-			_kDerivative = kD;
-			_range = range ?? new [] {0f, 1f};
-		}
-
-		/// Update the PID based on the given error which was last updated (dt) seconds ago
-		/// <param name="error" />Difference between current and desired outcome.
-		/// <param name="dt" />DeltaTime
-		public float Update(float error, float dt) {
-			_derivative = (error - _lastError) / dt;
-			_integral += error * dt;
-			_lastError = error;
-
-			_value = Mathf.Clamp(_kProportion * error + _kIntegral * _integral + _kDerivative * _derivative, _range[0], _range[1]);
-			return _value;
-		}
-		
-		/// <summary>
-		/// Create a clone of this Pid Controller
-		/// </summary>
-		/// <returns></returns>
-		/// <exception cref="NotImplementedException"></exception>
-		public object Clone() {
-			return new PidController(_kProportion, _kIntegral, _kDerivative, _range);
-		}
-	}
-
-	//Hover Engine class for Vektor Physics
-	[System.Serializable]
-	public class HoverEngine {
-		//Desired Hover Distance
-		[Tooltip("Desired distance at which to hover over the given surface")]
-		public float HoverDistance;
-
-		[Tooltip("Maximum force of the hover engine")] 
-		public float MaxForce;
-    
-		//PID Controller
-		[Tooltip("Adjust these values to modify the responsiveness of the engine")]
-		public PidController HoverPid = new PidController();
-    
-		//Rigidbody Reference
-		private Rigidbody _rigidBody;
-		
-		//World or Local Axis
-		private bool _useWorldAxis;
-		
-		//Engine Values
-		private float _appliedForce;
-    
-		/// <summary>
-		/// Initialize the Engine
-		/// </summary>
-		/// <param name="craftBody">The engine will act on this Rigidbody</param>
-		/// <param name="useWorldAxis">Whether the engine operates on a world or local axis</param>>
-		public void Initialize(Rigidbody craftBody, bool useWorldAxis) {
-			_rigidBody = craftBody;
-			_useWorldAxis = useWorldAxis;
-		}
-
-		/// <summary>
-		/// Update the engine (Must be called in FixedUpdate)
-		/// </summary>
-		/// <param name="validSurface">Whether or not there is a valid surface below</param>>
-		/// <param name="currentDistance">Distance between the craft and the given surface</param>>
-		/// <param name="deltaTime">Time since the last update (should always be FixedDeltaTime)</param>>
-		public void Update (float currentDistance, float deltaTime, bool validSurface) {
-			if (validSurface) {
-				//_appliedForce = HoverPid.Update(HoverDistance - currentDistance, deltaTime) * MaxForce;
-				_appliedForce = HoverPid.Update(HoverDistance - currentDistance, deltaTime) * _rigidBody.mass * Physics.gravity.y * _rigidBody.velocity.y;
-
-				//World or Local
-				if (_useWorldAxis) _rigidBody.AddForce(Vector3.up * _appliedForce, ForceMode.Acceleration);
-				else _rigidBody.AddForce(_rigidBody.transform.up * _appliedForce, ForceMode.Acceleration);
-			}
-			else {
-				HoverPid.Update(0f, deltaTime);
-				_appliedForce = 0f;
-			}
-		}
-
-		/// <summary>
-		/// Update the engine accounting for extra forces (Must be called in FixedUpdate)
-		/// </summary>
-		/// <param name="validSurface">Whether or not there is a valid surface below</param>>
-		/// <param name="currentDistance">Distance between the craft and the given surface</param>>
-		/// <param name="extraForce">Extra force from a spoiler or other component</param>
-		/// <param name="deltaTime">Time since the last update (should always be FixedDeltaTime)</param>>
-		public void Update (float currentDistance, float extraForce, float deltaTime, bool validSurface) {
-			if (validSurface) {
-				_appliedForce = HoverPid.Update(HoverDistance - currentDistance, deltaTime) * (MaxForce + extraForce);
-
-				//World or Local
-				if (_useWorldAxis) _rigidBody.AddForce(Vector3.up * _appliedForce, ForceMode.Force);
-				else _rigidBody.AddForce(_rigidBody.transform.up * _appliedForce, ForceMode.Force);
-			}
-			else {
-				HoverPid.Update(0f, deltaTime);
-				_appliedForce = 0f;
-			}
-		}
-	}
-	
 	// Simple Hover Engine Array for Vektor Physics
 	[System.Serializable]
 	public class HoverArray {
@@ -212,7 +80,7 @@ namespace VektorLibrary.Utility {
 		public Transform[] HoverEngines;
 		
 		// The PiD controller template for the engines
-		public PidController Controller = new PidController();
+		public PIDController Controller = new PIDController();
 
 		// Maximum combined thrust that the array can produce
 		public float MaxThrust;
@@ -233,7 +101,7 @@ namespace VektorLibrary.Utility {
 		private Rigidbody _rigidbody;
 		
 		// Internal PID controller array
-		private PidController[] _pidControllers;
+		private PIDController[] _pidControllers;
 		
 		//Initialization
 		public void Initialize(Rigidbody rigidbody) {
@@ -241,9 +109,9 @@ namespace VektorLibrary.Utility {
 			_perEngineForce = MaxThrust / HoverEngines.Length;
 			
 			// Initialize the PID controller for each engine
-			_pidControllers = new PidController[HoverEngines.Length];
+			_pidControllers = new PIDController[HoverEngines.Length];
 			for (var i = 0; i < _pidControllers.Length; i++) {
-				_pidControllers[i] = (PidController)Controller.Clone();
+				_pidControllers[i] = (PIDController)Controller.Clone();
 			}
 		}
 		
@@ -540,7 +408,7 @@ namespace VektorLibrary.Utility {
 		public float MaxVelocity;
 		
 		//PID Controller
-		public PidController LimiterPid = new PidController();
+		public PIDController LimiterPid = new PIDController();
 		
 		//Rigidbody Reference
 		private Rigidbody _rigidBody;

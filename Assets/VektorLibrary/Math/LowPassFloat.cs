@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using VektorLibrary.Collections;
 
 namespace VektorLibrary.Math {
 	/// <summary>
@@ -13,6 +14,8 @@ namespace VektorLibrary.Math {
 		
 		// Collection of velocity samples over time
 		private readonly Queue<float> _buffer;
+
+		private readonly RingBuffer<float> _ringBuffer;
 
 		// Extreme value threshold (current value < average * (1f + margin))
 		private float _outlierMargin;
@@ -62,7 +65,7 @@ namespace VektorLibrary.Math {
 		// Class Constructor
 		public LowPassFloat(int bufferSize = 16, bool filterOutliers = false, float outlierMargin = 0.5f) {
 			// Sanity checks
-			if (bufferSize <= 0) throw new ArgumentException("Buffer size must be greater than zero!");
+			if (!VektorMath.IsPowerOfTwo(bufferSize)) throw new ArgumentException("Buffer size must be a power of two!");
 			if (outlierMargin <= 0) throw new ArgumentException("Outlier margin must be greater than zero!");
 			
 			// Initialize

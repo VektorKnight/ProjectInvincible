@@ -11,21 +11,19 @@ namespace VektorLibrary.Math {
         }
         
         // Returns the average of an array of Vector3s
-        public static Vector3 GetVectorAverage(IEnumerable<Vector3> vectors, bool normalize = false) {
+        public static Vector3 VectorAverage(Vector3[] vectors, bool normalize = false) {
             var sum = Vector3.zero;
 
             // Make sure we weren't given an empty array
-            var enumerable = vectors as Vector3[] ?? vectors.ToArray();
-            if (!enumerable.Any()) return Vector3.zero;
+            if (vectors.Length == 0) return Vector3.zero;
             
             // Sum the vectors
-            for (var i = 0; i < enumerable.Length; i++) {
-                sum += enumerable[i];
+            for (var i = 0; i < vectors.Length; i++) {
+                sum += vectors[i];
             }
 
             // Return the average or normalized average
-            if (normalize) return (sum / enumerable.Count()).normalized;
-            return sum / enumerable.Count();
+            return normalize ? (sum / vectors.Length).normalized : sum / vectors.Length;
         }
         
         // Calculate distance between two vectors projected onto a plane
@@ -40,6 +38,15 @@ namespace VektorLibrary.Math {
             p1 = Vector3.ProjectOnPlane(p1, normal);
             p2 = Vector3.ProjectOnPlane(p2, normal);
             return Vector3.SqrMagnitude(p2 - p1);
+        }
+
+        /// <summary>
+        /// Check if a given value is a power of two.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <returns>True if power of 2, false otherwise.</returns>
+        public static bool IsPowerOfTwo(int value) {
+            return (value != 0) && ((value & (value - 1)) == 0);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace VektorLibrary.Utility {
         public int ActiveObjects => _objects.Count - _openSet.Count;
 
         // Object Pool
-        private readonly HashSet<GameObject> _objects;
+        private HashSet<GameObject> _objects;
         private Stack<GameObject> _openSet;
 
         // Exceptions
@@ -97,10 +97,11 @@ namespace VektorLibrary.Utility {
 
         // IDisposable Implementation
         public void Dispose() {
-            //Destroy the Open and Closed Sets (Rev. 5/20/17 - 3:35pm)
-            while (_openSet.Count > 0) { Object.Destroy(_openSet.Pop()); }
+            // Destroy all owned objects
+            foreach (var obj in _objects) obj.GetComponent<PooledBehavior>().Terminate();
 
             _pooledObject = null;
+            _objects = null;
             _openSet = null;
         }
     }
