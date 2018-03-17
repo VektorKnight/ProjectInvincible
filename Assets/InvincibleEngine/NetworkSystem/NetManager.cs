@@ -174,7 +174,7 @@ namespace InvincibleEngine.Managers {
 
                             //if we find a lobby member that matches the one on the server
                             //do nothing since he is there
-                            if (LobbyMembers.Find(o => o.SteamID == (ulong)n) != null) {
+                            if (LobbyMembers.Contains(LobbyMembers.Find(o => o.SteamID == (ulong)n))) {
                                 break;
                             }
 
