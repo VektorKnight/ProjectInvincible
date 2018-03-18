@@ -5,11 +5,11 @@ namespace VektorLibrary.Pathfinding.NavGrid {
     [StructLayout(LayoutKind.Sequential)]
     [Serializable] public struct NavGridNode {
         // Node Properties
-        public readonly int X, Y;    // The X,Y indices of this node within it's NavGrid
-        public bool Passable;        // Determines whether this node is passable or not
-        public float Height;         // The height of the geometry at this node
-        public float Slope;          // The steepness of the geometry at this node
-        
+        public readonly int X, Y;           // The X,Y indices of this node within a NavGrid
+        public bool Passable;               // Determines whether this node is passable or not
+        public float Height;                // The height of the geometry at this node
+        public float Slope;                 // The steepness of the geometry at this node
+
         /// <summary>
         /// Create a new NavGridNode with the specified properties.
         /// </summary>

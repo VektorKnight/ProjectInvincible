@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace VektorLibrary.Pathfinding.NavGrid {
-    public struct NavGridConfig {
+    [Serializable] public struct NavGridConfig {
         // Properties: Dimensionality
         public Vector3 Origin;            // The world-space origin of the NavGrid.
         public int Size;                  // The X,Y size of the grid in Unity meters.

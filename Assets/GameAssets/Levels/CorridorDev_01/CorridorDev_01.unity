@@ -280,19 +280,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 643463808}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a3770b6dc904761a9a21f71fe4806f6, type: 3}
+  m_Script: {fileID: 11500000, guid: 240db14caaa0483bb767f721110852c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GroundMask:
-    serializedVersion: 2
-    m_Bits: 256
-  ObstacleMask:
-    serializedVersion: 2
-    m_Bits: 512
-  NodeMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-  NodeMaterials:
-  - {fileID: 2100000, guid: 05c1a86d7a563c74bbee7fde9fb49d72, type: 2}
-  - {fileID: 2100000, guid: ec4ca64dea14b544cb87bd803d86ad00, type: 2}
+  GridConfig:
+    Origin: {x: 0, y: 0, z: 0}
+    Size: 512
+    UnitsPerNode: 2
+    Subdivision: 8
+    MaxHeight: 64
+    MaxSteepness: 0.66
+    GroundMask:
+      serializedVersion: 2
+      m_Bits: 256
+    ObstacleMask:
+      serializedVersion: 2
+      m_Bits: 8704
 --- !u!4 &643463810
 Transform:
   m_ObjectHideFlags: 0

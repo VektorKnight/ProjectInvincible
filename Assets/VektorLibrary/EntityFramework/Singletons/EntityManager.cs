@@ -56,7 +56,6 @@ namespace VektorLibrary.EntityFramework.Singletons {
             
             // Calculate max deltas
             _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
-            
             // We're done here
             _initialized = true;
         }
