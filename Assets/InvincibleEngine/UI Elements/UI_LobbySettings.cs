@@ -7,5 +7,9 @@ namespace InvincibleEngine.UI_Elements {
         public void CreateLobby() {
             NetManager.Singleton.CreateLobby();   
         }
+
+        public void LeaveLobby() {
+            NetManager.Singleton.LeaveLobby();
+        }
     }
 }

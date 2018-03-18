@@ -74,6 +74,13 @@ namespace InvincibleEngine.Managers {
     }
 
     /// <summary>
+    /// Game launch options
+    /// </summary>
+    public class GameOptions {
+        public int map = 0;
+    }
+
+    /// <summary>
     /// Custom attributes for field syncing
     /// </summary>
     public class SyncField : Attribute { bool ditry; }
@@ -95,7 +102,12 @@ namespace InvincibleEngine.Managers {
         public enum NetworkState {
             Hosting, Connected, Stopped
         }
+
+        //Teams
         public Color[] Teams;
+
+        //game options
+        public GameOptions GameOptions;
 
         //ID of game lobby
         [Header("Lobby Data")]
@@ -188,20 +200,33 @@ namespace InvincibleEngine.Managers {
                     }
 
                     //set lobby data
-                    string data = JsonConvert.SerializeObject(LobbyMembers);
-                    SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", data);
+                    string U_LobbyMemberList = JsonConvert.SerializeObject(LobbyMembers);
+                    string U_GameOptions = JsonConvert.SerializeObject(GameOptions);
+
+                    SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", U_LobbyMemberList);
+                    SteamMatchmaking.SetLobbyData(CurrentLobbyID, "1", U_GameOptions);
                 }
 
                 //if we are in a lobby, make sure we have the latest lobby metadata
-                if(networkState==NetworkState.Connected) {
-                   string data= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
-                    if (data.Length > 0) { LobbyMembers = JsonConvert.DeserializeObject<List<LobbyMember>>(data); }
+                if (networkState==NetworkState.Connected) {
+                    string data_0= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
+                    string data_1= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "1");
+
+                    if (data_0.Length > 0 && data_1.Length>0) {
+                        LobbyMembers = JsonConvert.DeserializeObject<List<LobbyMember>>(data_0);
+                        GameOptions = JsonConvert.DeserializeObject<GameOptions>(data_1);
+                    }
                 }
 
                 yield return new WaitForSeconds(1 / LobbyUpdatesPerSecond);
             }
         }
 
+        /// <summary>
+        /// returns avatar of user
+        /// </summary>
+        /// <param name="user">Target user</param>
+        /// <returns></returns>
         public Texture2D GetSmallAvatar(ulong user) {
             int FriendAvatar = SteamFriends.GetMediumFriendAvatar((CSteamID)user);
             uint ImageWidth;
@@ -219,7 +244,7 @@ namespace InvincibleEngine.Managers {
                 return returnTexture;
             }
             else {
-                Debug.LogError("Couldn't get avatar.");
+                Debug.Log("Couldn't get avatar.");
                 return new Texture2D(0, 0);
             }
         }
@@ -258,6 +283,19 @@ namespace InvincibleEngine.Managers {
             else {
                 Debug.Log($"Lobby creation failed because {pCallback.m_eResult}");
             }
+        }
+
+        /// <summary>
+        /// Leaves active lobby
+        /// </summary>
+        public void LeaveLobby() {
+
+            //Leave lobby
+            SteamMatchmaking.LeaveLobby(CurrentLobbyID);
+
+            //clear lobby members
+            LobbyMembers.Clear();
+            networkState = NetworkState.Stopped;
         }
 
         /// <summary>

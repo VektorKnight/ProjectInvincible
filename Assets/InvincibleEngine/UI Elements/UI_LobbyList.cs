@@ -17,9 +17,7 @@ namespace InvincibleEngine.UI_Elements {
         }
         IEnumerator UpdatelobbyList() {
             while(true) {
-                //if there are no new lobbies dont bother updating
-                if (!previousList.SequenceEqual(NetManager.Singleton.lobbyIDS)) {
-                
+               
                     //clear all current lobbies            
                     foreach (Transform n in GLobbyListHolder.transform) {
                         Destroy(n.gameObject);
@@ -33,9 +31,7 @@ namespace InvincibleEngine.UI_Elements {
 
                     //set previous list to current for changes
                     previousList = NetManager.Singleton.lobbyIDS;
-
-                }
-
+                
                 yield return new WaitForSeconds(1);
             }
         }
