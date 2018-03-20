@@ -168,6 +168,7 @@ namespace InvincibleEngine.Managers {
                 m_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
                 m_LobbyJoinRequest = Callback<GameLobbyJoinRequested_t>.Create(OnJoinLobbyRequest);
                 m_LobbyChatMsg = Callback<LobbyChatMsg_t>.Create(OnLobbyChatMsg);
+                m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
 
 
                 //Start Coroutines
@@ -381,12 +382,15 @@ namespace InvincibleEngine.Managers {
                 CSteamID user = (CSteamID)param.m_ulSteamIDUserChanged;
 
                 //if a user just left remove them from the list
-                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) {
+                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeLeft ||
+                    (EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) {
+                    Debug.Log("User Leaving Lobby");
                     LobbyMembers.Remove(LobbyMembers.Find(o => o.SteamID == param.m_ulSteamIDUserChanged));
                     
                 }
                 if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeEntered) {
-                    LobbyMembers.Add(new LobbyMember(0, user.m_SteamID));
+                    Debug.Log("User joinging lobby");
+                   LobbyMembers.Add(new LobbyMember(0, user.m_SteamID));
                 }
 
             }
