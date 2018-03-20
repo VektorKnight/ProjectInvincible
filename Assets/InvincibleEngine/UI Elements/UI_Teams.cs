@@ -8,11 +8,14 @@ namespace InvincibleEngine.UI_Elements {
 
         public GameObject Teams;
         public GameObject PlayerCardPrefab;
-        
-        //remove all player cards, spawn new ones according to whos in the lobby
-        void Update() {
-            if (Teams.transform.childCount != NetManager.Singleton.LobbyMembers.Count) {
 
+        private void Start() {
+            StartCoroutine(UpdateCards());
+        }
+
+        //remove all player cards, spawn new ones according to whos in the lobby
+        IEnumerator UpdateCards() {
+            while (true) {
                 //destroy all current ones
                 foreach (Transform n in Teams.transform) {
                     Destroy(n.gameObject);
@@ -28,11 +31,13 @@ namespace InvincibleEngine.UI_Elements {
                         x.SetReady(n.Ready);
                     }
                 }
-                catch(NullReferenceException) {
+                catch (NullReferenceException) {
                     Debug.Log("List of players is null, possible JSON error");
                 }
-               
+
+                yield return new WaitForSeconds(1);
             }
+           
         }
     }
 }
