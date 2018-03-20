@@ -25,6 +25,7 @@ namespace InvincibleEngine.UI_Elements {
                         x.NameText.text = n.Name;
                         x.SetTeamColor(NetManager.Singleton.Teams[n.Team]);
                         x.SetProfileImage(NetManager.Singleton.GetSmallAvatar(n.SteamID));
+                        x.SetReady(n.Ready);
                     }
                 }
                 catch(NullReferenceException) {

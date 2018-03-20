@@ -164,6 +164,9 @@ MonoBehaviour:
   NameText: {fileID: 114867891602417458}
   Team: {fileID: 114173832824179830}
   PlayerCard: {fileID: 114128471966465382}
+  PanelHolder: {fileID: 114658419785519970}
+  StandardColor: {r: 0.591, g: 0.591, b: 0.591, a: 1}
+  ReadyColor: {r: 0.8205883, g: 1, b: 0.78676474, a: 1}
 --- !u!114 &114658419785519970
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -211,7 +214,7 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
-    m_Font: {fileID: 12800000, guid: eb6d26e270438794aa151a99107aa9cb, type: 3}
+    m_Font: {fileID: 12800000, guid: 26074ac974c335f4ca088a55355baa60, type: 3}
     m_FontSize: 27
     m_FontStyle: 0
     m_BestFit: 0

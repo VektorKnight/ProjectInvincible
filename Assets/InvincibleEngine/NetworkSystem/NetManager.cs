@@ -34,10 +34,19 @@ namespace InvincibleEngine.Managers {
             }
         }
 
-        //Lobby data change request from client to host
-        public class L_PDU : INetMessage {
+        ///Lobby data change request from client to host
+        public class L_RDY : INetMessage {
+          
 
         }
+
+        /// <summary>
+        /// Team Change request from client to host
+        /// </summary>
+        public class L_TCH {
+            public int team;
+        }
+
 
         //lobby closed, everyone leaves
         public class L_CLS : INetMessage {
@@ -128,8 +137,11 @@ namespace InvincibleEngine.Managers {
         public List<CSteamID> lobbyIDS;
         [SerializeField]
         public List<LobbyMember> LobbyMembers = new List<LobbyMember>();
-        public LobbyMember LocalPlayer;
-        public float LaunchGameCountdown = 0;
+
+        //returns local player
+        public LobbyMember LocalPlayer { get { return LobbyMembers.Find(o => o.SteamID == (ulong)SteamUser.GetSteamID()); } }
+
+        public float LaunchGameCountdown = 5;
 
         //Update parameters
         public int LobbyUpdatesPerSecond = 1;
@@ -184,34 +196,25 @@ namespace InvincibleEngine.Managers {
             while (true) {
                 //request the list of lobbies on the server
                 SteamMatchmaking.RequestLobbyList();
-                
+
                 //if we are a host, always update the lobby metadata
-                if (NetworkState==ENetworkState.Hosting) {
-                    
+                if (NetworkState == ENetworkState.Hosting) {
+                    //clear lobby list
+                    LobbyMembers.Clear();
+
                     //get number of players in lobby
                     int numPlayers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
 
+                    Debug.Log("\t Number of players currently in lobby : " + numPlayers);
+                    for (int i = 0; i < numPlayers; i++) {
+                        CSteamID n = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i);
 
-                    //if the number of players changed, someone left or joined
-                    if (numPlayers != LobbyMembers.Count) {
-                        
-                        Debug.Log("\t Number of players currently in lobby : " + numPlayers);
-                        for (int i = 0; i < numPlayers; i++) {
-                            CSteamID n = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i);
-
-                            //if we find a lobby member that matches the one on the server
-                            //do nothing since he is there
-                            if (LobbyMembers.Contains(LobbyMembers.Find(o => o.SteamID == (ulong)n))) {
-                                continue;
-                            }
-
-                            //if we find a player in the lobby that isnt in our list, add him
-                            else {
-                                LobbyMembers.Add(new LobbyMember(1, (ulong)n));
-                            }
-                            
-                        }
+                        LobbyMembers.Add(new LobbyMember(1, (ulong)n));
                     }
+
+                    //sort members in list by team
+                    LobbyMembers.OrderBy(o => o.Team);
+                }
 
                     //set lobby data
                     string U_LobbyMemberList = JsonConvert.SerializeObject(LobbyMembers);
@@ -219,7 +222,7 @@ namespace InvincibleEngine.Managers {
 
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", U_LobbyMemberList);
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "1", U_GameOptions);
-                }
+                
 
                 //if we are in a lobby, make sure we have the latest lobby metadata
                 if (NetworkState==ENetworkState.Connected) {
@@ -234,6 +237,15 @@ namespace InvincibleEngine.Managers {
 
                 yield return new WaitForSeconds(1 / LobbyUpdatesPerSecond);
             }
+        }
+
+        /// <summary>
+        /// Returns lobby member from ID
+        /// </summary>
+        /// <param name="Id">ID of player in question</param>
+        /// <returns></returns>
+        public LobbyMember GetMemberFromID(CSteamID Id) {
+            return LobbyMembers.Find(o => o.SteamID == (ulong)Id);
         }
 
         /// <summary>
@@ -440,10 +452,11 @@ namespace InvincibleEngine.Managers {
             byte[] a_buffer = new byte[4096];
             List<byte> buffer = new List<byte>();
             EChatEntryType chatEntryType;
-            CSteamID source;
+            CSteamID csource;
             int messageSize;
-            messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)pCallback.m_iChatID, out source, a_buffer, 4096, out chatEntryType);
+            messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)pCallback.m_iChatID, out csource, a_buffer, 4096, out chatEntryType);
             buffer = a_buffer.ToList().GetRange(0, messageSize);
+            LobbyMember msource = GetMemberFromID(csource);
 
             //Resolver for all types of lobby messages
             foreach (AmbiguousTypeHolder n in HexSerialize.Unzip(buffer)) {
@@ -460,6 +473,18 @@ namespace InvincibleEngine.Managers {
                     //if the message came from the host only
                     if(NetworkState==ENetworkState.Connected && (CSteamID)pCallback.m_ulSteamIDUser == SteamMatchmaking.GetLobbyOwner(CurrentLobbyID)) {
                         LeaveLobby();
+                    }
+                }
+
+                //Ready message, can only come from clients to host
+                if(n.type==typeof(NetMessage.L_RDY)) {
+                    if(NetworkState== ENetworkState.Hosting) {
+                        if(msource.Ready) {
+                            msource.Ready = false;
+                        }
+                        else {
+                            msource.Ready = true;
+                        }
                     }
                 }
             }
@@ -480,20 +505,42 @@ namespace InvincibleEngine.Managers {
         /// Starts the game with the current game settings, initiates a timer that can be aborted
         /// </summary>
         public void LaunchGame() {
+
+            //Do not start if we are not the host and a player isnt ready
+            if(NetworkState!= ENetworkState.Hosting) {
+
+                return;
+            }
+            foreach(LobbyMember n in LobbyMembers) {
+
+                //dont check if we, the host, are ready
+                if(n.SteamID==(ulong)SteamUser.GetSteamID()) {
+                    continue;
+                }
+                if(!n.Ready) {
+
+                    return;
+                }
+            }
+
+            Debug.Log("Able to start game, starting timer");
+
+            //else start game
             StartCoroutine(LaunchGameTimer());
         }
-        IEnumerator LaunchGameTimer() {
-            var a = new WaitForSecondsRealtime(0.1f);
+        IEnumerator LaunchGameTimer() {        
             while(true) {
-                LaunchGameCountdown += 0.1f;
-                return a;
+                LaunchGameCountdown -= 0.1f;
+                LaunchGameCountdown = Mathf.Clamp(LaunchGameCountdown,0,5);                
+                yield return new WaitForSecondsRealtime(0.1f); ;
             }
         }
         /// <summary>
         /// Aborts the start game,
         /// </summary>
         public void LaunchGameAbort() {
-            LaunchGameCountdown = 0;
+            Debug.Log("Aborting game start");
+            LaunchGameCountdown = 5;
             StopCoroutine(LaunchGameTimer());
         }
 
