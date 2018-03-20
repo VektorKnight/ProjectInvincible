@@ -199,7 +199,7 @@ namespace InvincibleEngine.Managers {
 
                 //if we are a host, always update the lobby metadata
                 if (NetworkState == ENetworkState.Hosting) {
-                    //clear lobby list
+                   /* //clear lobby list
                     LobbyMembers.Clear();
 
                     //get number of players in lobby
@@ -211,7 +211,7 @@ namespace InvincibleEngine.Managers {
 
                         LobbyMembers.Add(new LobbyMember(1, (ulong)n));
                     }
-
+                    */
                     //sort members in list by team
                     LobbyMembers.OrderBy(o => o.Team);
 
@@ -385,6 +385,10 @@ namespace InvincibleEngine.Managers {
                     LobbyMembers.Remove(LobbyMembers.Find(o => o.SteamID == param.m_ulSteamIDUserChanged));
                     
                 }
+                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeEntered) {
+                    LobbyMembers.Add(new LobbyMember(0, user.m_SteamID));
+                }
+
             }
         }
 
@@ -482,13 +486,10 @@ namespace InvincibleEngine.Managers {
 
                 //Ready message, can only come from clients to host
                 if(n.type==typeof(NetMessage.L_RDY)) {
+                    Debug.Log($"Player {msource.Ready} has toggled ready");
                     if(NetworkState== ENetworkState.Hosting) {
-                        if(msource.Ready) {
-                            msource.Ready = false;
-                        }
-                        else {
-                            msource.Ready = true;
-                        }
+                        LobbyMembers.Find(o => o.SteamID == (ulong)csource).Ready = true;
+                        
                     }
                 }
             }
