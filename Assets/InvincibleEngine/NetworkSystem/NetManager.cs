@@ -460,7 +460,7 @@ namespace InvincibleEngine.Managers {
             int messageSize;
             messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)pCallback.m_iChatID, out csource, a_buffer, 4096, out chatEntryType);
             buffer = a_buffer.ToList().GetRange(0, messageSize);
-            LobbyMember msource = GetMemberFromID(csource);
+            LobbyMember msource = LobbyMembers.Find(o => o.SteamID == (ulong)csource);
 
             //Resolver for all types of lobby messages
             foreach (AmbiguousTypeHolder n in HexSerialize.Unzip(buffer)) {
