@@ -214,7 +214,7 @@ namespace InvincibleEngine.Managers {
 
                     //sort members in list by team
                     LobbyMembers.OrderBy(o => o.Team);
-                }
+
 
                     //set lobby data
                     string U_LobbyMemberList = JsonConvert.SerializeObject(LobbyMembers);
@@ -222,12 +222,16 @@ namespace InvincibleEngine.Managers {
 
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", U_LobbyMemberList);
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "1", U_GameOptions);
-                
+
+                }
+
 
                 //if we are in a lobby, make sure we have the latest lobby metadata
                 if (NetworkState==ENetworkState.Connected) {
                     string data_0= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
                     string data_1= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "1");
+
+                    Debug.Log(data_0 +" :: " + data_1);
 
                     if (data_0.Length > 0 && data_1.Length>0) {
                         LobbyMembers = JsonConvert.DeserializeObject<List<LobbyMember>>(data_0);
