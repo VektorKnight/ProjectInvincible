@@ -168,6 +168,7 @@ namespace InvincibleEngine.Managers {
                 m_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
                 m_LobbyJoinRequest = Callback<GameLobbyJoinRequested_t>.Create(OnJoinLobbyRequest);
                 m_LobbyChatMsg = Callback<LobbyChatMsg_t>.Create(OnLobbyChatMsg);
+                m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
 
 
                 //Start Coroutines
@@ -199,7 +200,7 @@ namespace InvincibleEngine.Managers {
 
                 //if we are a host, always update the lobby metadata
                 if (NetworkState == ENetworkState.Hosting) {
-                    //clear lobby list
+                   /* //clear lobby list
                     LobbyMembers.Clear();
 
                     //get number of players in lobby
@@ -211,10 +212,10 @@ namespace InvincibleEngine.Managers {
 
                         LobbyMembers.Add(new LobbyMember(1, (ulong)n));
                     }
-
+                    */
                     //sort members in list by team
                     LobbyMembers.OrderBy(o => o.Team);
-                }
+
 
                     //set lobby data
                     string U_LobbyMemberList = JsonConvert.SerializeObject(LobbyMembers);
@@ -222,12 +223,16 @@ namespace InvincibleEngine.Managers {
 
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", U_LobbyMemberList);
                     SteamMatchmaking.SetLobbyData(CurrentLobbyID, "1", U_GameOptions);
-                
+
+                }
+
 
                 //if we are in a lobby, make sure we have the latest lobby metadata
                 if (NetworkState==ENetworkState.Connected) {
                     string data_0= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
                     string data_1= SteamMatchmaking.GetLobbyData(CurrentLobbyID, "1");
+
+                    Debug.Log(data_0 +" :: " + data_1);
 
                     if (data_0.Length > 0 && data_1.Length>0) {
                         LobbyMembers = JsonConvert.DeserializeObject<List<LobbyMember>>(data_0);
@@ -377,10 +382,17 @@ namespace InvincibleEngine.Managers {
                 CSteamID user = (CSteamID)param.m_ulSteamIDUserChanged;
 
                 //if a user just left remove them from the list
-                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) {
+                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeLeft ||
+                    (EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeDisconnected) {
+                    Debug.Log("User Leaving Lobby");
                     LobbyMembers.Remove(LobbyMembers.Find(o => o.SteamID == param.m_ulSteamIDUserChanged));
                     
                 }
+                if ((EChatMemberStateChange)param.m_rgfChatMemberStateChange == EChatMemberStateChange.k_EChatMemberStateChangeEntered) {
+                    Debug.Log("User joinging lobby");
+                   LobbyMembers.Add(new LobbyMember(0, user.m_SteamID));
+                }
+
             }
         }
 
@@ -456,7 +468,7 @@ namespace InvincibleEngine.Managers {
             int messageSize;
             messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)pCallback.m_iChatID, out csource, a_buffer, 4096, out chatEntryType);
             buffer = a_buffer.ToList().GetRange(0, messageSize);
-            LobbyMember msource = GetMemberFromID(csource);
+            LobbyMember msource = LobbyMembers.Find(o => o.SteamID == (ulong)csource);
 
             //Resolver for all types of lobby messages
             foreach (AmbiguousTypeHolder n in HexSerialize.Unzip(buffer)) {
@@ -478,13 +490,10 @@ namespace InvincibleEngine.Managers {
 
                 //Ready message, can only come from clients to host
                 if(n.type==typeof(NetMessage.L_RDY)) {
+                    Debug.Log($"Player {msource.Ready} has toggled ready");
                     if(NetworkState== ENetworkState.Hosting) {
-                        if(msource.Ready) {
-                            msource.Ready = false;
-                        }
-                        else {
-                            msource.Ready = true;
-                        }
+                        LobbyMembers.Find(o => o.SteamID == (ulong)csource).Ready = true;
+                        
                     }
                 }
             }
