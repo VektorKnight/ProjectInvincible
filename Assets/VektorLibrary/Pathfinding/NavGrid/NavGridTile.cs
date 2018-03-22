@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using UnityEngine;
 using VektorLibrary.Math;
 
 namespace VektorLibrary.Pathfinding.NavGrid {
@@ -24,9 +25,9 @@ namespace VektorLibrary.Pathfinding.NavGrid {
             if (x < 0 || y < 0) 
                 throw new ArgumentException("The X and Y indices of a tile must be non-negative!");
             
-            // Sanity Check: L must be greater than zero and a power of two
-            if (l <= 0 || !VektorMath.IsPowerOfTwo(l)) 
-                throw new ArgumentException("The side-length of a tile must be greater than zero and a power of two!");
+            // Sanity Check: L must be greater than zero and a multiple of two
+            if (l <= 0 || l % 2 != 0) 
+                throw new ArgumentException("The side-length of a tile must be greater than zero and a multiple of two!");
             
             // Initialize values
             X = x;
@@ -42,17 +43,17 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// </summary>
         /// <param name="x">The X index of the node.</param>
         /// <param name="y">The Y index of the node.</param>
-        public NavGridNode GetNode(int x, int y) {
+        public NavGridNode GetNode(Vector2Int gridPos) {
             // Throw an exception of the node does not exist in this tile.
-            if (!ContainsNode(x, y))
+            if (!ContainsNode(gridPos))
                 throw new IndexOutOfRangeException("The specified node does not exist within this tile!");
             
             // Convert grid-space to tile-space
-            x -= X * L;
-            y -= Y * L;
+            gridPos.x -= X * L;
+            gridPos.y -= Y * L;
             
             // Convert x,y to a sequential index and return the node
-            return Nodes[L * y + x];
+            return Nodes[L * gridPos.y + gridPos.x];
         }
         
         /// <summary>
@@ -61,11 +62,11 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// <param name="x">The X index of the node to check.</param>
         /// <param name="y">The Y index of the node to check.</param>
         /// <returns>True if a node exists at the specified indices.</returns>
-        public bool ContainsNode(int x, int y) {
+        public bool ContainsNode(Vector2Int gridPos) {
             // Convert grid-space point to tile-space
-            x -= X * L;
-            y -= Y * L;
-            var i = (L * y + x);
+            gridPos.x -= X * L;
+            gridPos.y -= Y * L;
+            var i = (L * gridPos.y + gridPos.x);
             
             // Return true if the index exists within this tile
             return i >= 0 && i < Nodes.Length;
@@ -77,7 +78,7 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// <param name="node"></param>
         /// <returns>True if a node exists at the specified indices.</returns>
         public bool ContainsNode(NavGridNode node) {
-            return ContainsNode(node.X, node.Y);
+            return ContainsNode(node.GridPosition);
         }
     }
 }
