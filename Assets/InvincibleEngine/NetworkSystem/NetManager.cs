@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using InvincibleEngine.Networking;
 using Newtonsoft.Json;
 using InvincibleEngine.Managers;
@@ -107,10 +108,6 @@ namespace InvincibleEngine.Managers {
     /// </summary>
     public class NetManager : SteamHelper {
 
-        //Singleton Implementation
-        private static NetManager _Singleton = null;
-        public static NetManager Singleton { get { if (_Singleton == null) { _Singleton = GameObject.Find("Managers").GetComponent<NetManager>(); } return _Singleton; } private set { } }
-
         //TODO: Refactor to account for lobbies and games
         //Server State
         [Header("State of network")]
@@ -129,7 +126,7 @@ namespace InvincibleEngine.Managers {
         public Color[] Teams;
 
         //game options
-        public GameOptions GameOptions;
+        public GameOptions GameOptions = new GameOptions();
 
         //Lobby Data
         [Header("Lobby Data")]
@@ -146,9 +143,29 @@ namespace InvincibleEngine.Managers {
         //Update parameters
         public int LobbyUpdatesPerSecond = 1;
 
-        //Exposed network data
+        // Singleton Instance Accessor
+        public static NetManager Instance { get; private set; }
 
+        // Preload Method
+        [RuntimeInitializeOnLoadMethod]
+        private static void Preload() {
+            //Make sure the Managers object exists
+            GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
+
+            // Ensure this singleton initializes at startup
+            if (Instance == null) Instance = Managers.AddComponent<NetManager>();
+
+            // Ensure this singleton does not get destroyed on scene load
+            DontDestroyOnLoad(Instance.gameObject);
+        }
+
+        //Exposed network data
         public  void Start() {
+
+            //If not loaded into lobby, do not do anything
+            if(SceneManager.GetActiveScene().name != "Lobby") {
+                Debug.LogFormat("In order for networking to operate you must launch a match from the primary lobby scene", Color.red);
+            }
 
             //Restart if overlay is not injected
             SteamAPI.RestartAppIfNecessary((AppId_t)APP_ID);

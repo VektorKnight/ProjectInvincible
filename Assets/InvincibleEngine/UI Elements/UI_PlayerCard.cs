@@ -12,7 +12,7 @@ namespace InvincibleEngine.UI_Elements {
         public Color ReadyColor;
 
         private void Start() {
-            PanelHolder.color = StandardColor;
+            //PanelHolder.color = StandardColor;
         }
 
         public  void SetTeamColor(Color color) {
@@ -24,6 +24,7 @@ namespace InvincibleEngine.UI_Elements {
         }
 
         public void SetReady(bool toggle) {
+            Debug.Log($"Setting color to {toggle}");
             if(toggle) {
                 PanelHolder.color = ReadyColor;
             }

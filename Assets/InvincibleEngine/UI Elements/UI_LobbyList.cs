@@ -24,13 +24,13 @@ namespace InvincibleEngine.UI_Elements {
                     }
 
                     //populate lobby list
-                    for (int i = 0; i < NetManager.Singleton.lobbyIDS.Count; i++) {
+                    for (int i = 0; i <NetManager.Instance.lobbyIDS.Count; i++) {
                         GameObject x = Instantiate(GLobbyOptionPrefab, GLobbyListHolder.transform);
-                        x.GetComponent<UI_LobbyOption>().Set(NetManager.Singleton.lobbyIDS[i].ToString(), new Vector2(1, 10), i);
+                        x.GetComponent<UI_LobbyOption>().Set(NetManager.Instance.lobbyIDS[i].ToString(), new Vector2(1, 10), i);
                     }
 
                     //set previous list to current for changes
-                    previousList = NetManager.Singleton.lobbyIDS;
+                    previousList =NetManager.Instance.lobbyIDS;
                 
                 yield return new WaitForSeconds(1);
             }

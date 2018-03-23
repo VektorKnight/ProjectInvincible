@@ -8,28 +8,29 @@ namespace InvincibleEngine.UI_Elements {
         public Text CountdownTimer;
 
         public void CreateLobby() {
-            NetManager.Singleton.CreateLobby();   
+           NetManager.Instance.CreateLobby();   
         }
 
         public void LeaveLobby() {
-            NetManager.Singleton.LeaveLobby();
+           NetManager.Instance.LeaveLobby();
+            
         }
 
         /// <summary>
         /// If host, request to start game countdown, if client toggle ready
         /// </summary>
         public void OnReady() {
-            if(NetManager.Singleton.NetworkState== NetManager.ENetworkState.Connected) {
-                NetManager.Singleton.SendLobbyChatMsg(new NetMessage.L_RDY());
+            if(NetManager.Instance.NetworkState== NetManager.ENetworkState.Connected) {
+               NetManager.Instance.SendLobbyChatMsg(new NetMessage.L_RDY());
             }
 
-            if(NetManager.Singleton.NetworkState== NetManager.ENetworkState.Hosting) {
-                NetManager.Singleton.LaunchGame();
+            if(NetManager.Instance.NetworkState== NetManager.ENetworkState.Hosting) {
+               NetManager.Instance.LaunchGame();
             }
         }
 
         public void Update() {
-            CountdownTimer.text = NetManager.Singleton.LaunchGameCountdown.ToString("0.00");
+            CountdownTimer.text =NetManager.Instance.LaunchGameCountdown.ToString("0.0");
         }
     }
 }

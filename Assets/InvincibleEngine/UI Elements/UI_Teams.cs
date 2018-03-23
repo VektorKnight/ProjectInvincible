@@ -23,11 +23,13 @@ namespace InvincibleEngine.UI_Elements {
 
                 //create new player cards
                 try {
-                    foreach (LobbyMember n in NetManager.Singleton.LobbyMembers) {
+                    foreach (LobbyMember n in NetManager.Instance.LobbyMembers) {
                         UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
                         x.NameText.text = n.Name;
-                        x.SetTeamColor(NetManager.Singleton.Teams[n.Team]);
-                        x.SetProfileImage(NetManager.Singleton.GetSmallAvatar(n.SteamID));
+                        x.SetTeamColor(NetManager.Instance.Teams[n.Team]);
+                        x.SetProfileImage(NetManager.Instance.GetSmallAvatar(n.SteamID));
+
+                        Debug.Log($"Making player card with status {n.Ready}");
                         x.SetReady(n.Ready);
                     }
                 }

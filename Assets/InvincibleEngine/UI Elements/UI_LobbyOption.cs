@@ -13,7 +13,7 @@ namespace InvincibleEngine.UI_Elements {
             Index = index;
         }
         public void OnSelect() {
-            NetManager.Singleton.JoinLobby(Index);
+           NetManager.Instance.JoinLobby(Index);
         }
     }
 }

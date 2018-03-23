@@ -165,7 +165,7 @@ MonoBehaviour:
   Team: {fileID: 114173832824179830}
   PlayerCard: {fileID: 114128471966465382}
   PanelHolder: {fileID: 114658419785519970}
-  StandardColor: {r: 0.591, g: 0.591, b: 0.591, a: 1}
+  StandardColor: {r: 1, g: 0.6544118, b: 0.6544118, a: 1}
   ReadyColor: {r: 0.8205883, g: 1, b: 0.78676474, a: 1}
 --- !u!114 &114658419785519970
 MonoBehaviour:
