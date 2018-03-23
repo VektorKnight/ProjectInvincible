@@ -8,7 +8,7 @@ namespace InvincibleEngine.UI_Elements {
         public InputField Input;
         public void PostChat() {
             Debug.Log("posting chat");
-            NetManager.Singleton.SendLobbyChatMsg(new NetMessage.L_CHT(Input.text));
+           NetManager.Instance.SendLobbyChatMsg(new NetMessage.L_CHT(Input.text));
             Input.text = "";
         }
         private void Update() {

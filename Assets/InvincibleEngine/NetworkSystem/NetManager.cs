@@ -122,16 +122,25 @@ namespace InvincibleEngine.Managers {
             Started, Ended, Paused
         }
 
+        public bool IsHost { get { if (NetworkState == ENetworkState.Hosting) { return true; } else { return false; } } }
+
         //Teams
-        public Color[] Teams;
+        public Color[] TeamColors = new Color[] {
+            new Color(1.0f, 0.5f, 0.5f),
+            new Color(0.3f,0.5f,1.0f),
+            new Color(0.4f,1.0f,0.5f),
+            new Color(1.0f,1.0f,0.4f),
+            new Color(1.0f,0.4f,1.0f),
+            new Color(0.3f,1.0f,1.0f)
+        };
 
         //game options
         public GameOptions GameOptions = new GameOptions();
 
         //Lobby Data
         [Header("Lobby Data")]
-        public CSteamID CurrentLobbyID;
-        public List<CSteamID> lobbyIDS;
+        public CSteamID CurrentLobbyID = new CSteamID();
+        public List<CSteamID> lobbyIDS = new List<CSteamID>();
         [SerializeField]
         public List<LobbyMember> LobbyMembers = new List<LobbyMember>();
 
@@ -147,7 +156,7 @@ namespace InvincibleEngine.Managers {
         public static NetManager Instance { get; private set; }
 
         // Preload Method
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Preload() {
             //Make sure the Managers object exists
             GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
@@ -163,8 +172,9 @@ namespace InvincibleEngine.Managers {
         public  void Start() {
 
             //If not loaded into lobby, do not do anything
-            if(SceneManager.GetActiveScene().name != "Lobby") {
-                Debug.LogFormat("In order for networking to operate you must launch a match from the primary lobby scene", Color.red);
+            if(SceneManager.GetActiveScene().name != "MainLobby") {
+                Debug.LogFormat("<color=black><size=14><b>In order for networking to operate you must launch a match from the primary lobby scene</b></size></color>");
+                return;
             }
 
             //Restart if overlay is not injected
@@ -557,7 +567,14 @@ namespace InvincibleEngine.Managers {
         IEnumerator LaunchGameTimer() {        
             while(true) {
                 LaunchGameCountdown -= 0.1f;
-                LaunchGameCountdown = Mathf.Clamp(LaunchGameCountdown,0,5);                
+                LaunchGameCountdown = Mathf.Clamp(LaunchGameCountdown,0,5);  
+                
+                //if timer hits 0, begin game and stop timer
+                if(LaunchGameCountdown==0) {
+                    Debug.Log("Starting Game...");
+                    MatchManager.Instance.StartMatch(IsHost, 1);
+                    break;
+                }
                 yield return new WaitForSecondsRealtime(0.1f); ;
             }
         }
@@ -570,12 +587,6 @@ namespace InvincibleEngine.Managers {
             StopCoroutine(LaunchGameTimer());
         }
 
-        /// <summary>
-        /// Make connections with all players and set proper parameters
-        /// </summary>
-        public void OnGameStart() {
-
-        }
 
         /// <summary>
         /// Ensure Steam shuts down before close

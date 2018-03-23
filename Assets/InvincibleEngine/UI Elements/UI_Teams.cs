@@ -26,7 +26,7 @@ namespace InvincibleEngine.UI_Elements {
                     foreach (LobbyMember n in NetManager.Instance.LobbyMembers) {
                         UI_PlayerCard x = Instantiate(PlayerCardPrefab, Teams.transform).GetComponent<UI_PlayerCard>();
                         x.NameText.text = n.Name;
-                        x.SetTeamColor(NetManager.Instance.Teams[n.Team]);
+                        x.SetTeamColor(NetManager.Instance.TeamColors[n.Team]);
                         x.SetProfileImage(NetManager.Instance.GetSmallAvatar(n.SteamID));
 
                         Debug.Log($"Making player card with status {n.Ready}");

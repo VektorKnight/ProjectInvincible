@@ -4,6 +4,7 @@ using System.Linq;
 using InvincibleEngine.Managers;
 using UnityEngine;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
+using System;
 
 namespace InvincibleEngine.UI_Elements {
     public class UI_LobbyList : MonoBehaviour {
@@ -17,21 +18,24 @@ namespace InvincibleEngine.UI_Elements {
         }
         IEnumerator UpdatelobbyList() {
             while(true) {
-               
+                try {
                     //clear all current lobbies            
                     foreach (Transform n in GLobbyListHolder.transform) {
                         Destroy(n.gameObject);
                     }
 
                     //populate lobby list
-                    for (int i = 0; i <NetManager.Instance.lobbyIDS.Count; i++) {
+                    for (int i = 0; i < NetManager.Instance.lobbyIDS.Count; i++) {
                         GameObject x = Instantiate(GLobbyOptionPrefab, GLobbyListHolder.transform);
                         x.GetComponent<UI_LobbyOption>().Set(NetManager.Instance.lobbyIDS[i].ToString(), new Vector2(1, 10), i);
                     }
 
                     //set previous list to current for changes
-                    previousList =NetManager.Instance.lobbyIDS;
-                
+                    previousList = NetManager.Instance.lobbyIDS;
+                }
+                catch(Exception x) {
+                    Debug.Log(x);
+                }
                 yield return new WaitForSeconds(1);
             }
         }

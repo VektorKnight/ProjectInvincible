@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// The Game manager is in charge of issuing commands, scraping data for network, loading levels, and most other game functions
@@ -15,6 +16,9 @@ public class MatchManager : MonoBehaviour {
 
     //Stats about the game that just occured
     public GameStats PreviousGameStats = new GameStats();
+
+    public bool MatchStarted = false;
+    public bool MatchHost = false;
 
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
@@ -33,9 +37,20 @@ public class MatchManager : MonoBehaviour {
     }
 
     /// <summary>
+    /// Starts match, loads into desired scene with parameters
+    /// </summary>
+    public void StartMatch(bool isHost, int level) {
+
+        //load scene, set parameters
+        SceneManager.LoadScene(level);
+        MatchStarted = true;
+        MatchHost = isHost;
+    }
+
+    /// <summary>
     /// Ends game, returns to lobby scene with after game report
     /// </summary>
-    public void EndGame() {
+    public void EndMatch() {
 
     }
 }

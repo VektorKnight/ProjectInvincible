@@ -57,7 +57,7 @@ public class CameraControl : MonoBehaviour
         }
 
         //WASD Camera control
-        float boost = 2;
+       /* float boost = 2;
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         { boost = 4; }
         if (Input.GetKey(KeyCode.W))
@@ -72,7 +72,7 @@ public class CameraControl : MonoBehaviour
         if (Input.GetKey(KeyCode.D))
         { transform.Translate(Vector3.right * moveSpeed * boost, Space.World); targetDestination = transform.position;
         }
-
+        */
         //zoom control
         RaycastHit hit = new RaycastHit();
         Ray ray = MainCamera.ScreenPointToRay(Input.mousePosition);
