@@ -120,7 +120,7 @@ namespace InvincibleEngine.Managers {
         [Header("State of game")]
         public EGameState GameState;
         public enum EGameState {
-            Started, Ended, Paused
+            InLobby, Started, Ended, Paused
         }
 
         public bool IsHost { get { if (NetworkState == ENetworkState.Hosting) { return true; } else { return false; } } }
@@ -304,6 +304,19 @@ namespace InvincibleEngine.Managers {
             else {
                 Debug.Log("Couldn't get avatar.");
                 return new Texture2D(0, 0);
+            }
+        }
+
+        /// <summary>
+        /// Checks for status in lobby
+        /// </summary>
+        public void FixedUpdate() {
+
+            //if timer hits 0, begin game and stop timer
+            if (GameOptions.Timer == 0 && GameState== EGameState.InLobby) {
+                Debug.Log("Starting Game...");
+                MatchManager.Instance.StartMatch(IsHost, 1);
+                GameState = EGameState.Started;
             }
         }
 
@@ -569,13 +582,7 @@ namespace InvincibleEngine.Managers {
             while(true) {
                 GameOptions.Timer -= 0.1f;
                 GameOptions.Timer = Mathf.Clamp(GameOptions.Timer, 0,5);  
-                
-                //if timer hits 0, begin game and stop timer
-                if(GameOptions.Timer == 0) {
-                    Debug.Log("Starting Game...");
-                    MatchManager.Instance.StartMatch(IsHost, 1);
-                    break;
-                }
+              
                 yield return new WaitForSecondsRealtime(0.1f); ;
             }
         }
