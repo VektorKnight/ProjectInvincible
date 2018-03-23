@@ -93,7 +93,8 @@ namespace InvincibleEngine.Managers {
     /// Game launch options
     /// </summary>
     public class GameOptions {
-        public int map = 0;
+        public int map = 1;
+        public float Timer = 5;
         public bool GameStarted = false;
     }
 
@@ -147,7 +148,6 @@ namespace InvincibleEngine.Managers {
         //returns local player
         public LobbyMember LocalPlayer { get { return LobbyMembers.Find(o => o.SteamID == (ulong)SteamUser.GetSteamID()); } }
 
-        public float LaunchGameCountdown = 5;
 
         //Update parameters
         public int LobbyUpdatesPerSecond = 1;
@@ -544,9 +544,10 @@ namespace InvincibleEngine.Managers {
 
             //Do not start if we are not the host and a player isnt ready
             if(NetworkState!= ENetworkState.Hosting) {
-
                 return;
             }
+
+            //Make sure everyone is ready
             foreach(LobbyMember n in LobbyMembers) {
 
                 //dont check if we, the host, are ready
@@ -566,11 +567,11 @@ namespace InvincibleEngine.Managers {
         }
         IEnumerator LaunchGameTimer() {        
             while(true) {
-                LaunchGameCountdown -= 0.1f;
-                LaunchGameCountdown = Mathf.Clamp(LaunchGameCountdown,0,5);  
+                GameOptions.Timer -= 0.1f;
+                GameOptions.Timer = Mathf.Clamp(GameOptions.Timer, 0,5);  
                 
                 //if timer hits 0, begin game and stop timer
-                if(LaunchGameCountdown==0) {
+                if(GameOptions.Timer == 0) {
                     Debug.Log("Starting Game...");
                     MatchManager.Instance.StartMatch(IsHost, 1);
                     break;
@@ -578,12 +579,13 @@ namespace InvincibleEngine.Managers {
                 yield return new WaitForSecondsRealtime(0.1f); ;
             }
         }
+
         /// <summary>
         /// Aborts the start game,
         /// </summary>
         public void LaunchGameAbort() {
             Debug.Log("Aborting game start");
-            LaunchGameCountdown = 5;
+            GameOptions.Timer = 5;
             StopCoroutine(LaunchGameTimer());
         }
 
