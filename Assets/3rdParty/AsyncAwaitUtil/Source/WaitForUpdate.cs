@@ -1,10 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using UnityEngine;
 
 // This can be used as a way to return to the main unity thread when using multiple threads
 // with async methods
-namespace _3rdParty.AsyncAwaitUtil.Source {
-    public class WaitForUpdate : CustomYieldInstruction
+public class WaitForUpdate : CustomYieldInstruction
+{
+    public override bool keepWaiting
     {
-        public override bool keepWaiting => false;
+        get { return false; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -12,10 +14,11 @@ namespace VektorLibrary.Pathfinding.NavGrid {
     /// <summary>
     /// Represents a navigational space using nodes in a regular grid pattern.
     /// </summary>
-    [Serializable] public class NavGrid : ScriptableObject {
+    [Serializable] public class NavGrid {
         
         // Public Readonly: Read/Write Lock for Threading
-        public ReaderWriterLockSlim ThreadLock { get; } = new ReaderWriterLockSlim();
+        [JsonIgnore]
+        public ReaderWriterLock ThreadLock { get; } = new ReaderWriterLock();
 
         // Private: NavGrid Data
         public NavGridTile[] Tiles { get; private set; }    // Subdivisions of the larger grid for optimization
@@ -30,7 +33,7 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// Creates a new NavGrid with the specified parameters.
         /// </summary>
         /// <param name="config">The configuration for this NavGrid.</param>
-        public void Initialize(NavGridConfig config) {
+        public NavGrid (NavGridConfig config) {
             // Sanity Check: Size, Subdivision, and Units Per Node must be multiples of two
             if (config.Size % 2 != 0 || config.Subdivision % 2 != 0 || config.UnitsPerNode <= 0)
                 throw new ArgumentException("Grid size and subdivision must be multiples of two!");
@@ -108,9 +111,34 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// </summary>
         /// <param name="gridPos">The grid-space position.</param>
         public NavGridTile GetTile(Vector2Int gridPos) {
-            gridPos.x *= Config.Subdivision / Config.Dimension;
-            gridPos.y *= Config.Subdivision / Config.Dimension;
-            return Tiles[Config.Subdivision * gridPos.y + gridPos.x];
+            var tileX = (gridPos.x * Config.Subdivision) / Config.Dimension;
+            var tileY = (gridPos.y *Config.Subdivision) / Config.Dimension;
+            return Tiles[Config.Subdivision * tileY + tileX];
+        }
+        
+        /// <summary>
+        /// Returns any valid neighbors of the specified node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        public List<NavGridNode> GetNeighbours(NavGridNode node) {
+            var neighbours = new List<NavGridNode>();
+
+            for (var x = -1; x <= 1; x++) {
+                for (var y = -1; y <= 1; y++) {
+                    if (x == 0 && y == 0)
+                        continue;
+
+                    var checkX = node.GridPosition.x + x;
+                    var checkY = node.GridPosition.y + y;
+
+                    if (checkX >= 0 && checkX < Config.Dimension && checkY >= 0 && checkY < Config.Dimension) {
+                        neighbours.Add(GetNode(new Vector2Int(checkX, checkY)));
+                    }
+                }
+            }
+
+            return neighbours;
         }
         
         /// <summary>
@@ -140,7 +168,7 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// <returns>The grid-space conversion of the point.</returns>
         public Vector2Int WorldToGrid(Vector3 pos) {
             return new Vector2Int(Mathf.RoundToInt((pos.x - Config.Origin.x) / Config.UnitsPerNode),
-                Mathf.RoundToInt((pos.z - Config.Origin.z) / Config.UnitsPerNode));
+                                  Mathf.RoundToInt((pos.z - Config.Origin.z) / Config.UnitsPerNode));
         }
         
         /// <summary>

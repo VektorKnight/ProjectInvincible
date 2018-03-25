@@ -1,5 +1,4 @@
 ﻿using System;
-using InvincibleEngine.InputSystem;
 using UnityEngine;
 
 namespace InvincibleEngine.DataTypes {
@@ -27,7 +26,6 @@ namespace InvincibleEngine.DataTypes {
         public bool EnableSfx;
         
         // Input Settings
-        public InputMode InputMode;
         public float MouseSensitivity;
         public float StickSensitivity;
         public bool InvertHorizontal;
@@ -52,8 +50,6 @@ namespace InvincibleEngine.DataTypes {
             SfxVolume = 1.0f;
             EnableMusic = true;
             EnableSfx = true;
-            
-            InputMode = InputMode.Keyboard;
             MouseSensitivity = 1.0f;
             StickSensitivity = 1.0f;
             InvertHorizontal = false;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,7 +7,7 @@ namespace VektorLibrary.Utility {
     /// <summary>
     /// Utility class for drawing various debug readouts to the game screen.
     /// </summary>
-    public class DebugReadout : MonoBehaviour{
+    public class DebugReadout : MonoBehaviour {
         
         // Singleton Instance & Accessor
         private static DebugReadout _singleton;
@@ -101,8 +102,9 @@ namespace VektorLibrary.Utility {
         
         // Update an existing debug field
         public static void UpdateField(string key, string value) {
-            // Exit if the specified key does not exist
-            if (!Instance._debugFields.ContainsKey(key)) return;
+            // Create a new field if the specified field doesn't exist
+            if (!Instance._debugFields.ContainsKey(key))
+                Instance._debugFields.Add(key, value);
             
             // Update the specified field with the new value
             Instance._debugFields[key] = value;
@@ -125,13 +127,13 @@ namespace VektorLibrary.Utility {
             //UpdateField("Pool Total", GlobalObjectManager.TotalObjectCount.ToString());
             
             // Iterate through the debug fields and add them to the readout
-            var displayText = "";
+            var displayText = new StringBuilder();
             foreach (var field in Instance._debugFields) {
-                displayText += $"{field.Key}: {field.Value}\n";
+                displayText.Append($"{field.Key}: {field.Value}\n");
             }
             
             // Set the readout text
-            Instance._debugText.text = displayText;
+            Instance._debugText.text = displayText.ToString();
         }
     }
 }

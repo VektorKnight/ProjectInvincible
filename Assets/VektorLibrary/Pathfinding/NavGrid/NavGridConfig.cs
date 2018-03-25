@@ -9,6 +9,7 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         public int UnitsPerNode;          // Number of Unity meters per node (Default is 4:1)
         public int Subdivision;           // The grid subdivided based on this value (must be a power of two).
         public int Dimension => Size / UnitsPerNode;
+        public int NodeCount => Dimension * Dimension;
 
         // Properties: Passability
         public float MaxHeight;           // Maximum height of a node before it is marked as impassable.

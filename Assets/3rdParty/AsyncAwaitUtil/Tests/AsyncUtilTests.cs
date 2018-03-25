@@ -6,11 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
-using _3rdParty.AsyncAwaitUtil.Source;
-using _3rdParty.AsyncAwaitUtil.Tests.Util;
 using Debug = UnityEngine.Debug;
 
-namespace _3rdParty.AsyncAwaitUtil.Tests
+namespace UnityAsyncAwaitUtil
 {
     public class AsyncUtilTests : MonoBehaviour
     {

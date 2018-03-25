@@ -1,18 +1,44 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using VektorLibrary.Collections;
+using VektorLibrary.Pathfinding.NavGrid.AStar;
+using VektorLibrary.Utility;
 using Debug = UnityEngine.Debug;
+using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace VektorLibrary.Pathfinding.NavGrid {
     public static class NavGridUtility {
+        
+        public static Dictionary<string, NavGrid> NavGrids = new Dictionary<string, NavGrid>();
+
+        public static NavGrid GetSceneNavGrid() {
+            // Check if the NavGrid is already loaded
+            var sceneName = SceneManager.GetActiveScene().name;
+            if (NavGrids.ContainsKey(sceneName))
+                return NavGrids[sceneName];
+            
+            // Load the NavGrid for this scene
+            var gridName = sceneName + "_NavGrid";
+            var navGridAsset = Resources.Load<NavGridAsset>(gridName);
+            var navGrid = navGridAsset.Deserialize();
+            NavGrids.Add(sceneName, navGrid);
+            return navGrid;
+        }
+        
         /// <summary>
         /// Asynchronously generates a mesh from the provided navgrid and returns the result.
+        /// Designed to be awaited from the main Unity thread. Threaded work is handled internally.
         /// </summary>
         /// <param name="grid"></param>
         /// <returns>A mesh representation of the supplied grid.</returns>
         public static async Task<Mesh> MeshFromGridAsync (NavGrid grid) {
-            // Create a new mesh instance and all require components
+            // Create a new mesh instance and all required components
             var mesh = new Mesh {name = $"NavGrid: {grid.GetHashCode()}"};
             var rowLength = grid.Config.Dimension;
             var vertices = new Vector3[rowLength * rowLength];
@@ -21,11 +47,11 @@ namespace VektorLibrary.Pathfinding.NavGrid {
             var triangles = new int[(rowLength - 1) * (rowLength - 1) * 6];
             
             // Generate vertices and triangles on a worker thread and await the result
-            await Task.Factory.StartNew(() => {
+            await Task.Run(() => {
                 try {
                     // Acquire a read lock on the navgrid object
-                    grid.ThreadLock.EnterReadLock();
-
+                    grid.ThreadLock.AcquireReaderLock(-1);
+                    
                     // Loop through each tile and gather it's vertices
                     for (var t = 0; t < grid.Tiles.Length; t++) {
                         for (var n = 0; n < grid.Tiles[t].Nodes.Length; n++) {
@@ -63,7 +89,8 @@ namespace VektorLibrary.Pathfinding.NavGrid {
                 }
                 finally {
                     // Ensure that the reader lock is released
-                    grid.ThreadLock.ExitReadLock();
+                    if (grid.ThreadLock.IsReaderLockHeld)
+                        grid.ThreadLock.ReleaseReaderLock();
                 }
             });
 
@@ -102,6 +129,42 @@ namespace VektorLibrary.Pathfinding.NavGrid {
             
             // Return the texture
             return texture;
+        }
+        
+        /// <summary>
+        /// Tries to calculate a path through a specified NavGrid using standard A*.
+        /// </summary>
+        /// <param name="grid">The NavGrid through which to calculate a path.</param>
+        /// <param name="request">The path request.</param>
+        public static async void CalculatePath(NavGrid grid, AStarRequest request) {
+            // Create the path result object
+            var result = new AStarResult();
+            
+            // Start a worker thread to calculate the path
+            var sW = new Stopwatch();
+            sW.Start();
+            await Task.Run(() => {
+                try {
+                    // Acquire a read lock on the navgrid
+                    grid.ThreadLock.AcquireReaderLock(request.Timeout);
+
+                    result = AStarUtility.CalculatePath(grid, request);
+                }
+                catch (Exception ex) {
+                    Debug.LogError("Exception occured during async A* path calculation!");
+                    Debug.LogException(ex);
+                }
+                finally {
+                    // Ensure that the reader lock is released
+                    if (grid.ThreadLock.IsReaderLockHeld)
+                        grid.ThreadLock.ReleaseReaderLock();
+                }
+            });
+            sW.Stop();
+            DebugReadout.UpdateField("A* Last", sW.ElapsedMilliseconds + "ms");
+            
+            // Invoke the callback from the request
+            request.Callback?.Invoke(result);
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using InvincibleEngine.InputSystem;
-using UnityEngine;
+﻿using UnityEngine;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
-using VektorLibrary.Utility;
+
 
 namespace InvincibleEngine.CameraSystem {
     /// <summary>
@@ -43,7 +41,6 @@ namespace InvincibleEngine.CameraSystem {
         private float _pitchValue;
         
         // Private: Input
-        private readonly RTSInputMap _inputMap = new RTSInputMap();
         private Vector3 _inputValues;
         private float _zoomValue, _refV;
         
@@ -72,9 +69,9 @@ namespace InvincibleEngine.CameraSystem {
             if (!Registered) return;
             
             // Get input values
-            _inputValues.x = Input.GetAxis(_inputMap.MovementX) * _panSpeed * renderDelta;
-            _inputValues.z = Input.GetAxis(_inputMap.MovementY) * _panSpeed * renderDelta;
-            _inputValues.y += Input.GetAxis(_inputMap.ZoomAxis) * _zoomSpeed * renderDelta;
+            //_inputValues.x = Input.GetAxis(_inputMap.MovementX) * _panSpeed * renderDelta;
+            //_inputValues.z = Input.GetAxis(_inputMap.MovementY) * _panSpeed * renderDelta;
+            //_inputValues.y += Input.GetAxis(_inputMap.ZoomAxis) * _zoomSpeed * renderDelta;
             _inputValues.y = Mathf.Clamp01(_inputValues.y);
             _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * renderDelta);
             
