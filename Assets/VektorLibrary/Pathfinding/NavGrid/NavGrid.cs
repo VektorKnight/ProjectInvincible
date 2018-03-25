@@ -121,7 +121,7 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// </summary>
         /// <param name="node"></param>
         /// <returns></returns>
-        public List<NavGridNode> GetNeighbours(NavGridNode node) {
+        public List<NavGridNode> GetNeighbors(NavGridNode node) {
             var neighbours = new List<NavGridNode>();
 
             for (var x = -1; x <= 1; x++) {
@@ -137,7 +137,6 @@ namespace VektorLibrary.Pathfinding.NavGrid {
                     }
                 }
             }
-
             return neighbours;
         }
         
@@ -145,7 +144,6 @@ namespace VektorLibrary.Pathfinding.NavGrid {
         /// Checks if a world-space point lies within the bounds of this NavMesh.
         /// </summary>
         /// <param name="point"></param>
-        /// <returns></returns>
         public bool ContainsPoint(Vector3 point) {
             var pos2D = new Vector2(point.x, point.z);
             return Bounds.Contains(pos2D);

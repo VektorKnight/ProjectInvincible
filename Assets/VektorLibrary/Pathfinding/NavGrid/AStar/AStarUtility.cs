@@ -34,14 +34,14 @@ namespace VektorLibrary.Pathfinding.NavGrid.AStar {
                     return new AStarResult(true, RetracePath(startNode, endNode));
 
                 // Check each neighbor of the current node
-                foreach (var neighbor in grid.GetNeighbours(currentNode)) {
+                foreach (var neighbor in grid.GetNeighbors(currentNode)) {
                     if (!neighbor.Passable || closedSet.Contains(neighbor)) {
                         continue;
                     }
 
-                    var newCostToNeighbour = currentNode.GCost + OctileDistance(currentNode, neighbor);
-                    if (newCostToNeighbour >= neighbor.GCost && openSet.Contains(neighbor)) continue;
-                    neighbor.GCost = newCostToNeighbour;
+                    var newCostToNeighbor = currentNode.GCost + OctileDistance(currentNode, neighbor);
+                    if (newCostToNeighbor >= neighbor.GCost && openSet.Contains(neighbor)) continue;
+                    neighbor.GCost = newCostToNeighbor;
                     neighbor.HCost = OctileDistance(neighbor, endNode);
                     neighbor.Parent = currentNode;
 
