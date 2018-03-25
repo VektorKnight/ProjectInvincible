@@ -41,13 +41,10 @@ namespace InvincibleEngine.Managers {
 
         }
 
-        /// <summary>
-        /// Team Change request from client to host
-        /// </summary>
+        // Team Change request from client to host
         public class L_TCH {
             public int team;
         }
-
 
         //lobby closed, everyone leaves
         public class L_CLS : INetMessage {
@@ -204,7 +201,6 @@ namespace InvincibleEngine.Managers {
             }
         }
 
-
         /// <summary>
         /// Runs Steam API Returns and Callbacks
         /// </summary>
@@ -227,19 +223,7 @@ namespace InvincibleEngine.Managers {
 
                 //if we are a host, always update the lobby metadata
                 if (NetworkState == ENetworkState.Hosting) {
-                   /* //clear lobby list
-                    LobbyMembers.Clear();
-
-                    //get number of players in lobby
-                    int numPlayers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
-
-                    Debug.Log("\t Number of players currently in lobby : " + numPlayers);
-                    for (int i = 0; i < numPlayers; i++) {
-                        CSteamID n = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i);
-
-                        LobbyMembers.Add(new LobbyMember(1, (ulong)n));
-                    }
-                    */
+                
                     //sort members in list by team
                     LobbyMembers.OrderBy(o => o.Team);
 
@@ -313,7 +297,7 @@ namespace InvincibleEngine.Managers {
         public void FixedUpdate() {
 
             //if timer hits 0, begin game and stop timer
-            if (GameOptions.Timer == 0 && GameState== EGameState.InLobby) {
+            if (GameOptions.Timer == 0) {
                 Debug.Log("Starting Game...");
                 MatchManager.Instance.StartMatch(IsHost, 1);
                 GameState = EGameState.Started;
@@ -552,6 +536,8 @@ namespace InvincibleEngine.Managers {
 
         /// <summary>
         /// Starts the game with the current game settings, initiates a timer that can be aborted
+        /// 
+        /// At this point if the host leaves the lobby is disbanded
         /// </summary>
         public void LaunchGame() {
 
@@ -578,6 +564,11 @@ namespace InvincibleEngine.Managers {
             //else start game
             StartCoroutine(LaunchGameTimer());
         }
+
+        /// <summary>
+        /// Timer for game launch
+        /// </summary>
+        /// <returns></returns>
         IEnumerator LaunchGameTimer() {        
             while(true) {
                 GameOptions.Timer -= 0.1f;
@@ -596,7 +587,13 @@ namespace InvincibleEngine.Managers {
             StopCoroutine(LaunchGameTimer());
         }
 
+        /// <summary>
+        /// Establish p2p connections with all lobby users, only works if hosting
+        /// </summary>
+        public void EstablishUserConnections() {
 
+        }
+        
         /// <summary>
         /// Ensure Steam shuts down before close
         /// </summary>

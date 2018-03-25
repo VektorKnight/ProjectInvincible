@@ -379,6 +379,7 @@ MonoBehaviour:
   PanelHolder: {fileID: 114784763707238482}
   StandardColor: {r: 1, g: 0.6544118, b: 0.6544118, a: 1}
   ReadyColor: {r: 0.8205883, g: 1, b: 0.78676474, a: 1}
+  LeaderColor: {r: 1, g: 0.8661258, b: 0.11764705, a: 1}
 --- !u!114 &114665119257922784
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -757,9 +758,9 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 38.205, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -271, y: -416.2}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -271, y: 663.8}
   m_SizeDelta: {x: 468.4, y: 519.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224379642318303204

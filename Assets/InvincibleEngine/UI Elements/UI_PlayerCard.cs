@@ -10,6 +10,7 @@ namespace InvincibleEngine.UI_Elements {
         public Image PanelHolder;
         public Color StandardColor;
         public Color ReadyColor;
+        public Color LeaderColor;
 
         private void Start() {
             //PanelHolder.color = StandardColor;
@@ -23,8 +24,12 @@ namespace InvincibleEngine.UI_Elements {
             PlayerCard.texture = image;
         }
 
-        public void SetReady(bool toggle) {
+        public void SetReady(bool toggle, bool leader) {
             Debug.Log($"Setting color to {toggle}");
+            if(leader) {
+                PanelHolder.color = LeaderColor;
+                return;
+            }
             if(toggle) {
                 PanelHolder.color = ReadyColor;
             }

@@ -6,7 +6,7 @@ namespace InvincibleEngine.UnitFramework.Interfaces {
         UnitType UnitType { get; }
         UnitTeam UnitTeam { get; }
         bool Invulnerable { get; }
-
+        
         void TakeDamage(float damage);
     }
 }

@@ -30,7 +30,7 @@ namespace InvincibleEngine.UI_Elements {
                         x.SetProfileImage(NetManager.Instance.GetSmallAvatar(n.SteamID));
 
                         Debug.Log($"Making player card with status {n.Ready}");
-                        x.SetReady(n.Ready);
+                        x.SetReady(n.Ready, NetManager.Instance.IsHost);
                     }
                 }
                 catch (NullReferenceException) {

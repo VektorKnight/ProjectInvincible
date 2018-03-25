@@ -167,6 +167,7 @@ MonoBehaviour:
   PanelHolder: {fileID: 114658419785519970}
   StandardColor: {r: 1, g: 0.6544118, b: 0.6544118, a: 1}
   ReadyColor: {r: 0.8205883, g: 1, b: 0.78676474, a: 1}
+  LeaderColor: {r: 1, g: 0.90517247, b: 0.375, a: 1}
 --- !u!114 &114658419785519970
 MonoBehaviour:
   m_ObjectHideFlags: 1

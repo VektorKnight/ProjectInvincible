@@ -92,7 +92,7 @@ public class CameraControl : MonoBehaviour
         { targetDestination = Vector3.MoveTowards(transform.position, hit.point, -zoomSpeed); }
 
         transform.position = Vector3.Lerp(transform.position, targetDestination, Dampening/2);
-        transform.eulerAngles = Vector3.Lerp(transform.eulerAngles, targetRotation, Dampening);
+        transform.eulerAngles = targetRotation;
 
         //rotation
         if (Input.GetKey(KeyCode.Q))

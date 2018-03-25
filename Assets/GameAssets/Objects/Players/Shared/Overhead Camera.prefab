@@ -27,7 +27,7 @@ GameObject:
   - component: {fileID: 114454020632626320}
   m_Layer: 0
   m_Name: GameCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 114582024638983244}
   m_Layer: 0
   m_Name: Overhead Camera
-  m_TagString: Untagged
+  m_TagString: CameraSystem
   m_Icon: {fileID: 2974397684917235467, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -172,13 +172,19 @@ MonoBehaviour:
     m_Curve:
     - serializedVersion: 2
       time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
+      value: -0.012496948
+      inSlope: 0.024
+      outSlope: 0.024
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 0.6477884
+      value: 0.16762428
+      inSlope: 0.9729713
+      outSlope: 0.9729713
       tangentMode: 0
     - serializedVersion: 2
       time: 1
-      value: 1
+      value: 0.98750305
       inSlope: 2
       outSlope: 2
       tangentMode: 0

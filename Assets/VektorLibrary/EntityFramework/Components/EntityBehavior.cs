@@ -44,5 +44,7 @@ namespace VektorLibrary.EntityFramework.Components {
             Terminating = true;
             Destroy(this);
         }
+       
+        
     }
 }
