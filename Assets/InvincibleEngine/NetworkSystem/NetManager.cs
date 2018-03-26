@@ -92,7 +92,6 @@ namespace InvincibleEngine.Managers {
     /// </summary>
     public class GameOptions {
         public int map = 1;
-        public float Timer = 5;
         public bool TimerActive = false;
         public bool GameStarted = false;
     }
@@ -136,6 +135,7 @@ namespace InvincibleEngine.Managers {
 
         //game options
         public GameOptions GameOptions = new GameOptions();
+        public float Timer = 5;
 
         //Lobby Data
         [Header("Lobby Data")]
@@ -583,11 +583,11 @@ namespace InvincibleEngine.Managers {
         IEnumerator LaunchGameTimer() {        
             while(true) {
                 if (GameOptions.TimerActive) {
-                    GameOptions.Timer -= 0.1f;
-                    GameOptions.Timer = Mathf.Clamp(GameOptions.Timer, 0, 5);
+                    Timer -= 0.1f;
+                    Timer = Mathf.Clamp(Timer, 0, 5);
                 }
                 else {
-                    GameOptions.Timer = 5;
+                    Timer = 5;
                 }
                 yield return new WaitForSecondsRealtime(0.1f); ;
             }
