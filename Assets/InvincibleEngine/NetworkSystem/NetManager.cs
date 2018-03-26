@@ -115,9 +115,9 @@ namespace InvincibleEngine.Managers {
         }
 
         [Header("State of game")]
-        public EGameState GameState;
+        public EGameState GameState = EGameState.InMenu;
         public enum EGameState {
-            InLobby, Started, Ended, Paused
+            InMenu, InLobby, Started, Ended, Paused
         }
 
         public bool IsHost { get { if (NetworkState == ENetworkState.Hosting) { return true; } else { return false; } } }
@@ -297,7 +297,7 @@ namespace InvincibleEngine.Managers {
         public void FixedUpdate() {
 
             //if timer hits 0, begin game and stop timer
-            if (GameOptions.Timer == 0) {
+            if (GameOptions.Timer == 0 && GameState== EGameState.InLobby) {
                 Debug.Log("Starting Game...");
                 MatchManager.Instance.StartMatch(IsHost, 1);
                 GameState = EGameState.Started;
@@ -330,6 +330,7 @@ namespace InvincibleEngine.Managers {
                 //Set proper values
                 Debug.Log("Lobby creation succeded");
                 NetworkState = ENetworkState.Hosting;
+                GameState = EGameState.InLobby;
                 CurrentLobbyID = (CSteamID)pCallback.m_ulSteamIDLobby;
 
                 //create lobby member for the current user
@@ -356,6 +357,7 @@ namespace InvincibleEngine.Managers {
             //clear lobby members
             LobbyMembers.Clear();
             NetworkState = ENetworkState.Stopped;
+            GameState = EGameState.Ended;
         }
 
         /// <summary>
