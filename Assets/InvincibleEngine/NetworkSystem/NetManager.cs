@@ -93,6 +93,7 @@ namespace InvincibleEngine.Managers {
     public class GameOptions {
         public int map = 1;
         public float Timer = 5;
+        public bool TimerActive = false;
         public bool GameStarted = false;
     }
 
@@ -197,8 +198,10 @@ namespace InvincibleEngine.Managers {
 
 
                 //Start Coroutines
-                StartCoroutine("SteamCall");
-                StartCoroutine("SteamLobbyUpdate");
+                StartCoroutine(SteamCall());
+                StartCoroutine(SteamLobbyUpdate());
+                StartCoroutine(LaunchGameTimer());
+
             }
         }
 
@@ -302,9 +305,10 @@ namespace InvincibleEngine.Managers {
         /// Checks for status in lobby
         /// </summary>
         public void FixedUpdate() {
+           
 
-            //if timer hits 0, begin game and stop timer
-            if (GameOptions.Timer == 0 && GameState== EGameState.InLobby) {
+            //if the game has started load into map
+            if (GameOptions.GameStarted == true && GameState== EGameState.InLobby) {
                 Debug.Log("Starting Game...");
                 MatchManager.Instance.StartMatch(IsHost, 1);
                 GameState = EGameState.Started;
@@ -364,7 +368,7 @@ namespace InvincibleEngine.Managers {
             //clear lobby members
             LobbyMembers.Clear();
             NetworkState = ENetworkState.Stopped;
-            GameState = EGameState.Ended;
+            GameState = EGameState.InMenu;
         }
 
         /// <summary>
@@ -449,6 +453,7 @@ namespace InvincibleEngine.Managers {
                     Debug.Log("Successfully joined lobby");
                     CurrentLobbyID = (CSteamID)pCallback.m_ulSteamIDLobby;
                     NetworkState = ENetworkState.Connected;
+                    GameState = EGameState.InLobby;
                 }
             }
 
@@ -550,7 +555,7 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         public void LaunchGame() {
 
-            //Do not start if we are not the host and a player isnt ready
+            //cannot call on clients
             if(NetworkState!= ENetworkState.Hosting) {
                 return;
             }
@@ -563,15 +568,12 @@ namespace InvincibleEngine.Managers {
                     continue;
                 }
                 if(!n.Ready) {
-
                     return;
                 }
             }
 
-            Debug.Log("Able to start game, starting timer");
-
             //else start game
-            StartCoroutine(LaunchGameTimer());
+            GameOptions.TimerActive = true;
         }
 
         /// <summary>
@@ -580,9 +582,13 @@ namespace InvincibleEngine.Managers {
         /// <returns></returns>
         IEnumerator LaunchGameTimer() {        
             while(true) {
-                GameOptions.Timer -= 0.1f;
-                GameOptions.Timer = Mathf.Clamp(GameOptions.Timer, 0,5);  
-              
+                if (GameOptions.TimerActive) {
+                    GameOptions.Timer -= 0.1f;
+                    GameOptions.Timer = Mathf.Clamp(GameOptions.Timer, 0, 5);
+                }
+                else {
+                    GameOptions.Timer = 5;
+                }
                 yield return new WaitForSecondsRealtime(0.1f); ;
             }
         }
@@ -592,8 +598,7 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         public void LaunchGameAbort() {
             Debug.Log("Aborting game start");
-            GameOptions.Timer = 5;
-            StopCoroutine(LaunchGameTimer());
+            GameOptions.TimerActive = false;
         }
 
         /// <summary>
