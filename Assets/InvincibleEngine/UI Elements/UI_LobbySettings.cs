@@ -30,7 +30,7 @@ namespace InvincibleEngine.UI_Elements {
         }
 
         public void Update() {
-            CountdownTimer.text =NetManager.Instance.GameOptions.Timer.ToString("0.0");
+            CountdownTimer.text =NetManager.Instance.Timer.ToString("0.0");
         }
     }
 }
