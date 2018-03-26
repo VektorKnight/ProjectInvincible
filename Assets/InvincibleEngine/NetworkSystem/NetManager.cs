@@ -69,6 +69,7 @@ namespace InvincibleEngine.Managers {
         }
 
         public bool Ready = false;
+        public bool IsHost = false;
         public int Team;
         public ulong SteamID;
 
@@ -227,6 +228,12 @@ namespace InvincibleEngine.Managers {
                     //sort members in list by team
                     LobbyMembers.OrderBy(o => o.Team);
 
+                    foreach(LobbyMember n in LobbyMembers) {
+                        n.IsHost = false;
+                        if(n.SteamID==(ulong)SteamMatchmaking.GetLobbyOwner(CurrentLobbyID)) {
+                            n.IsHost = true;
+                        }
+                    }
 
                     //set lobby data
                     string U_LobbyMemberList = JsonConvert.SerializeObject(LobbyMembers);

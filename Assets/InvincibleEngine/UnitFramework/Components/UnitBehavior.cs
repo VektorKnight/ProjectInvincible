@@ -11,6 +11,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool Selected { get; set; } = false;
 
         public GameObject SelectionIndicator;
+        public float Health = 100;
 
         public void Awake() {
             SelectionIndicator.GetComponent<Renderer>().enabled = false;
