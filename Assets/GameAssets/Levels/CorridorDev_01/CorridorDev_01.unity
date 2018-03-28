@@ -271,7 +271,7 @@ MonoBehaviour:
   _gridConfig:
     Origin: {x: 0, y: 0, z: 0}
     Size: 512
-    UnitsPerNode: 16
+    UnitsPerNode: 8
     Subdivision: 8
     MaxHeight: 128
     MaxSteepness: 0.6
