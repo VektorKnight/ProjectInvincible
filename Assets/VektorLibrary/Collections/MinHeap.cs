@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 namespace VektorLibrary.Collections {
+    // TODO: This needs some documentation and cleanup.
     public class MinHeap<T> where T : IComparable<T> {
 
         private Dictionary<T, int> _heapIndices;

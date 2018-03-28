@@ -12,7 +12,7 @@ namespace VektorLibrary.Pathfinding.AStar {
         public int GCost;
         public int HCost;
         public int FCost => GCost + HCost;
-        public int Parent;
+        public int Parent = -1;    // -1 indicates no parent
         
         /// <summary>
         /// Creates a new AStarNode.

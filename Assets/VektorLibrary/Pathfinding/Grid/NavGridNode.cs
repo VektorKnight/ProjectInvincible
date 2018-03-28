@@ -4,7 +4,7 @@ using UnityEngine;
 namespace VektorLibrary.Pathfinding.Grid {
     [Serializable] public class NavGridNode {
         // Node Metadata
-        public readonly int ID;          // The ID of this node within the NavGrid.
+        public readonly int ID;              // The ID of this node within the NavGrid.
         public readonly Vector2Int Local;    // The grid-space index of this node.
         public readonly Vector3 World;       // The world-space position of this node.
         public Vector3 Normal;               // The normal of the geometry at this node

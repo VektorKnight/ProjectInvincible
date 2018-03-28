@@ -17,7 +17,7 @@ MonoBehaviour:
     \       \"y\": 0.0,\r\n        \"z\": 0.7071068,\r\n        \"magnitude\": 1.0,\r\n
     \       \"sqrMagnitude\": 1.00000012\r\n      },\r\n      \"magnitude\": 0.99999994,\r\n
     \     \"sqrMagnitude\": 0.99999994\r\n    },\r\n    \"magnitude\": 0.707106769,\r\n
-    \   \"sqrMagnitude\": 0.5\r\n  },\r\n  \"Size\": 512,\r\n  \"UnitsPerNode\": 8,\r\n
+    \   \"sqrMagnitude\": 0.5\r\n  },\r\n  \"Size\": 512,\r\n  \"UnitsPerNode\": 4,\r\n
     \ \"Subdivision\": 8,\r\n  \"MaxHeight\": 128.0,\r\n  \"MaxSteepness\": 0.6,\r\n
     \ \"GroundMask\": {\r\n    \"value\": 256\r\n  },\r\n  \"ObstacleMask\": {\r\n
-    \   \"value\": 512\r\n  },\r\n  \"Dimension\": 64,\r\n  \"NodeCount\": 4096\r\n}"
+    \   \"value\": 512\r\n  },\r\n  \"Dimension\": 128,\r\n  \"NodeCount\": 16384\r\n}"

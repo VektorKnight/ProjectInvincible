@@ -2,6 +2,16 @@
 
 namespace VektorLibrary.Pathfinding.AStar {
     public static class Heuristics {
+        
+        /// <summary>
+        /// The type of heuristic to use.
+        /// </summary>
+        public enum Heuristic {
+            Manhattan,
+            Octile,
+            Euclidean
+        }
+        
         /// <summary>
         /// Returns the Manhattan distance between two nodes.
         /// </summary>

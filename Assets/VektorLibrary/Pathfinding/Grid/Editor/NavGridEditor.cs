@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace VektorLibrary.Pathfinding.NavGrid.Editor {
+namespace VektorLibrary.Pathfinding.Grid.Editor {
     public class NavGridEditor : EditorWindow {
         [MenuItem("Window/NavGrid Editor")]
         public static void ShowWindow() {

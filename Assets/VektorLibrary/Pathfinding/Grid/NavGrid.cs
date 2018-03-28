@@ -36,6 +36,12 @@ namespace VektorLibrary.Pathfinding.Grid {
         public bool Exists(int x, int y) 
             => Config.Dimension * y + x < Nodes.Length && (x >= 0 && y >=0);
         public bool Exists(Vector2Int p) => Exists(p.x, p.y);
+        
+        // Helpers: Passable
+        public bool Passable(int x, int y)
+            => Exists(x, y) && Node(x, y).Passable;
+        public bool Passable(Vector2Int p)
+            => Passable(p.x, p.y);
 
         /// <summary>
         /// Creates a new NavGrid with the specified parameters.

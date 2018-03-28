@@ -4,7 +4,13 @@ using VektorLibrary.Collections;
 using VektorLibrary.Pathfinding.Grid;
 
 namespace VektorLibrary.Pathfinding.AStar {
-    public static class AStarBasic {
+    /// <summary>
+    /// Contains necessary functions for a standard A* implementation.
+    /// Currently implements an octile heuristic with heap optimization.
+    /// Optimized for concurrency with multiple threads accessing the NavGrid object.
+    /// This implementation is inefficient for larger grids.
+    /// </summary>
+    public static class AStarBase {
         /// <summary>
         /// Calculates a path through a NavGrid using standard A* with octile heuristics and heap optimization.
         /// </summary>
@@ -64,7 +70,7 @@ namespace VektorLibrary.Pathfinding.AStar {
                     // Skip if the new GCost is >= to the current and the neighbor lies within the open set
                     if (newCostToNeighbor >= neighbor.GCost && openSet.Contains(neighbor)) continue;
                     
-                    // Set the new G and H costs and set the parent node value
+                    // Set the new G and H costs and the parent node ID
                     neighbor.GCost = newCostToNeighbor;
                     neighbor.HCost = Heuristics.Octile(neighbor.Local, endNode.Local);
                     neighbor.Parent = currentNode.ID;
@@ -80,19 +86,58 @@ namespace VektorLibrary.Pathfinding.AStar {
             return new AStarResult(false, null, request.Callback);
         }
         
-        // Retrace the path once it is found
+        /// <summary>
+        /// Returns an array of Vectors representing the calculated path.
+        /// </summary>
+        /// <param name="startNode"></param>
+        /// <param name="endNode"></param>
+        /// <param name="nodeData"></param>
+        /// <returns></returns>
         private static Vector3[] RetracePath(AStarNode startNode, AStarNode endNode, IReadOnlyDictionary<int, AStarNode> nodeData) {
             var path = new List<Vector3>();
             var currentNode = endNode;
 
             while (!currentNode.Equals(startNode)) {
-                if (currentNode.ID == 0) continue;
-                path.Add(currentNode.World);
+                path.Add(currentNode.World + Vector3.up * 4f);
                 currentNode = nodeData[currentNode.Parent];
             }
             path.Reverse();
 
-            return path.ToArray();
+            return SimplifyPath(path.ToArray());
+        }
+        
+        /// <summary>
+        /// Attempts to simplify a path by removing any nodes not representing significant changes in direction.
+        /// </summary>
+        /// <param name="path">The array of path nodes to simplify.</param>
+        /// <param name="epsilon">The maximum delta allowed before the a node is kept.</param>
+        /// <returns></returns>
+        private static Vector3[] SimplifyPath(Vector3[] path, float epsilon = 0.0002f) {
+            // Create a list for the new path
+            var newPath = new List<Vector3>();
+            
+            // Add the starting node
+            newPath.Add(path[0]);
+            var previous = Vector3.zero;
+            
+            // Loop through the nodes only adding major turning points
+            for (var i = 1; i < path.Length - 1; i++) {
+                // Calculate the delta between the vectors ignoring height (y)
+                var direction = (previous - new Vector3(path[i].x, 0f, path[i].z)).normalized;
+                var delta = 1f - Vector3.Dot(direction, previous.normalized);
+                
+                // Skip this node if delta < epsilon
+                if (delta < epsilon) continue;
+                
+                // Add this node to the new path
+                newPath.Add(path[i]);
+                previous = direction;
+            }
+            
+            // Add the end node
+            newPath.Add(path[path.Length - 1]);
+            
+            return newPath.ToArray();
         }
     }
 }

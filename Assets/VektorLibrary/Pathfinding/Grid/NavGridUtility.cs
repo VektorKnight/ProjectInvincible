@@ -140,7 +140,7 @@ namespace VektorLibrary.Pathfinding.Grid {
                     // Acquire a read lock on the navgrid
                     grid.Lock.AcquireReaderLock(request.Timeout);
                     sW.Start();
-                    result = AStarBasic.CalculatePath(grid, request);
+                    result = AStarBase.CalculatePath(grid, request);
                     sW.Stop();
                 }
                 catch (Exception ex) {
