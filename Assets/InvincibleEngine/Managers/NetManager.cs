@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define NetHost
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamTypes;
 using _3rdParty.Steamworks.Scripts.Steamworks.NET;
+using InvincibleEngine.UnitFramework.DataTypes;
 
 /// <summary>
 /// Manager for all network traffic to/from this client
@@ -22,6 +25,8 @@ namespace InvincibleEngine.Managers {
     /// Those prefixed with "L" are lobby only
     /// Those prefixed with "G' are game only
     /// </summary>   
+    
+        
     public class NetMessage {
         //required interface
         public interface INetMessage { }
@@ -33,8 +38,9 @@ namespace InvincibleEngine.Managers {
             public L_CHT(string message) {
                 this.message = message;
             }
+            
         }
-
+        
         ///Lobby data change request from client to host
         public class L_RDY : INetMessage {
           
@@ -73,6 +79,12 @@ namespace InvincibleEngine.Managers {
         public int Team;
         public ulong SteamID;
 
+        //Econemy
+        public int Resources = 0;
+        public int EnergyIn = 0;
+        public int EnergyOut = 0;
+        
+
         public string Name { get { return SteamFriends.GetFriendPersonaName((CSteamID)SteamID); } }
     }
 
@@ -90,9 +102,11 @@ namespace InvincibleEngine.Managers {
     /// <summary>
     /// Game launch options
     /// </summary>
+    [Serializable]
     public class GameOptions {
         public int map = 1;
         public bool TimerActive = false;
+        public float TimeStarted = 0;
         public bool GameStarted = false;
     }
 
@@ -135,7 +149,17 @@ namespace InvincibleEngine.Managers {
 
         //game options
         public GameOptions GameOptions = new GameOptions();
-        public float Timer = 5;
+        public float Timer {
+            get {
+                if (GameOptions.TimerActive) {
+                    return (Mathf.Clamp(5-(Time.realtimeSinceStartup - GameOptions.TimeStarted),0,5));
+                }
+                else {
+                    return 5;
+                }
+            }
+            set { }
+        }
 
         //Lobby Data
         [Header("Lobby Data")]
@@ -155,13 +179,13 @@ namespace InvincibleEngine.Managers {
         public static NetManager Instance { get; private set; }
 
         // Preload Method
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Preload() {
             //Make sure the Managers object exists
-            GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
+            GameObject Managers = GameObject.Find("Managers")?? new GameObject("Managers");
 
             // Ensure this singleton initializes at startup
-            if (Instance == null) Instance = Managers.AddComponent<NetManager>();
+            if (Instance == null) Instance = Managers.GetComponent<NetManager>() ?? Managers.AddComponent<NetManager>();
 
             // Ensure this singleton does not get destroyed on scene load
             DontDestroyOnLoad(Instance.gameObject);
@@ -172,7 +196,7 @@ namespace InvincibleEngine.Managers {
 
             //If not loaded into lobby, do not do anything
             if(SceneManager.GetActiveScene().name != "MainLobby") {
-                Debug.LogFormat("<color=black><size=14><b>In order for networking to operate you must launch a match from the primary lobby scene</b></size></color>");
+                Debug.LogFormat("<color=black><size=20><b>In order for networking to operate you must launch a match from the primary lobby scene</b></size></color>");
                 return;
             }
 
@@ -200,7 +224,6 @@ namespace InvincibleEngine.Managers {
                 //Start Coroutines
                 StartCoroutine(SteamCall());
                 StartCoroutine(SteamLobbyUpdate());
-                StartCoroutine(LaunchGameTimer());
 
             }
         }
@@ -305,14 +328,23 @@ namespace InvincibleEngine.Managers {
         /// Checks for status in lobby
         /// </summary>
         public void FixedUpdate() {
-           
 
-            //if the game has started load into map
-            if (GameOptions.GameStarted == true && GameState== EGameState.InLobby) {
-                Debug.Log("Starting Game...");
-                MatchManager.Instance.StartMatch(IsHost, 1);
-                GameState = EGameState.Started;
+            //dont do start match checks if the game already started
+            if (GameState != EGameState.Started) {
+                //if we are the host, we can start the game on timer countdown
+                if (NetworkState == ENetworkState.Hosting && Timer == 0) {
+                    GameOptions.GameStarted = true;
+                    GameState = EGameState.Started;
+                    MatchManager.Instance.StartMatch(true, 1);
+                }
+
+                //if we are the client, wait for the host to start the game
+                if (NetworkState == ENetworkState.Connected && GameOptions.GameStarted) {
+                    GameState = EGameState.Started;
+                    MatchManager.Instance.StartMatch(false, 1);
+                }
             }
+           
         }
 
         #region Steam Direct Call Backs
@@ -573,25 +605,12 @@ namespace InvincibleEngine.Managers {
             }
 
             //else start game
+            GameOptions.TimeStarted = Time.realtimeSinceStartup;
             GameOptions.TimerActive = true;
         }
 
-        /// <summary>
-        /// Timer for game launch
-        /// </summary>
-        /// <returns></returns>
-        IEnumerator LaunchGameTimer() {        
-            while(true) {
-                if (GameOptions.TimerActive) {
-                    Timer -= 0.1f;
-                    Timer = Mathf.Clamp(Timer, 0, 5);
-                }
-                else {
-                    Timer = 5;
-                }
-                yield return new WaitForSecondsRealtime(0.1f); ;
-            }
-        }
+      
+
 
         /// <summary>
         /// Aborts the start game,

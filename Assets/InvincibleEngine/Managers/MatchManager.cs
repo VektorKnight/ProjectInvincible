@@ -1,159 +1,159 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.UnitFramework.Components;
+using InvincibleEngine;
 
-/// <summary>
-/// The Game manager is in charge of issuing commands, scraping data for network, loading levels, and most other game functions
-/// </summary>
-public class MatchManager : MonoBehaviour {
-
-    //Scruct for stats about games
-    public struct GameStats {
-        public int Winner;
-        public int[] Scores;
-    }
-
-    //Stats about the game that just occured
-    public GameStats PreviousGameStats = new GameStats();
-
-    //match state
-    public bool MatchStarted = false;
-    public bool MatchHost = false;
-
-    //Selection variables
-    private bool Selecting = false;
-
-    private Rect SelectionBox = new Rect(0,0,0,0);
-
-    private Texture2D SelectionTexture;
-    private int SelectionBorderWidth = 2;
-
-    public Vector2 MousePotition = new Vector2();
-
-    //stores all selected entities
-    public List<UnitBehavior> SelectedEntities = new List<UnitBehavior>();
-
-    // Singleton Instance Accessor
-    public static MatchManager Instance { get; private set; }
-    
-    // Preload Method
-    [RuntimeInitializeOnLoadMethod]
-    private static void Preload() {
-        //Make sure the Managers object exists
-        GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");       
-
-        // Ensure this singleton initializes at startup
-        if (Instance == null) Instance = Managers.AddComponent<MatchManager>();
-
-        // Ensure this singleton does not get destroyed on scene load
-        DontDestroyOnLoad(Instance.gameObject);
-    }
-
+namespace InvincibleEngine {
     /// <summary>
-    /// Set variables
+    /// The Game manager is in charge of issuing commands, scraping data for network, loading levels, and most other game functions
     /// </summary>
-    private void Awake() {
-        
-        //Set selection texture color
-        SelectionTexture = new Texture2D(1, 1);
-        SelectionTexture.SetPixel(1, 1, Color.white);
-        SelectionTexture.wrapMode = TextureWrapMode.Repeat;
-        SelectionTexture.Apply();
+    [Serializable]
+    public class BuildOption {
+        public int Cost;
+        public Texture Preview;
+        public GameObject PrefabSpawn;
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    private void Update() {
-        //TODO: TEMPORARY SELECTION INDICATIONS
-
-        //Set mouse position
-        MousePotition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-        
-        //Check and see if the player is trying to make a selection
-        if(Input.GetMouseButtonDown(0)) {
-
-            //Set selecting to true
-            Selecting = true;
-
-            //Set initial values of box
-            SelectionBox = new Rect(MousePotition.x, MousePotition.y, 0, 0);
-        }
-
-        //As long as it's held make the rectangle 
-        if(Input.GetMouseButton(0)) {
-            SelectionBox.width = MousePotition.x - SelectionBox.x;
-            SelectionBox.height = MousePotition.y-SelectionBox.y;
-        }
-
-        //On mouse up stop selecting
-        if(Input.GetMouseButtonUp(0)) {
-            Selecting = false;
-            OnSelect(SelectionBox);
-            SelectionBox = new Rect(0, 0, 0, 0);
-        }
-
+    public enum ResourceType {
+        Mass,
+        Energy
     }
+    public class MatchManager : MonoBehaviour {
 
-    /// <summary>
-    /// 
-    /// </summary>
-    private void OnGUI() {
-
-        //If player is selecting draw rectangle
-        if (Selecting) {
-            GUI.DrawTexture(new Rect(SelectionBox.x, SelectionBox.y, SelectionBox.width, SelectionBorderWidth), SelectionTexture); //TL-TR
-            GUI.DrawTexture(new Rect(SelectionBox.x + SelectionBox.width, SelectionBox.y, SelectionBorderWidth, SelectionBox.height), SelectionTexture); //TR-BR
-            GUI.DrawTexture(new Rect(SelectionBox.x,SelectionBox.y+SelectionBox.height,SelectionBox.width, SelectionBorderWidth), SelectionTexture); //BL-BR
-            GUI.DrawTexture(new Rect(SelectionBox.x, SelectionBox.y, SelectionBorderWidth, SelectionBox.height), SelectionTexture); //TL-BL
-        }
-    }
-
-    /// <summary>
-    /// Called when the player selects objects on the screen
-    /// </summary>
-    /// <param name="Selection">Rectangle of selection box</param>
-    private void OnSelect(Rect Selection) {
-
-        //deselect all objects if the user isnt holding shift
-        foreach(UnitBehavior x in SelectedEntities) {
-            x.OnDeselected();
+        //Scruct for stats about games
+        public struct GameStats {
+            public int Winner;
+            public int[] Scores;
         }
 
-        //iterate over all objects to see if they are selected
-        Object[] objects = GameObject.FindGameObjectsWithTag("Entity");
-        foreach(GameObject n in objects) {
-            Vector2 screenPoint = Camera.main.WorldToScreenPoint(n.transform.position);
-            screenPoint.y = Screen.height - screenPoint.y;
-            if(Selection.Contains(screenPoint)) {
-                UnitBehavior u = n.GetComponent<UnitBehavior>();
-                u.OnSelected();
-                SelectedEntities.Add(u);
+
+        public List<BuildOption> BuildOptions = new List<BuildOption>();
+
+        //Stats about the game that just occured
+        public GameStats PreviousGameStats = new GameStats();
+
+        //match state
+        public bool MatchStarted = false;
+        public bool MatchHost = false;
+        private bool Building = false;
+
+        private GameObject PreviewObject;
+
+        //stores all selected entities
+        public List<UnitBehavior> SelectedEntities = new List<UnitBehavior>();
+
+        // Singleton Instance Accessor
+        public static MatchManager Instance { get; private set; }
+
+        // Preload Method
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Preload() {
+            //Make sure the Managers object exists
+            GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
+
+            // Ensure this singleton initializes at startup
+            if (Instance == null) Instance = Managers.GetComponent<MatchManager>() ?? Managers.AddComponent<MatchManager>();
+
+            // Ensure this singleton does not get destroyed on scene load
+            DontDestroyOnLoad(Instance.gameObject);
+        }
+
+     
+        private void Update() {
+            //Preview Structure placement
+            RaycastHit hit = new RaycastHit();
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Physics.Raycast(ray, out hit);
+            if (Building) {
+                PreviewObject.transform.position = hit.point;
+                if (Input.GetMouseButtonDown(0)) {
+
+                }
+                if (Input.GetMouseButtonUp(0)) {
+
+                }
+                if (Input.GetMouseButtonDown(1)) {
+                    GameObject.Destroy(PreviewObject);
+                    Building = false;
+                }
             }
         }
-    }
 
-    /// <summary>
-    /// Starts match, loads into desired scene with parameters
-    /// </summary>
-    public void StartMatch(bool isHost, int level) {
+        /// <summary>
+        /// Called when the player wants to build a structure
+        /// display a preview of the structure 
+        /// </summary>
+        public void OnPlayerBuild(BuildOption structure) {
+            Building = true;
 
-        //load scene, set parameters
-        SceneManager.LoadScene(level);
-        MatchStarted = true;
-        MatchHost = isHost;
-    }
+            //Generate preview object
+            PreviewObject = Instantiate(structure.PrefabSpawn);
+            foreach(var n in PreviewObject.GetComponentsInChildren<MonoBehaviour>(true)) {
+                Destroy(n);
+            }
+        }
 
-    /// <summary>
-    /// Ends game, returns to lobby scene with after game report
-    /// </summary>
-    public void EndMatch() {
+        /// <summary>
+        /// Called by objects to generate resource
+        /// </summary>
+        public void OnGenerateResource(int resources, int energy) {
 
-        //load lobby scene, always scene 0
-        MatchStarted = false;
-        SceneManager.LoadScene(0);
+        }
+
+        /// <summary>
+        /// Called when the player selects objects on the screen
+        /// </summary>
+        /// <param name="Selection">Rectangle of selection box</param>
+        public void OnSelect(Rect Selection) {
+
+            //deselect all objects if the user isnt holding shift
+            foreach (UnitBehavior x in SelectedEntities) {
+                x.OnDeselected();
+            }
+
+            //Clear all selected units for new selection
+            SelectedEntities.Clear();
+
+            //iterate over all objects to see if they are selected
+            object[] objects = GameObject.FindGameObjectsWithTag("Entity");
+            foreach (GameObject n in objects) {
+                Vector2 screenPoint = Camera.main.WorldToScreenPoint(n.transform.position);
+                screenPoint.y = Screen.height - screenPoint.y;
+                try {
+                    if (Selection.Contains(screenPoint, true)) {
+                        UnitBehavior u = n.GetComponent<UnitBehavior>();
+                        u.OnSelected();
+                        SelectedEntities.Add(u);
+                    }
+                }
+                catch (NullReferenceException) {
+                    Debug.Log($"Entity {n} does not have a unit behavior attatched!");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Starts match, loads into desired scene with parameters
+        /// </summary>
+        public void StartMatch(bool isHost, int level) {
+
+            //load scene, set parameters
+            SceneManager.LoadScene(level);
+            MatchStarted = true;
+            MatchHost = isHost;
+        }
+
+        /// <summary>
+        /// Ends game, returns to lobby scene with after game report
+        /// </summary>
+        public void EndMatch() {
+
+            //load lobby scene, always scene 0
+            MatchStarted = false;
+            SceneManager.LoadScene(0);
+        }
     }
 }

@@ -17,9 +17,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/GameAssets/Levels/VolcanicIslands/VolcanicIsland.unity
     guid: e9a11650cd0ff7a468539d8026f79892
-  - enabled: 1
+  - enabled: 0
     path: Assets/GameAssets/Levels/CorridorDev_01/CorridorDev_01.unity
     guid: 50e2ad92d74db754b84d78b867575850
-  - enabled: 0
+  - enabled: 1
     path: Assets/GameAssets/Levels/Conduit/Conduit.unity
     guid: 4843589142e04fe469e800c8bcf55a59
