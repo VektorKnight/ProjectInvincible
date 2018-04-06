@@ -1,11 +1,10 @@
 ﻿using Newtonsoft.Json;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Pathfinding.AStar;
 #if UNITY_EDITOR
-
+using UnityEditor;
 #endif
 
 namespace VektorLibrary.Pathfinding.Grid {
@@ -19,7 +18,7 @@ namespace VektorLibrary.Pathfinding.Grid {
         // Unity Inspector
         [Header("NavGrid Config")]
         [SerializeField] private NavGridConfig _gridConfig;
-        [SerializeField] private NavGrid _navGrid;
+        private NavGrid _navGrid;
 
         [Header("NavGrid Debugging")] 
         [SerializeField] private bool _renderGrid;
@@ -37,22 +36,7 @@ namespace VektorLibrary.Pathfinding.Grid {
         private LineRenderer _lineRenderer;
         
         #if UNITY_EDITOR
-        private void GenerateGrid() {
-            // Generate the NavGrid and save it
-            _gridConfig.Origin = transform.position;
-            
-            // Initialize a new NavGrid and save it to the resources folder
-            var gridName = SceneManager.GetActiveScene().name + "_NavGrid.asset";
-            var navGridAsset = ScriptableObject.CreateInstance<NavGridAsset>();
-            navGridAsset.Initialize(_gridConfig);
-            
-            EditorUtility.SetDirty(navGridAsset);
-            AssetDatabase.CreateAsset(navGridAsset, $"Assets/GameAssets/Resources/{gridName}");
-            AssetDatabase.SaveAssets();
-        }
-        #endif
-
-        public override async void OnRegister () {
+        public async void GenerateGrid() {
             // Set Json.Net default settings
             JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
                 Formatting = Formatting.Indented,
@@ -60,24 +44,39 @@ namespace VektorLibrary.Pathfinding.Grid {
                 ObjectCreationHandling = ObjectCreationHandling.Replace
             };
             
-            #if UNITY_EDITOR
-            GenerateGrid();
-            #endif
+            // Generate the NavGrid and save it
+            _gridConfig.Origin = transform.position;
             
-            // Load the NavGrid for this scene
-            _navGrid = NavGridUtility.GetSceneNavGrid();
+            // Initialize a new NavGrid and save it to the resources folder
+            var gridName = SceneManager.GetActiveScene().name + "_NavGrid.asset";
+            var textureName = SceneManager.GetActiveScene().name + "_NavTexture.asset";
+            var navGridAsset = ScriptableObject.CreateInstance<NavGridAsset>();
+            navGridAsset.Initialize(_gridConfig);
+            var navGrid = navGridAsset.Deserialize();
             
             // Reference the mesh filter and await mesh generation
             _meshFilter = GetComponent<MeshFilter>();
-            _meshFilter.mesh = await NavGridUtility.MeshFromGridAsync(_navGrid);
+            _meshFilter.mesh = await NavGridUtility.MeshFromGridAsync(navGrid);
             
             // Set up the grid material and generate the texture
             if (_gridMaterial == null) _gridMaterial = Resources.Load<Material>("NavGridDebug");     
-            _gridMaterial.mainTexture = NavGridUtility.TextureFromGrid(_navGrid, _passableColor, _impassableColor);
+            var texture = NavGridUtility.TextureFromGrid(navGrid, _passableColor, _impassableColor);
             
             // Reference the mesh renderer and assign the grid material
             _meshRenderer = GetComponent<MeshRenderer>();
             _meshRenderer.sharedMaterial = _gridMaterial;
+            
+            EditorUtility.SetDirty(navGridAsset);
+            AssetDatabase.CreateAsset(texture, $"Assets/GameAssets/Resources/{textureName}");
+            _meshRenderer.sharedMaterial.mainTexture = texture;
+            AssetDatabase.CreateAsset(navGridAsset, $"Assets/GameAssets/Resources/{gridName}");
+            AssetDatabase.SaveAssets();
+        }
+        #endif
+
+        public override void OnRegister () {            
+            // Load the NavGrid for this scene
+            _navGrid = NavGridUtility.GetSceneNavGrid();
             
             // Reference the line renderer component
             _lineRenderer = GetComponent<LineRenderer>();

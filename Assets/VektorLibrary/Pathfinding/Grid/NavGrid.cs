@@ -27,7 +27,9 @@ namespace VektorLibrary.Pathfinding.Grid {
 
         public NavGridTile[] Tiles { get; }
 
-        // Helpers: Get Node
+        // Helpers: Get Node (ID / (X,Y) / V2I)
+        public NavGridNode Node(int id)
+            => Exists(id % Config.Dimension, id / Config.Dimension) ? Nodes[id] : null;
         public NavGridNode Node(int x, int y) 
             => Exists(x, y) ? Nodes[Config.Dimension * y + x] : null;
         public NavGridNode Node(Vector2Int p) => Node(p.x, p.y);
@@ -131,19 +133,38 @@ namespace VektorLibrary.Pathfinding.Grid {
         public List<NavGridNode> GetNeighbors(int x, int y) {
             var neighbours = new List<NavGridNode>();
 
-            for (var nX = -1; nX <= 1; nX++) {
-                for (var nY = -1; nY <= 1; nY++) {
-                    if (x == 0 && y == 0)
-                        continue;
-
-                    var checkX = x + nX;
-                    var checkY = y + nY;
-
-                    if (checkX >= 0 && checkX < Config.Dimension && checkY >= 0 && checkY < Config.Dimension) {
-                        neighbours.Add(Node(checkX, checkY));
-                    }
-                }
-            }
+            // Top Left
+            if (Exists(x - 1, y + 1) && Passable(x - 1, y + 1))
+                neighbours.Add(Node(x - 1, y + 1));
+            
+            // Top Center
+            if (Exists(x, y + 1) && Passable(x, y + 1))
+                neighbours.Add(Node(x, y + 1));
+            
+            // Top Right
+            if (Exists(x + 1, y + 1) && Passable(x + 1, y + 1))
+                neighbours.Add(Node(x + 1, y + 1));
+            
+            // Right Center
+            if (Exists(x + 1, y) && Passable(x + 1, y))
+                neighbours.Add(Node(x + 1, y));
+            
+            // Bottom Right
+            if (Exists(x + 1, y - 1) && Passable(x + 1, y - 1))
+                neighbours.Add(Node(x + 1, y - 1));
+            
+            // Bottom Center
+            if (Exists(x, y - 1) && Passable(x, y - 1))
+                neighbours.Add(Node(x, y - 1));
+            
+            // Bottom Left
+            if (Exists(x - 1, y - 1) && Passable(x - 1, y - 1))
+                neighbours.Add(Node(x - 1, y - 1));
+            
+            // Left Center
+            if (Exists(x - 1, y) && Passable(x - 1, y))
+                neighbours.Add(Node(x - 1, y));
+            
             return neighbours;
         }
 

@@ -9,19 +9,21 @@ namespace VektorLibrary.Pathfinding.AStar {
         public readonly int ID;
         public readonly Vector2Int Local;
         public readonly Vector3 World;
+        public readonly bool BestFirst;
         public int GCost;
         public int HCost;
-        public int FCost => GCost + HCost;
+        public int FCost => BestFirst ? HCost : GCost + HCost;
         public int Parent = -1;    // -1 indicates no parent
         
         /// <summary>
         /// Creates a new AStarNode.
         /// </summary>
         /// <param name="local">The grid position of this node.</param>
-        public AStarNode(int id, Vector2Int local, Vector3 world) {
+        public AStarNode(int id, Vector2Int local, Vector3 world, bool bestFirst = false) {
             ID = id;
             Local = local;
             World = world;
+            BestFirst = bestFirst;
         }
         
         /// <summary>

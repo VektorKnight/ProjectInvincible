@@ -26,11 +26,15 @@ namespace VektorLibrary.Pathfinding.AStar {
             // Convert world points to grid nodes
             var startPos = grid.WorldToNode(request.Start);
             var endPos = grid.WorldToNode(request.End);
+            
+            // Exit if either node is null
+            if (startPos == null || endPos == null)
+                return new AStarResult(false, null, request.Callback);
 
             // Exit if either node is impassable 
-            if (!startPos.Passable || !endPos.Passable) {
+            if (!startPos.Passable || !endPos.Passable) 
                 return new AStarResult(false, null, request.Callback);
-            }
+            
 
             // Initialize temporary collections
             var nodeData = new Dictionary<int, AStarNode>();
@@ -87,13 +91,35 @@ namespace VektorLibrary.Pathfinding.AStar {
         }
         
         /// <summary>
+        /// Tries to update a given node data dictionary with data from a given node.
+        /// </summary>
+        /// <param name="grid"></param>
+        /// <param name="current"></param>
+        /// <param name="nodeData"></param>
+        /// <returns>The current or new data entry.</returns>
+        private static AStarNode UpdateDictionary(NavGrid grid, Vector2Int current, Dictionary<int, AStarNode> nodeData) {
+            // Fetch node data from the NavGrid
+            var node = grid.Node(current.x, current.y - 1);
+            
+            // Return null if the node data is null
+            if (node == null) return null;
+            
+            // Reference an existing entry if it exists or create a new one and add it to the dictionary
+            var data = nodeData.ContainsKey(node.ID) ? nodeData[node.ID] : new AStarNode(node.ID, node.Local, node.World);
+            if (!nodeData.ContainsKey(data.ID)) nodeData.Add(data.ID, data);
+            
+            // Return the new data entry
+            return data;
+        }
+        
+        /// <summary>
         /// Returns an array of Vectors representing the calculated path.
         /// </summary>
         /// <param name="startNode"></param>
         /// <param name="endNode"></param>
         /// <param name="nodeData"></param>
         /// <returns></returns>
-        private static Vector3[] RetracePath(AStarNode startNode, AStarNode endNode, IReadOnlyDictionary<int, AStarNode> nodeData) {
+        public static Vector3[] RetracePath(AStarNode startNode, AStarNode endNode, IReadOnlyDictionary<int, AStarNode> nodeData) {
             var path = new List<Vector3>();
             var currentNode = endNode;
 
@@ -112,7 +138,7 @@ namespace VektorLibrary.Pathfinding.AStar {
         /// <param name="path">The array of path nodes to simplify.</param>
         /// <param name="epsilon">The maximum delta allowed before the a node is kept.</param>
         /// <returns></returns>
-        private static Vector3[] SimplifyPath(Vector3[] path, float epsilon = 0.0002f) {
+        public static Vector3[] SimplifyPath(Vector3[] path, float epsilon = 0.00015f) {
             // Create a list for the new path
             var newPath = new List<Vector3>();
             

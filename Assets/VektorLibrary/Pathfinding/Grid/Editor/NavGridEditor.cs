@@ -2,17 +2,16 @@
 using UnityEngine;
 
 namespace VektorLibrary.Pathfinding.Grid.Editor {
-    public class NavGridEditor : EditorWindow {
-        [MenuItem("Window/NavGrid Editor")]
-        public static void ShowWindow() {
-            GetWindow(typeof(NavGridEditor));
-        }
-        
-        private NavGridConfig _gridConfig;
-        private NavGrid _navGrid;
-    
-        void OnGUI () {
-            GUILayout.Label ("NavGrid Config", EditorStyles.boldLabel);
+    [CustomEditor(typeof(NavGridGenerator))]
+    public class NavGridEditor : UnityEditor.Editor {    
+        public override void OnInspectorGUI() {
+
+            DrawDefaultInspector();
+            var generator = (NavGridGenerator) target;
+            
+            if(GUILayout.Button("Generate")) {
+                generator.GenerateGrid();
+            }
         }
     }
 }
