@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/GameAssets/Levels/AlphaTest_01/AlphaTest_01.unity
     guid: 9094e374ce937e342abebfba2ae10e4e
-  - enabled: 0
+  - enabled: 1
     path: Assets/GameAssets/Levels/Main Lobby/MainLobby.unity
     guid: d3ee0c6246860a347a9ac5f8236b49cb
   - enabled: 0

@@ -25,6 +25,33 @@ public class SteamHelper : MonoBehaviour {
     protected Callback<LobbyChatUpdate_t> m_LobbyChatUpdate;
 
 
+    /// <summary>
+    /// returns avatar of user
+    /// </summary>
+    /// <param name="user">Target user</param>
+    /// <returns></returns>
+    public Texture2D GetAvatar(ulong user) {
+        int FriendAvatar = SteamFriends.GetMediumFriendAvatar((CSteamID)user);
+        uint ImageWidth;
+        uint ImageHeight;
+        bool success = SteamUtils.GetImageSize(FriendAvatar, out ImageWidth, out ImageHeight);
+
+        if (success && ImageWidth > 0 && ImageHeight > 0) {
+            byte[] Image = new byte[ImageWidth * ImageHeight * 4];
+            Texture2D returnTexture = new Texture2D((int)ImageWidth, (int)ImageHeight, TextureFormat.RGBA32, false, true);
+            success = SteamUtils.GetImageRGBA(FriendAvatar, Image, (int)(ImageWidth * ImageHeight * 4));
+            if (success) {
+                returnTexture.LoadRawTextureData(Image);
+                returnTexture.Apply();
+            }
+            return returnTexture;
+        }
+        else {
+            Debug.Log("Couldn't get avatar.");
+            return new Texture2D(0, 0);
+        }
+    }
+
 
 
     public virtual void OnLobbyChatMsg(LobbyChatMsg_t param) {

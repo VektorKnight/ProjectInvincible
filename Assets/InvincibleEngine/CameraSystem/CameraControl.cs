@@ -8,6 +8,7 @@ public class CameraControl : MonoBehaviour
 
     [Header("Camera Config")]
     public float maxHeight = 200;
+    public float minHeight = 10;
     public float Dampening = 0.5f;
     public float moveSpeed = 1;
     public float zoomSpeed = 20;
@@ -37,7 +38,7 @@ public class CameraControl : MonoBehaviour
     {
        
         float ratio = (transform.position.y +20) / maxHeight;
-        targetRotation = new Vector3((CameraAngleFromHeight.Evaluate(ratio)*45)+45, transform.eulerAngles.y, transform.eulerAngles.z);
+       // targetRotation = new Vector3((CameraAngleFromHeight.Evaluate(ratio)*45)+45, transform.eulerAngles.y, transform.eulerAngles.z);
 
         //MMB Camera control
         if (Input.GetMouseButtonDown(2))
@@ -86,11 +87,11 @@ public class CameraControl : MonoBehaviour
        
 
         //reset target for zoom        
-        if (ScrollWheel > 0 && transform.position.y > zoomSpeed*2)
+        if (ScrollWheel > 0 && transform.position.y > minHeight)
         { targetDestination = Vector3.MoveTowards(transform.position, hit.point, zoomSpeed); }
-        if (ScrollWheel < 0 && distance < maxHeight)
+        if (ScrollWheel < 0 && transform.position.y < maxHeight)
         { targetDestination = Vector3.MoveTowards(transform.position, hit.point, -zoomSpeed); }
-
+        targetDestination.y = Mathf.Clamp(targetDestination.y, minHeight, maxHeight);
         transform.position = Vector3.Lerp(transform.position, targetDestination, Dampening/2);
         transform.eulerAngles = targetRotation;
 

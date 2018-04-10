@@ -9,7 +9,11 @@ public class StructureBehavior : UnitBehavior {
     public int EnergyGen = 0;
     public int ResourceGen = 0;
 
-    private void FixedUpdate() {
-        MatchManager.Instance.OnGenerateResource(ResourceGen, EnergyGen);
+    public override void OnEntityUpdate(float entityDelta) {
+        base.OnEntityUpdate(entityDelta);
+  MatchManager.Instance.OnGenerateResource(ResourceGen, EnergyGen);
+        if (MatchManager.Instance.MatchHost) {
+          
+        }
     }
 }

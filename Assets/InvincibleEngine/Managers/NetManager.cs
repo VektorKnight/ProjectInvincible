@@ -20,13 +20,13 @@ using InvincibleEngine.UnitFramework.DataTypes;
 /// Manager for all network traffic to/from this client
 /// </summary>
 namespace InvincibleEngine.Managers {
+
+
     /// <summary>
     /// Defining class for messages that can be sent over networks
     /// Those prefixed with "L" are lobby only
     /// Those prefixed with "G' are game only
     /// </summary>   
-    
-        
     public class NetMessage {
         //required interface
         public interface INetMessage { }
@@ -80,9 +80,9 @@ namespace InvincibleEngine.Managers {
         public ulong SteamID;
 
         //Econemy
-        public int Resources = 0;
-        public int EnergyIn = 0;
-        public int EnergyOut = 0;
+        public float Resources = 0;
+        public float EnergyIn = 0;
+        public float EnergyOut = 0;
         
 
         public string Name { get { return SteamFriends.GetFriendPersonaName((CSteamID)SteamID); } }
@@ -93,7 +93,7 @@ namespace InvincibleEngine.Managers {
     /// </summary>
     [Serializable]
     public static class ChatLog {
-        public static string chat;
+        public static string chat = "";
         public static void PostChat(string input) {
             chat += $"\n{input}";
         }
@@ -135,7 +135,7 @@ namespace InvincibleEngine.Managers {
             InMenu, InLobby, Started, Ended, Paused
         }
 
-        public bool IsHost { get { if (NetworkState == ENetworkState.Hosting) { return true; } else { return false; } } }
+        public static bool Hosting { get { if (NetManager.Instance.NetworkState == ENetworkState.Hosting) { return true; } else { return false; } } }
 
         //Teams
         public Color[] TeamColors = new Color[] {
@@ -196,7 +196,7 @@ namespace InvincibleEngine.Managers {
 
             //If not loaded into lobby, do not do anything
             if(SceneManager.GetActiveScene().name != "MainLobby") {
-                Debug.LogFormat("<color=black><size=20><b>In order for networking to operate you must launch a match from the primary lobby scene</b></size></color>");
+                Debug.LogFormat("<color=grey><size=20>In order for networking to operate you must launch a match from the primary lobby scene</size></color>");
                 return;
             }
 
@@ -295,33 +295,6 @@ namespace InvincibleEngine.Managers {
         /// <returns></returns>
         public LobbyMember GetMemberFromID(CSteamID Id) {
             return LobbyMembers.Find(o => o.SteamID == (ulong)Id);
-        }
-
-        /// <summary>
-        /// returns avatar of user
-        /// </summary>
-        /// <param name="user">Target user</param>
-        /// <returns></returns>
-        public Texture2D GetSmallAvatar(ulong user) {
-            int FriendAvatar = SteamFriends.GetMediumFriendAvatar((CSteamID)user);
-            uint ImageWidth;
-            uint ImageHeight;
-            bool success = SteamUtils.GetImageSize(FriendAvatar, out ImageWidth, out ImageHeight);
-
-            if (success && ImageWidth > 0 && ImageHeight > 0) {
-                byte[] Image = new byte[ImageWidth * ImageHeight * 4];
-                Texture2D returnTexture = new Texture2D((int)ImageWidth, (int)ImageHeight, TextureFormat.RGBA32, false, true);
-                success = SteamUtils.GetImageRGBA(FriendAvatar, Image, (int)(ImageWidth * ImageHeight * 4));
-                if (success) {
-                    returnTexture.LoadRawTextureData(Image);
-                    returnTexture.Apply();
-                }
-                return returnTexture;
-            }
-            else {
-                Debug.Log("Couldn't get avatar.");
-                return new Texture2D(0, 0);
-            }
         }
 
         /// <summary>
@@ -426,7 +399,7 @@ namespace InvincibleEngine.Managers {
             //iterate through all lobbies to 
             for (int i = 0; i < lobbyIDS.Count; i++) {
                 if (lobbyIDS[i].m_SteamID == pCallback.m_ulSteamIDLobby) {
-                    Debug.Log("Lobby " + i + " :: " + SteamMatchmaking.GetLobbyData((CSteamID)lobbyIDS[i].m_SteamID, "0"));
+
                     return;
                 }
             }
@@ -575,7 +548,7 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         /// <param name="message"></param>
         public void OnNetMessage(NetMessage.INetMessage message) {
-            if(NetworkState== ENetworkState.Connected) {
+            if(Hosting) {
                
             }
         }
@@ -608,9 +581,6 @@ namespace InvincibleEngine.Managers {
             GameOptions.TimeStarted = Time.realtimeSinceStartup;
             GameOptions.TimerActive = true;
         }
-
-      
-
 
         /// <summary>
         /// Aborts the start game,

@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine;
+using InvincibleEngine.Managers;
 
 namespace InvincibleEngine {
     /// <summary>
@@ -63,18 +64,22 @@ namespace InvincibleEngine {
 
      
         private void Update() {
+
             //Preview Structure placement
             RaycastHit hit = new RaycastHit();
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out hit);
             if (Building) {
-                PreviewObject.transform.position = hit.point;
+                PreviewObject.transform.position = new Vector3(Mathf.Round(hit.point.x / 2) * 2,
+                                        hit.point.y,
+                                        Mathf.Round(hit.point.z / 2) * 2);
+
+                //player attemptes to build a structure
                 if (Input.GetMouseButtonDown(0)) {
 
                 }
-                if (Input.GetMouseButtonUp(0)) {
-
-                }
+               
+                //player cancels build
                 if (Input.GetMouseButtonDown(1)) {
                     GameObject.Destroy(PreviewObject);
                     Building = false;
@@ -97,10 +102,34 @@ namespace InvincibleEngine {
         }
 
         /// <summary>
+        /// Called when a player tries to build a structure
+        /// </summary>
+        /// <param name="structure"></param>
+        /// <param name="location"></param>
+        public void BuildStructure(BuildOption structure, Vector3 location, LobbyMember member) {
+
+            //if we are hosting see if the player can build structure
+            if(NetManager.Hosting) {
+
+            }
+
+            //if we are client just ask host to build
+            else {
+
+            }
+        }
+
+        /// <summary>
         /// Called by objects to generate resource
         /// </summary>
-        public void OnGenerateResource(int resources, int energy) {
-
+        public void OnGenerateResource(float resources, float energy) {
+            if (!MatchStarted) { return; }
+            try {
+                NetManager.Instance.LocalPlayer.Resources += (resources * Time.deltaTime);
+            }
+            catch {
+                Debug.Log("Player Not found");
+            }
         }
 
         /// <summary>
@@ -142,7 +171,6 @@ namespace InvincibleEngine {
 
             //load scene, set parameters
             SceneManager.LoadScene(level);
-            MatchStarted = true;
             MatchHost = isHost;
         }
 
@@ -154,6 +182,13 @@ namespace InvincibleEngine {
             //load lobby scene, always scene 0
             MatchStarted = false;
             SceneManager.LoadScene(0);
+        }
+
+        public void OnLevelWasLoaded(int level) {
+            if(level !=0) {
+                MatchStarted = true;
+
+            }
         }
     }
 }

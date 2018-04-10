@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 1561eb0324246054eb2a7b9bcdf604ba
-timeCreated: 1522510438
+guid: 7764535d66594854a997cf842fcdd1b9
+timeCreated: 1523062545
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -10,7 +10,7 @@ ModelImporter:
     2100000: unnamed
     2300000: //RootNode
     3300000: //RootNode
-    4300000: Plane
+    4300000: Icosphere
     7400000: Default Take
     9500000: //RootNode
   externalObjects: {}
