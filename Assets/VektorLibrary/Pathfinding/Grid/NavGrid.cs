@@ -124,11 +124,13 @@ namespace VektorLibrary.Pathfinding.Grid {
             var tileY = (gridPos.y *Config.Subdivision) / Config.Dimension;
             return Tiles[Config.Subdivision * tileY + tileX];
         }
-        
+
         /// <summary>
         /// Returns any valid neighbors of the specified node.
         /// </summary>
         /// <param name="node"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         /// <returns></returns>
         public List<NavGridNode> GetNeighbors(int x, int y) {
             var neighbours = new List<NavGridNode>();

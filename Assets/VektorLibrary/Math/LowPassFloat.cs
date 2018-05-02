@@ -56,11 +56,6 @@ namespace VektorLibrary.Math {
 		public static implicit operator int(LowPassFloat lpf) {
 			return (int)lpf.Output;
 		}
-
-		// Class Constructor (Default Settings)
-		public LowPassFloat() {
-			_buffer = new Queue<float>();
-		}
 		
 		// Class Constructor
 		public LowPassFloat(int bufferSize = 16, bool filterOutliers = false, float outlierMargin = 0.5f) {

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 
@@ -10,24 +11,25 @@ namespace InvincibleEngine.CameraSystem {
     /// </summary>
     public class OverheadCamera : EntityBehavior {
         // Unity Inspector
-        [Header("Camera View")]
-        [SerializeField] private Vector2 _heightRange = new Vector2(10f, 100f);
-        [SerializeField] private Vector2 _pitchRange = new Vector2(15f, 75f);
+        [Header("Camera View (Overhead)")]
+        [SerializeField] private Vector2 _heightRange = new Vector2(20f, 200f);
+        [SerializeField] private Vector2 _pitchRange = new Vector2(60f, 90f);
+
+        [Header("Camera View (Orbital)")] 
+        [SerializeField] private Vector2 _pitchRangeOrbit = new Vector2(0f, 90f);
+        [SerializeField] private float _orbitModeMaximum = 0.25f;
 
         [Header("Camera Movement")] 
-        [SerializeField] private Vector2 _panSpeedRange = new Vector2(40f, 120f);
-        [SerializeField] private float _zoomSpeed = 10f;
+        [SerializeField] private Vector2 _panSpeedRange = new Vector2(5f, 50f);
+        [SerializeField] private float _zoomSpeed = 120f;
         [SerializeField] private float _rotateSpeed = 10f;
-        [SerializeField] private float _zoomSmoothing = 10f;
-        
-        [Header("Camera Features")]
+        [SerializeField] private float _zoomSmoothing = 20f;
+
+        [Header("Camera Features")] 
+        [SerializeField] private LayerMask _geometryMask;
         [SerializeField] private bool _zoomToCursor = true;
         [SerializeField] private bool _enableEdgeScroll = true;
         [SerializeField] private bool _enableRotation = true;
-
-        [Header("Anti-Clip Config")] 
-        [SerializeField] private LayerMask _antiClipMask;
-        [SerializeField] private int _maxRayLength = 512;
 
         [Header("Required Objects")] 
         [SerializeField] private Camera _camera;
@@ -39,14 +41,24 @@ namespace InvincibleEngine.CameraSystem {
         private float _panSpeed;
         private float _heightValue;
         private float _pitchValue;
+        private float _zOffset;
         
         // Private: Input
         private Vector3 _inputValues;
         private float _zoomValue, _refV;
+        private LowPassFloat _scrollWheel;
+        private Vector2 _mousePrevious;
+        private Vector2 _mouseCurrent;
         
-        // Private: Anti-Clip
-        private readonly LowPassFloat _terrainHeight = new LowPassFloat(32);
-        private float _heightOffset;
+        // Private: Mouse Smoothing
+        private LowPassFloat _smoothX;
+        private LowPassFloat _smoothY;
+        
+        // Private: Cursor Position / Target
+        private Vector3 _mouseWorld;
+        private Vector3 _targetPosition;
+
+        private Vector3 _refVT;
         
         // Initialization
         public override void OnRegister() {
@@ -59,42 +71,80 @@ namespace InvincibleEngine.CameraSystem {
                 return;
             }
             
+            // Initialize mouse low-pass filters
+            _scrollWheel = new LowPassFloat(8);
+            _smoothX = new LowPassFloat(8);
+            _smoothY = new LowPassFloat(8);
+            
             // Call base method
             base.OnRegister();
         }
         
-        // Unity Update
+        // Physics Update Callback
+        public override void OnPhysicsUpdate(float physicsDelta) {
+            // Create a ray from the mouse screen position
+            var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
+            
+            // Perform a raycast from the mouse position to the game world
+            RaycastHit rayHit;
+            var hasHit = Physics.Raycast(mouseRay, out rayHit, 1024, _geometryMask);
+            
+            // Update the mouse world position if the raycast hit something
+            _mouseWorld = hasHit ? new Vector3(rayHit.point.x, transform.position.y, rayHit.point.z) : transform.position;
+        }
+
+        // Render Update Callback
         public override void OnRenderUpdate(float renderDelta) {
             // Exit if not initialized
             if (!Registered) return;
             
-            // Get input values
-            //_inputValues.x = Input.GetAxis(_inputMap.MovementX) * _panSpeed * renderDelta;
-            //_inputValues.z = Input.GetAxis(_inputMap.MovementY) * _panSpeed * renderDelta;
-            //_inputValues.y += Input.GetAxis(_inputMap.ZoomAxis) * _zoomSpeed * renderDelta;
+            // Update current mouse position
+            _mouseCurrent = Input.mousePosition;
+            
+            // Branch for pan controls (mouse vs keyboard)
+            if (Input.GetMouseButton(2)) {
+                // Apply low-pass filtering to mouse deltas
+                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * _panSpeed * renderDelta);
+                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * _panSpeed * renderDelta);
+                
+                // Create delta value
+                var dPos = new Vector3(_smoothX, 0f, _smoothY);
+                
+                // Apply delta to rig transform
+                transform.position += dPos;
+            }
+            else {
+                // Get pan input values from keyboard
+                _inputValues.x = Input.GetAxis("Horizontal") * (_panSpeed * 4f) * renderDelta;
+                _inputValues.z = Input.GetAxis("Vertical") * (_panSpeed * 4f) * renderDelta;
+            }
+            
+            // Update previous mouse position
+            _mousePrevious = _mouseCurrent;
+            
+            // Get zoom input values
+            _scrollWheel.AddSample(Input.GetAxis("Mouse ScrollWheel"));
+            _inputValues.y += _scrollWheel * _zoomSpeed * renderDelta;
             _inputValues.y = Mathf.Clamp01(_inputValues.y);
             _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * renderDelta);
+            
+            // Move towards cursor if enabled and zooming
+            _targetPosition = (Math.Abs(_zoomValue - _inputValues.y) > 0.0538f) ? _targetPosition : _mouseWorld;
+            if (_scrollWheel > 0f && _zoomValue < 0.98f) 
+                transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _refVT, _panSpeed * _panSpeed * renderDelta);
             
             // Interpolate control values
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);
             _heightValue = Mathf.Lerp(_heightRange.y, _heightRange.x, _zoomValue);
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
+            // Calculate camera z-offset with trig (black magic)
+            _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * _heightValue;
+            
             // Apply rig and camera transform values
-            // TODO: A jerk occurs when zooming into geometry rapidly, should try to fix this eventually
-            // TODO: Might be related to the asynchronicity of the Update and FixedUpdate callbacks
-            _heightOffset = _heightValue - _heightRange.x < _terrainHeight ? _terrainHeight : 0f;
-            transform.position = new Vector3( transform.position.x + _inputValues.x, 0f, transform.position.z + _inputValues.z);
-            _camera.transform.localPosition = Vector3.up * (_heightValue + _heightOffset);
+            transform.position = new Vector3(transform.position.x + _inputValues.x, 0f, transform.position.z + _inputValues.z);
+            _camera.transform.localPosition = new Vector3(0f, _heightValue, _zOffset);
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
-        }
-        
-        // Physics Update
-        public override void OnPhysicsUpdate(float physicsDelta) {
-            // Ensure we stay above any geometry
-            var groundCheckRay = new Ray(new Vector3(transform.position.x, _maxRayLength, transform.position.z), Vector3.down);
-            RaycastHit rayHit;
-            _terrainHeight.AddSample(Physics.Raycast(groundCheckRay, out rayHit, _maxRayLength, _antiClipMask) ? rayHit.point.y : _terrainHeight);
         }
     }
 }
