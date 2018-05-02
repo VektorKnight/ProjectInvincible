@@ -1,6 +1,4 @@
-﻿#define NetHost
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -170,8 +168,7 @@ namespace InvincibleEngine.Managers {
 
         //returns local player
         public LobbyMember LocalPlayer { get { return LobbyMembers.Find(o => o.SteamID == (ulong)SteamUser.GetSteamID()); } }
-
-
+        
         //Update parameters
         public int LobbyUpdatesPerSecond = 1;
 

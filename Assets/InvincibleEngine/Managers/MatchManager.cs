@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace InvincibleEngine {
         }
 
 
-        public List<BuildOption> BuildOptions = new List<BuildOption>();
+        public object[] BuildOptions;
 
         //Stats about the game that just occured
         public GameStats PreviousGameStats = new GameStats();
@@ -62,7 +63,13 @@ namespace InvincibleEngine {
             DontDestroyOnLoad(Instance.gameObject);
         }
 
-     
+        /// <summary>
+        /// On awake load all resources
+        /// </summary>
+        private void Awake() {
+            BuildOptions = Resources.LoadAll("Structures", typeof(GameObject));
+        }
+
         private void Update() {
 
             //Preview Structure placement
@@ -91,14 +98,9 @@ namespace InvincibleEngine {
         /// Called when the player wants to build a structure
         /// display a preview of the structure 
         /// </summary>
-        public void OnPlayerBuild(BuildOption structure) {
-            Building = true;
+        public void OnPlayerBuild(int index) {
+           
 
-            //Generate preview object
-            PreviewObject = Instantiate(structure.PrefabSpawn);
-            foreach(var n in PreviewObject.GetComponentsInChildren<MonoBehaviour>(true)) {
-                Destroy(n);
-            }
         }
 
         /// <summary>

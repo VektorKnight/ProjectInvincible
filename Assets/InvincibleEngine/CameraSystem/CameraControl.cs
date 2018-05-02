@@ -28,6 +28,7 @@ public class CameraControl : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+
         targetDestination=transform.position;
         targetRotation = transform.eulerAngles;
       //  MainCamera.transform.Rotate(45, 0, 0);
