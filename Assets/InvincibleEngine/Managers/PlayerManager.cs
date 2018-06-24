@@ -5,6 +5,8 @@ using UnityEngine;
 
 /// <summary>
 /// Handles player control and input to pass to match manager
+/// Also is in charge of displaying previews and other visual cues about
+/// what the player is doing 
 /// </summary>
 public class PlayerManager : MonoBehaviour {
 
@@ -54,7 +56,6 @@ public class PlayerManager : MonoBehaviour {
 
         //Check and see if the player is trying to make a selection
         if (Input.GetMouseButtonDown(0)) {
-
             //Set selecting to true
             Selecting = true;
 
@@ -71,10 +72,17 @@ public class PlayerManager : MonoBehaviour {
         //On mouse up stop selecting
         if (Input.GetMouseButtonUp(0)) {
             Selecting = false;
-             MatchManager.Instance.OnSelect(SelectionBox);
+
+
             SelectionBox = new Rect(0, 0, 0, 0);
         }
     }
+
+    //Called when the player attempts to build somthing
+    public void OnBuildPreview(GameObject building) {
+
+    }
+
 
     /// <summary>
     /// 

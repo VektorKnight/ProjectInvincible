@@ -6,9 +6,9 @@ using UnityEngine;
 using System.Reflection;
 using System.Linq;
 using System.Runtime.Serialization;
-using InvincibleEngine.Managers;
 
-namespace InvincibleEngine.Networking {
+
+namespace HexSerializer {
     public class AmbiguousTypeHolder {
         public AmbiguousTypeHolder(object _obj, Type _type) {
             obj = _obj;
@@ -23,7 +23,17 @@ namespace InvincibleEngine.Networking {
         public object Data;
     }
 
+    public class SyncField {
+
+    }
+
+    /// <summary>
+    /// No subclasses please
+    /// </summary>
     public static class HexSerialize {
+
+        //String defining the namespace of serialized messages
+        private const string NamespaceKey = "SteamNet";
 
         /// <summary>
         /// Accepts a list of classes, serializes into an array of bytes with proper headers
@@ -130,8 +140,8 @@ namespace InvincibleEngine.Networking {
 
                 //grab object name header from segment
                 string header = (string)FromByte(n.SubList<byte>(1).ToArray(), typeof(string));
-                Type headerType = Type.GetType("InvincibleEngine.Managers.NetMessage+" + header);
-
+                Type headerType = Type.GetType($"{NamespaceKey}.{header}");
+                
                 //create object from magic
                 var obj = FormatterServices.GetUninitializedObject(headerType);
 
@@ -158,6 +168,8 @@ namespace InvincibleEngine.Networking {
                             object objTemp = Unzip(x.SubList<byte>(1))[0].obj;
                             Result.GetType().GetMethod("Add").Invoke(Result, new[] { objTemp });
                         }
+
+                        //Resultant list is in reverse order, reverse it to get it correct
                         Result.GetType().GetMethod("Reverse", new Type[] { }).Invoke(Result, new object[] { });
                         setFields.Add(Result);
 
@@ -180,7 +192,7 @@ namespace InvincibleEngine.Networking {
         public static byte[] ToByte(object src) {
 
             //if this object is one of our own, serialize in classic way
-            if (src.GetType().Namespace.Contains("InvincibleEngine")) {
+            if (src.GetType().Namespace.Contains("SteamNet")) {
                 List<byte> n = new List<byte>();
                 n.Zip(src, 1400);
                 return n.ToArray();
@@ -313,7 +325,7 @@ namespace InvincibleEngine.Networking {
         /// <param name="sizeOfHeader"></param>
         /// <returns></returns>
         public static List<byte> SubList<Byte>(this List<byte> data, int sizeOfHeader) {
-            Debug.Log($"Getting the first {sizeOfHeader} bytes from array size of {data.Count}");
+            //Debug.Log($"Getting the first {sizeOfHeader} bytes from array size of {data.Count}");
             byte[] header = data.GetRange(0, sizeOfHeader).ToArray();
             int sizeOfBuffer = 0;
             if (header.Length == 1) {
@@ -343,6 +355,7 @@ namespace InvincibleEngine.Networking {
                 foreach (object attr in attrs) {
                     SyncField authAttr = attr as SyncField;
                     if (authAttr == null) {
+                        
                         allFields.Remove(prop);
                     }
                 }

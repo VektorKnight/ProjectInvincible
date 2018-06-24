@@ -11,9 +11,7 @@ public class StructureBehavior : UnitBehavior {
 
     public override void OnEntityUpdate(float entityDelta) {
         base.OnEntityUpdate(entityDelta);
-  MatchManager.Instance.OnGenerateResource(ResourceGen, EnergyGen);
-        if (MatchManager.Instance.MatchHost) {
-          
-        }
+ 
+
     }
 }
