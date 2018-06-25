@@ -39,7 +39,7 @@ namespace SteamNet {
     /// Data about individual players in a lobby
     /// </summary>
     [Serializable]
-    public class NetworkPlayer {
+    public class SteamnetPlayer {
         public bool IsReady = false;
         public CSteamID SteamID;
         public bool IsHost {
@@ -53,7 +53,7 @@ namespace SteamNet {
             }
         }
 
-        public NetworkPlayer(bool isReady, CSteamID steamID) {
+        public SteamnetPlayer(bool isReady, CSteamID steamID) {
             IsReady = isReady;
             SteamID = steamID;
         }
@@ -74,7 +74,7 @@ namespace SteamNet {
         public string Name = "";
 
         //List of all players
-        public List<NetworkPlayer> LobbyMembers = new List<NetworkPlayer>();
+        public Dictionary<CSteamID, SteamnetPlayer> LobbyMembers = new Dictionary<CSteamID, SteamnetPlayer>();
 
         //Max players allowed in the lobby
         public int MaxPlayers = 4;
@@ -264,7 +264,7 @@ namespace SteamNet {
                         int numberOfMembers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
 
                         //clone lobby member list to see users that left
-                        List<NetworkPlayer> comparator = new List<NetworkPlayer>(LobbyData.LobbyMembers);
+                        List<SteamnetPlayer> comparator = new List<SteamnetPlayer>(LobbyData.LobbyMembers);
 
                         //go through each member and resolve each one
                         for (int i = 0; i < numberOfMembers; i++) {
@@ -277,7 +277,7 @@ namespace SteamNet {
 
                             //if the user does not exists, make a profile for him
                             else {
-                                LobbyData.LobbyMembers.Add(new NetworkPlayer(false, userId));
+                                LobbyData.LobbyMembers.Add(new SteamnetPlayer(false, userId));
                             }
 
                             //if a user joined then left, they will have a lobby member but no returned id to go with it
@@ -285,7 +285,7 @@ namespace SteamNet {
                         }
 
                         //finally, remove those users that should no longer be in lobby
-                        foreach (NetworkPlayer n in comparator) {
+                        foreach (SteamnetPlayer n in comparator) {
                             LobbyData.LobbyMembers.Remove(LobbyData.LobbyMembers.Find(o => o.SteamID == n.SteamID));
                         }
                     }
@@ -362,7 +362,7 @@ namespace SteamNet {
 
                     //Display all lobby member names
                     GUILayout.Label("Lobby Members", NetTitleLabelStyle);
-                    foreach (NetworkPlayer n in LobbyData.LobbyMembers) {
+                    foreach (SteamnetPlayer n in LobbyData.LobbyMembers) {
 
                         //if they are host show icons
                         GUILayout.Label(!n.IsHost ? n.DisplayName : $"{n.DisplayName} (Host)", NetTextStyle);
@@ -455,7 +455,7 @@ namespace SteamNet {
                
 
                 //after entities are zipped, send to all remote connections
-                foreach (NetworkPlayer n in LobbyData.LobbyMembers) {
+                foreach (SteamnetPlayer n in LobbyData.LobbyMembers) {
 
                     //Dont sent messages to ourself, duh
                     if (n.SteamID == SteamUser.GetSteamID()) {
@@ -615,7 +615,7 @@ namespace SteamNet {
                 LobbyData.Name = $"{SteamFriends.GetPersonaName()}'s game";
 
                 //create lobby member for the current user
-                LobbyData.LobbyMembers.Add(new NetworkPlayer(false, SteamUser.GetSteamID()));
+                LobbyData.LobbyMembers.Add(new SteamnetPlayer(false, SteamUser.GetSteamID()));
             }
 
             else {
@@ -734,7 +734,7 @@ namespace SteamNet {
         }
 
         //returns lobby member by ID
-        public NetworkPlayer GetMemberFromID(CSteamID Id) {
+        public SteamnetPlayer GetMemberFromID(CSteamID Id) {
             return LobbyData.LobbyMembers.Find(o => o.SteamID == Id);
         }
         #endregion
