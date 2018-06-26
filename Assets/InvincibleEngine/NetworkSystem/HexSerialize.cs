@@ -252,7 +252,9 @@ namespace HexSerializer {
 
         public static object FromByte(byte[] src, Type type) {
             //if object is ours, deserialize in classic way
-            if (src.GetType().Namespace == "InvincibleEngine") {
+            Debug.Log(type);
+
+            if (type.Namespace == "SteamNet") {
                 return Unzip(src.ToList())[0].obj;
             }
             if (type == typeof(float)) {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
 using UnityEngine;
 using SteamNet;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
@@ -14,15 +15,22 @@ public class UIPlayers : MonoBehaviour {
 	void Update () {
 
         //if a player exists that doesnt have a card, add one
-        foreach (SteamnetPlayer n in SteamManager.Instance.LobbyData.LobbyMembers) {
+        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers) {
 
             //Player has no card, create one
-            if(!DisplayedPlayers.ContainsKey(n.SteamID)) {
+            if(!DisplayedPlayers.ContainsKey(n.Key)) {
                 UIPlayerSlot p = Instantiate(PlayerCardPrefab, transform).GetComponent<UIPlayerSlot>();
-                p.CardID = n.SteamID;
-                p.Name = n.DisplayName;
+                p.CardID = n.Value.SteamID;
+                p.Name = n.Value.DisplayName;
 
-                DisplayedPlayers.Add(n.SteamID, p);
+                DisplayedPlayers.Add(n.Value.SteamID, p);
+            }
+        }
+
+        for(int i=0; i<DisplayedPlayers.Count; i++) { 
+            if(!SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers.ContainsKey(DisplayedPlayers.ElementAt(i).Key)) {
+                Destroy(DisplayedPlayers.ElementAt(i).Value.gameObject);
+                DisplayedPlayers.Remove(DisplayedPlayers.ElementAt(i).Key);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,14 +15,28 @@ using Newtonsoft.Json;
 
 //Project
 using HexSerializer;
-
+using System.Globalization;
 
 namespace SteamNet {
+
+    //Conversion of JSON Strings to Steam types
+    public class SteamConverter : TypeConverter {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+
+            if (sourceType == typeof(string)) {
+                return true;
+            }
+            else return false;
+        }
+        
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+            return new CSteamID(ulong.Parse((string)value));
+        }        
+    }
 
     /// <summary>
     /// Types of network messages that can be sent
     /// </summary>
-
     public class N_ENT {
         //Position, Rotation, Velocity, Angular Velocity
         //TODO: Add delta acceleration and other predicition factors
@@ -32,6 +47,10 @@ namespace SteamNet {
         //TODO:
         //public List<object> SyncFields;
 
+    }
+
+    public class N_CHT {
+       public string message;
     }
 
 
@@ -151,7 +170,7 @@ namespace SteamNet {
         protected Callback<P2PSessionRequest_t> m_P2PSessionRequest;
 
         //Lobby information Variables
-        public LobbyData LobbyData = new LobbyData();
+        public LobbyData CurrentlyJoinedLobby = new LobbyData();
 
         //Online Lobby Info
         public List<LobbyData> OnlineLobbies = new List<LobbyData>();
@@ -186,7 +205,7 @@ namespace SteamNet {
                 m_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
                 m_LobbyJoinRequest = Callback<GameLobbyJoinRequested_t>.Create(OnJoinLobbyRequest);
                 m_LobbyChatMsg = Callback<LobbyChatMsg_t>.Create(OnLobbyChatMsg);
-                m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+              //  m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
                 m_P2PSessionRequest = Callback<P2PSessionRequest_t>.Create(OnP2PRequest);
             }
             return wasInit;
@@ -235,12 +254,13 @@ namespace SteamNet {
                     if (Hosting) {
 
                         //Set relevent lobby data
-                        LobbyData.ConnectedPlayers = LobbyData.LobbyMembers.Count;
+                        CurrentlyJoinedLobby.ConnectedPlayers = CurrentlyJoinedLobby.LobbyMembers.Count;
                         
 
                         //conver to json
-                        var Jdata = JsonConvert.SerializeObject(LobbyData);
+                        var Jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
 
+                        Debug.Log(Jdata);
                         //send to steam
                         SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", Jdata);
                     }
@@ -251,7 +271,7 @@ namespace SteamNet {
                         var jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
 
                         //set to client
-                        LobbyData = JsonConvert.DeserializeObject<LobbyData>(jdata);                        
+                        CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);                        
                     }
 
                     ///Go through joined members:
@@ -264,29 +284,29 @@ namespace SteamNet {
                         int numberOfMembers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
 
                         //clone lobby member list to see users that left
-                        List<SteamnetPlayer> comparator = new List<SteamnetPlayer>(LobbyData.LobbyMembers);
+                        Dictionary<CSteamID,SteamnetPlayer> comparator = new Dictionary<CSteamID, SteamnetPlayer>(CurrentlyJoinedLobby.LobbyMembers);
 
                         //go through each member and resolve each one
                         for (int i = 0; i < numberOfMembers; i++) {
                             var userId = SteamMatchmaking.GetLobbyMemberByIndex(CurrentLobbyID, i);
 
                             //if the user is in the lobby
-                            if (LobbyData.LobbyMembers.Any(o => o.SteamID == userId)) {
+                            if (CurrentlyJoinedLobby.LobbyMembers.ContainsKey(userId)) {
 
                             }
 
                             //if the user does not exists, make a profile for him
                             else {
-                                LobbyData.LobbyMembers.Add(new SteamnetPlayer(false, userId));
+                                CurrentlyJoinedLobby.LobbyMembers.Add(userId, new SteamnetPlayer(false, userId));
                             }
 
                             //if a user joined then left, they will have a lobby member but no returned id to go with it
-                            comparator.Remove(comparator.Find(o => o.SteamID == userId));
+                            comparator.Remove(userId);
                         }
 
                         //finally, remove those users that should no longer be in lobby
-                        foreach (SteamnetPlayer n in comparator) {
-                            LobbyData.LobbyMembers.Remove(LobbyData.LobbyMembers.Find(o => o.SteamID == n.SteamID));
+                        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in comparator) {
+                            CurrentlyJoinedLobby.LobbyMembers.Remove(n.Key);
                         }
                     }
                 }
@@ -362,10 +382,10 @@ namespace SteamNet {
 
                     //Display all lobby member names
                     GUILayout.Label("Lobby Members", NetTitleLabelStyle);
-                    foreach (SteamnetPlayer n in LobbyData.LobbyMembers) {
+                    foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in CurrentlyJoinedLobby.LobbyMembers) {
 
                         //if they are host show icons
-                        GUILayout.Label(!n.IsHost ? n.DisplayName : $"{n.DisplayName} (Host)", NetTextStyle);
+                        GUILayout.Label(!n.Value.IsHost ? n.Value.DisplayName : $"{n.Value.DisplayName} (Host)", NetTextStyle);
                     }
 
 
@@ -420,6 +440,8 @@ namespace SteamNet {
             }
         }
 
+        //TODO: implement a system for syncing fields by custom serializer and using a priority system OR keyframing
+        
         public void OnTrackEntities() {
 
             //do nothing if not tracking entities
@@ -455,18 +477,18 @@ namespace SteamNet {
                
 
                 //after entities are zipped, send to all remote connections
-                foreach (SteamnetPlayer n in LobbyData.LobbyMembers) {
+                foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in CurrentlyJoinedLobby.LobbyMembers) {
 
                     //Dont sent messages to ourself, duh
-                    if (n.SteamID == SteamUser.GetSteamID()) {
+                    if (n.Key == SteamUser.GetSteamID()) {
                         continue;
                     }
 
                     //Debug to console
-                   if(DebugLogs)  Debug.Log($"Entity tracking packet sent of size {buffer.Count} to user {n.DisplayName}");
+                   if(DebugLogs)  Debug.Log($"Entity tracking packet sent of size {buffer.Count} to user {n.Value.DisplayName}");
 
                     //Sends the collection of synced entities to all users
-                    SteamNetworking.SendP2PPacket(n.SteamID, buffer.ToArray(), (uint)buffer.Count, EP2PSend.k_EP2PSendReliable);
+                    SteamNetworking.SendP2PPacket(n.Key, buffer.ToArray(), (uint)buffer.Count, EP2PSend.k_EP2PSendReliable);
                 }
 
             }
@@ -612,10 +634,10 @@ namespace SteamNet {
                 Debug.Log("Lobby creation succeded");
                 NetworkState = ENetworkState.Hosting;
                 CurrentLobbyID = (CSteamID)param.m_ulSteamIDLobby;
-                LobbyData.Name = $"{SteamFriends.GetPersonaName()}'s game";
+                CurrentlyJoinedLobby.Name = $"{SteamFriends.GetPersonaName()}'s game";
 
                 //create lobby member for the current user
-                LobbyData.LobbyMembers.Add(new SteamnetPlayer(false, SteamUser.GetSteamID()));
+                CurrentlyJoinedLobby.LobbyMembers.Add(SteamUser.GetSteamID(), new SteamnetPlayer(false, SteamUser.GetSteamID()));
             }
 
             else {
@@ -625,6 +647,7 @@ namespace SteamNet {
 
         public void CloseLobby() {
             SteamMatchmaking.LeaveLobby(CurrentLobbyID);
+            CurrentlyJoinedLobby = new LobbyData();
             NetworkState = ENetworkState.Stopped;
         }
 
@@ -681,16 +704,34 @@ namespace SteamNet {
         #region  Lobby updates and chat messages
         //----------------------------------------------------
 
+        //Sends chat message to all users if host, or host if client
+        public void BroadcastChatMessage(object message) {
 
-        //Lobby state change, called when user leaves or joins
-        private void OnLobbyChatUpdate(LobbyChatUpdate_t param) {
+            //Serialize object for send
+            byte[] buffer = HexSerialize.ToByte(message);
 
+            //Send to lobby
+            SteamMatchmaking.SendLobbyChatMsg(CurrentLobbyID, buffer, buffer.Length);
         }
 
         //Lobby Chat message
         private void OnLobbyChatMsg(LobbyChatMsg_t param) {
 
+            //Declare variables
+            byte[] buffer = new byte[0];
+            CSteamID playerSource;
+            EChatEntryType entryType;
+            int messageSize;
+
+            //Pull message
+             buffer = new byte[SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)param.m_iChatID, out playerSource, buffer, 4096, out entryType)];
+
+
+            AmbiguousTypeHolder message = (AmbiguousTypeHolder)HexSerialize.FromByte(buffer, typeof(N_CHT));
+
+            Debug.Log(message.obj);
         }
+
         #endregion
 
         //----------------------------------------------------
@@ -735,7 +776,7 @@ namespace SteamNet {
 
         //returns lobby member by ID
         public SteamnetPlayer GetMemberFromID(CSteamID Id) {
-            return LobbyData.LobbyMembers.Find(o => o.SteamID == Id);
+            return CurrentlyJoinedLobby.LobbyMembers[Id];
         }
         #endregion
 

@@ -4,6 +4,8 @@
 
 // Changes to this file will be reverted when you update Steamworks.NET
 
+using System.ComponentModel;
+using SteamNet;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamTypes;
 
@@ -12,7 +14,8 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamTypes;
 namespace _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic {
 	[System.Serializable]
 	[System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, Pack = 4)]
-	public struct CSteamID : System.IEquatable<CSteamID>, System.IComparable<CSteamID> {
+    [TypeConverter(typeof(SteamConverter))]
+    public struct CSteamID : System.IEquatable<CSteamID>, System.IComparable<CSteamID> {
 		public static readonly CSteamID Nil = new CSteamID();
 		public static readonly CSteamID OutofDateGS = new CSteamID(new AccountID_t(0), 0, EUniverse.k_EUniverseInvalid, EAccountType.k_EAccountTypeInvalid);
 		public static readonly CSteamID LanModeGS = new CSteamID(new AccountID_t(0), 0, EUniverse.k_EUniversePublic, EAccountType.k_EAccountTypeInvalid);
