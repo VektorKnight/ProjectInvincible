@@ -106,6 +106,9 @@ namespace SteamNet {
         public bool MatchStarted = false;
 
         //Chat log
+        public void PostChat(string message, string source) {
+            ChatLog += $"{source}: {message}\n";
+        }
         public string ChatLog = "";
 
     }
@@ -718,18 +721,30 @@ namespace SteamNet {
         private void OnLobbyChatMsg(LobbyChatMsg_t param) {
 
             //Declare variables
-            byte[] buffer = new byte[0];
+            byte[] buffer = new byte[4096];
             CSteamID playerSource;
             EChatEntryType entryType;
-            int messageSize;
 
             //Pull message
-             buffer = new byte[SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)param.m_iChatID, out playerSource, buffer, 4096, out entryType)];
+            int messageSize = SteamMatchmaking.GetLobbyChatEntry(CurrentLobbyID, (int)param.m_iChatID, out playerSource, buffer, 4096, out entryType);
+            Debug.Log(messageSize);
+            byte[] trim = buffer.SubArray(0, messageSize);
 
 
-            AmbiguousTypeHolder message = (AmbiguousTypeHolder)HexSerialize.FromByte(buffer, typeof(N_CHT));
+            //Unzip
+            List<AmbiguousTypeHolder> messages = HexSerialize.Unzip(trim);
 
-            Debug.Log(message.obj);
+            //iterate through messages and act upon each
+            foreach(AmbiguousTypeHolder n in messages) {
+
+                //Chat message
+                if (n.type == typeof(N_CHT)) {
+                    N_CHT m = (N_CHT)n.obj;
+
+                    CurrentlyJoinedLobby.PostChat(m.message, SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUser));
+                }
+
+            }
         }
 
         #endregion
@@ -760,8 +775,7 @@ namespace SteamNet {
                 //get lobby information
                 string key = SteamMatchmaking.GetLobbyData(lobbyId, "0");
 
-                //convert using json
-                
+                //convert using json                
                 LobbyData m = JsonConvert.DeserializeObject<LobbyData>(key);
                 if(m==null) {
                     continue;

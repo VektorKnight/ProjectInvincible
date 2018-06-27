@@ -18,4 +18,7 @@ public class UIChat : MonoBehaviour {
         //Send Message
         SteamManager.Instance.BroadcastChatMessage(message);        
     }
+    private void Update() {
+        ChatBox.text = SteamManager.Instance.CurrentlyJoinedLobby.ChatLog;
+    }
 }
