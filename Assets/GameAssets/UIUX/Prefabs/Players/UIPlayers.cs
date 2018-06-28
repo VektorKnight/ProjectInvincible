@@ -9,10 +9,16 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 public class UIPlayers : MonoBehaviour {
 
     public Dictionary<CSteamID, UIPlayerSlot> DisplayedPlayers = new Dictionary<CSteamID, UIPlayerSlot>();
-    public GameObject PlayerCardPrefab; 
+    public GameObject PlayerCardPrefab;
 
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    private void Start() {
+        for(int i=0;i<transform.childCount; i++) {
+            Destroy(transform.GetChild(i).gameObject);
+        }
+    }
+
+    void Update () {
 
         //if a player exists that doesnt have a card, add one
         foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers) {

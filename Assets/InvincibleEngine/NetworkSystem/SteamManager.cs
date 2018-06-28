@@ -1,4 +1,5 @@
-﻿using System;
+﻿//System
+using System;
 using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
@@ -49,10 +50,23 @@ namespace SteamNet {
 
     }
 
+    /// <summary>
+    /// Chat
+    /// </summary>
     public class N_CHT {
        public string message;
     }
 
+    /// <summary>
+    /// Team Change Request
+    /// </summary>
+    public class N_TMC {
+        public int team;
+
+        public N_TMC(int team) {
+            this.team = team;
+        }
+    }
 
     /// <summary>
     /// Data about individual players in a lobby
@@ -61,6 +75,8 @@ namespace SteamNet {
     public class SteamnetPlayer {
         public bool IsReady = false;
         public CSteamID SteamID;
+        public int team = 0;
+
         public bool IsHost {
             get {
                 return SteamMatchmaking.GetLobbyOwner(SteamManager.Instance.CurrentLobbyID) == SteamID;
@@ -107,7 +123,7 @@ namespace SteamNet {
 
         //Chat log
         public void PostChat(string message, string source) {
-            ChatLog += $"{source}: {message}\n";
+            if (message.Length > 0) { ChatLog += $"<b>{source}</b>: {message}\n"; }
         }
         public string ChatLog = "";
 
@@ -177,8 +193,18 @@ namespace SteamNet {
 
         //Online Lobby Info
         public List<LobbyData> OnlineLobbies = new List<LobbyData>();
-      
 
+        //Team Color Identity
+        public List<Color> TeamColors = new List<Color>(){
+           new Color32(255,99,71,255),
+            new Color32(30,144,255,255),
+            new Color32(255,215,0,255),
+            new Color32(144,238,144,255),
+            new Color32(255,255,255,255),
+            new Color32(238,130,238,255),
+            new Color32(255,140,0,255),
+            new Color32(105,105,105,255),
+        };
 
 
         /// <summary>
@@ -258,12 +284,10 @@ namespace SteamNet {
 
                         //Set relevent lobby data
                         CurrentlyJoinedLobby.ConnectedPlayers = CurrentlyJoinedLobby.LobbyMembers.Count;
-                        
 
                         //conver to json
                         var Jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
 
-                        Debug.Log(Jdata);
                         //send to steam
                         SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", Jdata);
                     }
@@ -742,6 +766,15 @@ namespace SteamNet {
                     N_CHT m = (N_CHT)n.obj;
 
                     CurrentlyJoinedLobby.PostChat(m.message, SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUser));
+                }
+
+                //Player Team Change Request
+                if (n.type == typeof(N_TMC)) {
+                    N_TMC m = (N_TMC)n.obj;
+                    
+                    if(Hosting) {
+                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].team = m.team;
+                    }
                 }
 
             }

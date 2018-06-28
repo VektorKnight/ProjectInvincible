@@ -152,10 +152,10 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: cd25d80d03a864fdd90534b28f15208a, type: 3}
-    m_FontSize: 15
+    m_FontSize: 16
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 40
     m_Alignment: 6
     m_AlignByGeometry: 0
@@ -163,15 +163,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'one
-
-    two
-
-    theree
-
-    four
-
-    fivie'
+  m_Text: awdawawd
 --- !u!114 &114458152569642750
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -252,8 +244,8 @@ MonoBehaviour:
         m_MethodName: OnChat
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 114050737713451592}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Text, UnityEngine.UI
+          m_ObjectArgument: {fileID: 114625563802747442}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.InputField, UnityEngine.UI
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -466,6 +458,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -166.59995, y: 221.05002}
+  m_AnchoredPosition: {x: -166.59995, y: 221.0498}
   m_SizeDelta: {x: 299.6, y: 407.2}
   m_Pivot: {x: 0.5, y: 0.5}
