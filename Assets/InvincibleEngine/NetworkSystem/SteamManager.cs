@@ -142,6 +142,16 @@ namespace SteamNet {
         Stopped, Hosting, Connected
     }
 
+    /// <summary>
+    /// Primary network controller in charge of:
+    /// 
+    ///  1) relaying data between players <para/>
+    ///  2) Setting up lobbies, leaving and joining <para/>
+    ///  3) Launching matches, which then hands game control over to and <para/>
+    ///     passing all information about players to the Match Manager <para/>
+    ///     
+    /// 
+    /// </summary>
     public class SteamManager : MonoBehaviour {
         
         //Network Variables
@@ -273,6 +283,7 @@ namespace SteamNet {
                     //Run steam callbacks
                     SteamAPI.RunCallbacks();
 
+                    
                     if (TrackingEntities) {
                         //Run entity tracking, different behavior for clients and hosts
                         OnTrackEntities();
@@ -346,13 +357,13 @@ namespace SteamNet {
         #region  In-game networking UI for debugging
         //---------------------------------------------------- 
 
-        public bool GUIToggle = true;
+        public bool GUIToggle = false;
 
 
         /// <summary>
         /// Debug controls for networking
         /// </summary>
-        public Rect NetBoxContainer = new Rect(10, 10, 300, 200);
+        public Rect NetBoxContainer = new Rect(Screen.width - 310, 10, 300, 200);
 
         GUIStyle NetBoxStyle = new GUIStyle();
         GUIStyle NetTitleLabelStyle = new GUIStyle();
@@ -393,7 +404,7 @@ namespace SteamNet {
                 //Start Server
                 if (GUILayout.Button(!Hosting ? "Open Lobby" : "Leave Lobby")) {
                     if (Hosting) {
-                        CloseLobby();
+                        LeaveLobby();
                     }
                     else if (!Hosting) {
                         CreateLobby();
@@ -628,7 +639,7 @@ namespace SteamNet {
         #endregion
 
         //----------------------------------------------------
-        #region  Lobby Creation, joining, leaving
+        #region  Lobby Creation, joining, leaving, disconnection, connection
         //----------------------------------------------------
 
         //Tracks active lobby request
@@ -639,7 +650,7 @@ namespace SteamNet {
 
             //check to see if we are networked currently
             if (Hosting | Connected | LobbyRequest) {
-                PushDebugger.Instance.PushDebug("Cannot create lobby if hosting, connected, or there is a pending lobby create");
+                Debug.Log("Cannot create lobby if hosting, connected, or there is a pending lobby create");
                 return;
             }
 
@@ -672,9 +683,15 @@ namespace SteamNet {
             }
         }
 
-        public void CloseLobby() {
+        public void LeaveLobby() {
+            
+            //Leave the lobby
             SteamMatchmaking.LeaveLobby(CurrentLobbyID);
+
+            //Reset lobby data
             CurrentlyJoinedLobby = new LobbyData();
+
+            //Reset Network State
             NetworkState = ENetworkState.Stopped;
         }
 
@@ -720,7 +737,7 @@ namespace SteamNet {
         //Called when we want to join a friend's game, leave our current lobby and join theirs 
         private void OnJoinLobbyRequest(GameLobbyJoinRequested_t param) {
             //leave any lobbies we are a part of
-            CloseLobby();
+            LeaveLobby();
 
             //Join remote lobby
             SteamMatchmaking.JoinLobby(param.m_steamIDLobby);

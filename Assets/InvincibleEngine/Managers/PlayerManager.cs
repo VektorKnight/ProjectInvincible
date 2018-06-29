@@ -7,6 +7,8 @@ using UnityEngine;
 /// Handles player control and input to pass to match manager
 /// Also is in charge of displaying previews and other visual cues about
 /// what the player is doing 
+/// 
+/// Only active during match, disabled in lobbies
 /// </summary>
 public class PlayerManager : MonoBehaviour {
 

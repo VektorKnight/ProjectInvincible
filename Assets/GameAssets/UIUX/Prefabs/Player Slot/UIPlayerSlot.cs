@@ -20,7 +20,7 @@ public class UIPlayerSlot : MonoBehaviour {
     public CSteamID CardID;
     public string Name {
         get { return _Name.text; }
-        set { _Name.text = value; }
+        set { _Name.text = value.ToUpper(); }
     }
 
     private void Start() {

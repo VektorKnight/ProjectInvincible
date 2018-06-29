@@ -20,8 +20,11 @@ public class UIPlayers : MonoBehaviour {
 
     void Update () {
 
+        //Sort list by color
+
+
         //if a player exists that doesnt have a card, add one
-        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers) {
+        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers.OrderBy(o=>o.Value.team)) {
 
             //Player has no card, create one
             if(!DisplayedPlayers.ContainsKey(n.Key)) {
@@ -33,6 +36,7 @@ public class UIPlayers : MonoBehaviour {
             }
         }
 
+        //Remove those that have left
         for(int i=0; i<DisplayedPlayers.Count; i++) { 
             if(!SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers.ContainsKey(DisplayedPlayers.ElementAt(i).Key)) {
                 Destroy(DisplayedPlayers.ElementAt(i).Value.gameObject);
