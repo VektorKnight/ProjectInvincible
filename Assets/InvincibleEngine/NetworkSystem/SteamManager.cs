@@ -29,10 +29,10 @@ namespace SteamNet {
             }
             else return false;
         }
-        
+
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
             return new CSteamID(ulong.Parse((string)value));
-        }        
+        }
     }
 
     /// <summary>
@@ -54,7 +54,7 @@ namespace SteamNet {
     /// Chat
     /// </summary>
     public class N_CHT {
-       public string message;
+        public string message;
     }
 
     /// <summary>
@@ -67,6 +67,11 @@ namespace SteamNet {
             this.team = team;
         }
     }
+
+    /// <summary>
+    /// Ready Signal
+    /// </summary>
+    public class N_Ready { }
 
     /// <summary>
     /// Data about individual players in a lobby
@@ -126,6 +131,16 @@ namespace SteamNet {
             if (message.Length > 0) { ChatLog += $"<b>{source}</b>: {message}\n"; }
         }
         public string ChatLog = "";
+
+        //Check to see if everyone is ready
+        public bool ArePlayersReady() {
+            foreach(KeyValuePair<CSteamID,SteamnetPlayer> n in LobbyMembers) {
+                if(n.Value.IsReady==false && !n.Value.IsHost) {                    
+                    return false;
+                }
+            }
+            return true;
+        }
 
     }
 
@@ -277,6 +292,11 @@ namespace SteamNet {
         protected IEnumerator NetworkUpdate() {
             while (true) {
                 {
+                    foreach(KeyValuePair<CSteamID, SteamnetPlayer> n in CurrentlyJoinedLobby.LobbyMembers) {
+                        Debug.Log($"Player found: {n.Value.SteamID}");
+                    }
+
+
                     //Update list of lobbies found on matchmaking
                     SteamMatchmaking.RequestLobbyList();
 
@@ -775,6 +795,9 @@ namespace SteamNet {
             //Unzip
             List<AmbiguousTypeHolder> messages = HexSerialize.Unzip(trim);
 
+            //Source Member
+            
+
             //iterate through messages and act upon each
             foreach(AmbiguousTypeHolder n in messages) {
 
@@ -794,6 +817,12 @@ namespace SteamNet {
                     }
                 }
 
+                if (n.type == typeof(N_Ready)) {
+                    if (Hosting) {
+                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].IsReady = (CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].IsReady ? false : true);
+
+                    }
+                }
             }
         }
 
