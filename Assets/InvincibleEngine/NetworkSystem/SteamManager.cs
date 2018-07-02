@@ -315,6 +315,27 @@ namespace SteamNet {
                         OnTrackEntities();
                     }
 
+                     //Ensure that if the host left the lobby we leave
+                    if (Connected) {
+
+                        //Check to ensure the host has not left, if he did, leave lobby
+                        //There is a chance that the lobby owner ID is 0 on initial start
+                        if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
+                            if ((ulong)SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != 0) {
+                                LeaveLobby("Host has left the lobby");
+                            }
+                        }           
+                    }
+
+                    //Grab game state from steam server if connected to server not hosting
+                    if (Connected) {
+
+                        //convert from json
+                        var jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
+
+                        //set to client
+                        CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);                        
+                    }
 
                     //Sync lobby state to steam server
                     if (Hosting) {
@@ -327,22 +348,6 @@ namespace SteamNet {
 
                         //send to steam
                         SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", Jdata);
-                    }
-
-                    //Grab game state from steam server if connected to server not hosting
-                    if (Connected) {
-
-                        //Check to ensure the host has not left, if he did, leave lobby
-                        if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
-                            LeaveLobby("Host has left the lobby");
-                        }
-
-
-                        //convert from json
-                        var jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
-
-                        //set to client
-                        CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);                        
                     }
 
                     ///Go through joined members:
@@ -710,6 +715,7 @@ namespace SteamNet {
                 CurrentLobbyID = (CSteamID)param.m_ulSteamIDLobby;
                 CurrentlyJoinedLobby.Name = $"{SteamFriends.GetPersonaName()}'s game";
                 CurrentlyJoinedLobby.Host = SteamUser.GetSteamID();
+                CurrentlyJoinedLobby.LobbyID = (CSteamID)param.m_ulSteamIDLobby;
 
                 //create lobby member for the current user
                 CurrentlyJoinedLobby.LobbyMembers.Add(SteamUser.GetSteamID(), new SteamnetPlayer(false, SteamUser.GetSteamID()));
