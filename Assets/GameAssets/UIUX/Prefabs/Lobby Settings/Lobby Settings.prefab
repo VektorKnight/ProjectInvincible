@@ -149,10 +149,10 @@ MonoBehaviour:
   GameButtonImage: {fileID: 114401017628283598}
   NotReady:
     serializedVersion: 2
-    rgba: 1426326612
+    rgba: 3407609962
   Ready:
     serializedVersion: 2
-    rgba: 1493196800
+    rgba: 3406850560
 --- !u!114 &114120166194607156
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -310,7 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.79607844}
+  m_Color: {r: 0.41568628, g: 0, b: 0.11133381, a: 0.79607844}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -377,7 +377,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0.07058824}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 0.40392157}
     m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 1, g: 0.15118359, b: 0.0141509175, a: 0.8745098}

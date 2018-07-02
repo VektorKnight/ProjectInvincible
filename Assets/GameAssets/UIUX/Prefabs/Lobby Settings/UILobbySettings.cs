@@ -36,7 +36,7 @@ public class UILobbySettings : MonoBehaviour {
 
         //If connected, signal ready flag
         if(SteamManager.Instance.Connected) {
-            SteamManager.Instance.BroadcastChatMessage(new N_Ready());
+            SteamManager.Instance.BroadcastChatMessage(new N_RDY());
         }
 
         //If hosting, sigal game start on local manager

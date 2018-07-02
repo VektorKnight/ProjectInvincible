@@ -52,6 +52,6 @@ public class UINavigation : MonoBehaviour {
     }
 
     public void LeaveLobby() {
-        SteamManager.Instance.LeaveLobby();
+        SteamManager.Instance.LeaveLobby("");
     }
 }

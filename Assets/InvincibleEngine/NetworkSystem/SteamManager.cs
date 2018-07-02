@@ -71,7 +71,7 @@ namespace SteamNet {
     /// <summary>
     /// Ready Signal
     /// </summary>
-    public class N_Ready { }
+    public class N_RDY { }
 
     /// <summary>
     /// Data about individual players in a lobby
@@ -109,6 +109,8 @@ namespace SteamNet {
     public class LobbyData {
         //ID
         public CSteamID LobbyID;
+
+        public CSteamID Host;
 
         //Server Name
         public string Name = "";
@@ -281,6 +283,10 @@ namespace SteamNet {
                 GUIToggle = GUIToggle ? false : true; 
             }
 
+            if(Input.GetKeyDown(KeyCode.M)) {
+                UIMessage.GlobalMessage.DisplayMessage("Message Test");
+            }
+
             //Check for packets all the time
             ReadPackets();
         }
@@ -325,6 +331,13 @@ namespace SteamNet {
 
                     //Grab game state from steam server if connected to server not hosting
                     if (Connected) {
+
+                        //Check to ensure the host has not left, if he did, leave lobby
+                        if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
+                            LeaveLobby("Host has left the lobby");
+                        }
+
+
                         //convert from json
                         var jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
 
@@ -424,7 +437,7 @@ namespace SteamNet {
                 //Start Server
                 if (GUILayout.Button(!Hosting ? "Open Lobby" : "Leave Lobby")) {
                     if (Hosting) {
-                        LeaveLobby();
+                        LeaveLobby("");
                     }
                     else if (!Hosting) {
                         CreateLobby();
@@ -688,11 +701,15 @@ namespace SteamNet {
             //if create lobby suceeded 
             if (param.m_eResult == EResult.k_EResultOK) {
 
+                //Instantiate current lobby
+                CurrentlyJoinedLobby = new LobbyData();
+
                 //Set proper values
                 Debug.Log("Lobby creation succeded");
                 NetworkState = ENetworkState.Hosting;
                 CurrentLobbyID = (CSteamID)param.m_ulSteamIDLobby;
                 CurrentlyJoinedLobby.Name = $"{SteamFriends.GetPersonaName()}'s game";
+                CurrentlyJoinedLobby.Host = SteamUser.GetSteamID();
 
                 //create lobby member for the current user
                 CurrentlyJoinedLobby.LobbyMembers.Add(SteamUser.GetSteamID(), new SteamnetPlayer(false, SteamUser.GetSteamID()));
@@ -703,8 +720,13 @@ namespace SteamNet {
             }
         }
 
-        public void LeaveLobby() {
-            
+        public void LeaveLobby(string reason) {
+
+            //display message
+            if (reason.Length > 0) {
+                UIMessage.GlobalMessage.DisplayMessage(reason);
+            }
+
             //Leave the lobby
             SteamMatchmaking.LeaveLobby(CurrentLobbyID);
 
@@ -757,7 +779,7 @@ namespace SteamNet {
         //Called when we want to join a friend's game, leave our current lobby and join theirs 
         private void OnJoinLobbyRequest(GameLobbyJoinRequested_t param) {
             //leave any lobbies we are a part of
-            LeaveLobby();
+            LeaveLobby("");
 
             //Join remote lobby
             SteamMatchmaking.JoinLobby(param.m_steamIDLobby);
@@ -817,7 +839,7 @@ namespace SteamNet {
                     }
                 }
 
-                if (n.type == typeof(N_Ready)) {
+                if (n.type == typeof(N_RDY)) {
                     if (Hosting) {
                         CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].IsReady = (CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].IsReady ? false : true);
 
