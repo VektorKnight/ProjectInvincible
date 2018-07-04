@@ -3,8 +3,11 @@ using System;
 using System.ComponentModel;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+
+//Unity 
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //Steam
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
@@ -109,8 +112,12 @@ namespace SteamNet {
     public class LobbyData {
         //ID
         public CSteamID LobbyID;
-
+        
+        //Host of game
         public CSteamID Host;
+
+        //State of lobby
+        public EGameState LobbyState = EGameState.InLobby;
 
         //Server Name
         public string Name = "";
@@ -136,14 +143,34 @@ namespace SteamNet {
 
         //Check to see if everyone is ready
         public bool ArePlayersReady() {
-            foreach(KeyValuePair<CSteamID,SteamnetPlayer> n in LobbyMembers) {
-                if(n.Value.IsReady==false && !n.Value.IsHost) {                    
+            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in LobbyMembers) {
+                if (n.Value.IsReady == false && !n.Value.IsHost) {
                     return false;
                 }
             }
             return true;
         }
 
+        //Game start and timer
+        private bool _TimerStarted = false;
+        public bool TimerStarted {
+            get { return _TimerStarted; }
+            set { TimerTime = Time.time; _TimerStarted = value; }
+        }
+
+        public float TimerTime;
+
+        public int TimerDisplay {
+            get {
+                return 6- Mathf.Clamp(Mathf.CeilToInt((Time.time - TimerTime)), 0, 6);
+            }
+        }
+
+        public double TimerOverlayPercent {
+            get {
+                return Mathf.Clamp(Mathf.Repeat(Time.time - TimerTime, 1), 0, 5);
+            }
+        }        
     }
 
     [Serializable]
@@ -159,8 +186,12 @@ namespace SteamNet {
         Stopped, Hosting, Connected
     }
 
+    public enum EGameState {
+        InLobby, InGame
+    }
+
     /// <summary>
-    /// Primary network controller in charge of:
+    /// Primary network controller in charge of: <para/>
     /// 
     ///  1) relaying data between players <para/>
     ///  2) Setting up lobbies, leaving and joining <para/>
@@ -174,6 +205,7 @@ namespace SteamNet {
         //Network Variables
         [Header("Flow Control")]
         public ENetworkState NetworkState = ENetworkState.Stopped;
+        
 
         [SerializeField]
         private float _NetUpdatesPerSecond = 5;
@@ -233,6 +265,8 @@ namespace SteamNet {
             new Color32(105,105,105,255),
         };
 
+        //Serialization allocation
+        string jdata = "";
 
         /// <summary>
         /// Preload and ensure singleton
@@ -292,17 +326,12 @@ namespace SteamNet {
         }
 
         //----------------------------------------------------
-        #region  Sync lobby information and other iterated network behavior
+        #region  Sync lobby information and other iterated network behavior like checking for state changes and launching game when ready
         //---------------------------------------------------- 
 
         protected IEnumerator NetworkUpdate() {
             while (true) {
                 {
-                    foreach(KeyValuePair<CSteamID, SteamnetPlayer> n in CurrentlyJoinedLobby.LobbyMembers) {
-                        Debug.Log($"Player found: {n.Value.SteamID}");
-                    }
-
-
                     //Update list of lobbies found on matchmaking
                     SteamMatchmaking.RequestLobbyList();
 
@@ -331,7 +360,7 @@ namespace SteamNet {
                     if (Connected) {
 
                         //convert from json
-                        var jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
+                        jdata = SteamMatchmaking.GetLobbyData(CurrentLobbyID, "0");
 
                         //set to client
                         CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);                        
@@ -344,21 +373,22 @@ namespace SteamNet {
                         CurrentlyJoinedLobby.ConnectedPlayers = CurrentlyJoinedLobby.LobbyMembers.Count;
 
                         //conver to json
-                        var Jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
+                        jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
 
                         //send to steam
-                        SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", Jdata);
+                        SteamMatchmaking.SetLobbyData(CurrentLobbyID, "0", jdata);
                     }
 
                     ///Go through joined members:
                     ///if they have a member object, ignore
                     ///if they do not have a member object, make one for them
                     ///if there exists a member not in the lobby anymore, remove them
-                    if (Hosting) {
+                   if (Hosting) {
 
                         //get number of members
                         int numberOfMembers = SteamMatchmaking.GetNumLobbyMembers(CurrentLobbyID);
 
+    
                         //clone lobby member list to see users that left
                         Dictionary<CSteamID,SteamnetPlayer> comparator = new Dictionary<CSteamID, SteamnetPlayer>(CurrentlyJoinedLobby.LobbyMembers);
 
@@ -384,6 +414,18 @@ namespace SteamNet {
                         foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in comparator) {
                             CurrentlyJoinedLobby.LobbyMembers.Remove(n.Key);
                         }
+                    }
+                    
+                    //If the timer hits 0, it's showtime.
+                    //Start the game and inform the MatchManager that the game has commenced
+                    if(Hosting && CurrentlyJoinedLobby.TimerStarted && CurrentlyJoinedLobby.TimerDisplay==0) {
+                        CurrentlyJoinedLobby.LobbyState = EGameState.InGame;
+                        
+                    }
+
+                    //For both clients and servers, if we are in game get into the game, ensure we are in lobby before loading
+                    if (CurrentlyJoinedLobby.LobbyState == EGameState.InGame && SceneManager.GetActiveScene().buildIndex ==0) {
+                        SceneManager.LoadScene(CurrentlyJoinedLobby.MapIndex);
                     }
                 }
                 yield return new WaitForSeconds(NetUpdatesPerSecond);
@@ -857,9 +899,32 @@ namespace SteamNet {
         #endregion
 
         //----------------------------------------------------
-        #region  Lobby List and lobby information 
+        #region  Lobby List and lobby information as well as starting game and timer
         //----------------------------------------------------
 
+        //Attempt to start timer
+        public void StartGame() {
+            
+            //If we are hosting and the timer is running this will hard stop the timer
+            if (Hosting && CurrentlyJoinedLobby.TimerStarted) {
+                CurrentlyJoinedLobby.TimerStarted = false;
+                CurrentlyJoinedLobby.TimerTime = Time.time;
+                return;
+            }
+
+            //if everyone is ready and the timer isn't going, this starts the game
+            if (Hosting && CurrentlyJoinedLobby.ArePlayersReady() && !CurrentlyJoinedLobby.TimerStarted) {
+                CurrentlyJoinedLobby.TimerStarted = true;
+                CurrentlyJoinedLobby.TimerTime = Time.time;
+                return;
+            }
+                       
+            //if we are connected to a game this will toggle our ready status
+            if(Connected) {
+                SteamManager.Instance.BroadcastChatMessage(new N_RDY());
+            }
+        }
+        
         // Called from getting information about a lobby
         private void OnGetLobbyInfo(LobbyDataUpdate_t param) {
            

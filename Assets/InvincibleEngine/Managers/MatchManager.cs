@@ -25,31 +25,23 @@ public class MatchManager : MonoBehaviour {
         DontDestroyOnLoad(Instance.gameObject);
     }
 
+    /// <summary>
+    /// Check for win conditions and other game related states
+    /// </summary>
+    private void Update() {
+        
+    }
+
     //----------------------------------------------------
-    #region  Replicator and object control
+    #region  Game flow control, spawning players and command centers on Game Start
     //----------------------------------------------------
 
-    //Checks to see when we should be replicating
-    private void CheckReplication() {
+    //On game start, spawn in StructureDropship with command center instance, cue camera to center and release control
+    public void OnMatchStart() {
 
     }
 
-    //Call to run replication protocol, only on hosts, do not call once per frame.
-    private void ReplicateEntities() {
-
-    }
-
-    //Remove all entities in scene that have an entity component to prepare for being a client
-    private void ClearEntities() {
-
-    }
-
-    //Called by new entities on hosts to register themselves for replication
-    public void RegisterEntity() {
-
-    }
     #endregion
-
     //----------------------------------------------------
     #region  Starting/Stopping match
     //----------------------------------------------------

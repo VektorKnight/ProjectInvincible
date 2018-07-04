@@ -1,0 +1,50 @@
+
+
+Managers
+NetworkManager 
+ Acts as a controller of lobbies and getting people ready to be passed into control of the game manager.
+Runs on a state based system where the state of the network determines how the game behaves (eg in lobby will ignore game data, in game will ignore team change requests…)
+ CPU Intensive as it must do a lot of serialization and flow control managment for replication, as well as many reflection calls.  
+Has support for event based sending, where event calls can be made that are sent to all clients, but it is recommended to avoid events as a missed event could get the game into a very weird state
+High bandwidth streams through direct NAT punchthrough connections are used to send very demanding data, almost exclsively entity updates (N_ENT) which have variables such as NetID, AssetID, and an object array which represents all the variables that the object needs. 
+
+The N_ENT is not created or filled by the network manager, the NetworkEntity script will be asked for any updates it wants to send and compose the message when requested. 
+ 
+Because of the HexSerializer, only classname legnth add overhead, variable names are not sent so they can be long and meaningful.
+Has basic communication through Steam “Chat” messages, which are basic JSON based messages that are usually small but reliably arrive, meant for in-game chat, becons, in-lobby setting adjustments, etc. 
+
+MatchManager 
+ pretty much the game itself,  does not account for networking or anything just runs the game as is.
+Not a unit manager, and there is no unit manager. All unts should be autonomous in that they can be spawned in and be able to function without any reliance from the match manager. Can recieve commands from match manager and act on them on their own
+the network manager will inject units and values as they come from the server OR extract them and replicate them if hosting, but the match manager is not aware this is happening, it will pretent that X number of people are all playing locally and be able to account for units appearing and dissapearing as they come in from the network due to fog or war, destruction, occlusion, etc.
+ Should have NO concept of a local player/remote player in a  command based archetecture.
+When accepting commands, it will either 
+
+ send it to the network manager if a client
+ issue it directly as a host  
+
+These two should have no logical distinction, if a remote player issues an impossible command (like moving a unit that was destroyed after he sent it) the command will simply be ignored. This means a lot of smart error checking should be in place so that only commands that should be ignored are ignored. 
+
+PlayerManager 
+Handles what the player is doing,
+No network interface in game as far as issuing commands  to locally selected units. 
+Commands issued are passed to the match manager, which will decide what to do with the command
+ handels keyboard shortcuts but not in game chat, which is done by the UI 
+Should make no network calls, it’s pretty much just a ‘camera’ that can ask the matchmanager what to do and move around freely independent of network behavior 
+
+UIManagers
+ There will be two UI controllers, LobbyUI and GameUI, both will exclusively control UI  behavior for their respective modes. 
+There should be no component UI system anymore, all prefab references and UI behavior should be done from a single class to avoid dozent of microscripts
+UI elements will not be prefab’d unless they are spawned in like player slots and lobby lists
+Both UI scripts simply look at variables and display them with a good degree of null checking and error handeling. Should not be authoritative or throw game breaking errors unless they need to. Basically if there is a null reference to a value that it watns to display it should do it’s best to ignore this as it might be a network delay
+Has network communicaion and can also issue some commands to the match manager since UI buttons are inherently used to control many aspects of the game, but only chat, pings, etc, should be sent over the network, commands that actually affect gameplay should be sent to the match manager so that all game behavior can be controlled from a central location
+
+Component Scripts
+NetworkEntity
+Attached to prefabs that will be synced over network. 
+An important note is that all objects with this script on client machnies will be destroyed, and any MatchManagers running the game will not be able to spawn them if they are local clients, only hosts can spawn these objects. 
+
+
+
+ 
+
