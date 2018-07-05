@@ -12,6 +12,9 @@ public class MatchManager : MonoBehaviour {
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
 
+    //Preloaded Gameobejcts used by the manager
+    public GameObject StructureDropship;
+
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Preload() {
@@ -25,11 +28,15 @@ public class MatchManager : MonoBehaviour {
         DontDestroyOnLoad(Instance.gameObject);
     }
 
+    private void Start() {
+        
+    }
+
     /// <summary>
     /// Check for win conditions and other game related states
     /// </summary>
     private void Update() {
-        
+
     }
 
     //----------------------------------------------------
@@ -40,6 +47,24 @@ public class MatchManager : MonoBehaviour {
     public void OnMatchStart() {
 
     }
+
+    #endregion
+
+    //----------------------------------------------------
+    #region  Basic Game functionality (spawn building, command relay)
+    //----------------------------------------------------
+
+    /// <summary>
+    /// Spawns a dropship that will take the structure to the destination and deploy it
+    /// </summary>
+    /// <param name="BuildingID">Building asset ID</param>
+    /// <param name="Location">World location excluding height</param>
+    /// <param name="Orientation">rotation in degrees between 0 and 360</param>
+    public void ConstructBuilding(ushort BuildingID, Vector2 Location, int Orientation) {
+
+        //Spawn a dropship and pass necessary parameters
+    }
+
 
     #endregion
     //----------------------------------------------------
