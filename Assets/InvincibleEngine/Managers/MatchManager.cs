@@ -36,7 +36,7 @@ public class MatchManager : MonoBehaviour {
     #region  Game flow control, spawning players and command centers on Game Start
     //----------------------------------------------------
 
-    //On game start, spawn in StructureDropship with command center instance, cue camera to center and release control
+    //On match start, spawn in command centers
     public void OnMatchStart() {
 
     }

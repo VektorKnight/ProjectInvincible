@@ -19,7 +19,7 @@ public static class AssetManager{
         Debug.Log("<color=blue>Asset Manager generating manifest...</Color>");
         
         //Load all Gameobjects (prefabs) into an array
-        var loadedResources = Resources.LoadAll<GameObject>("");
+        var loadedResources = Resources.LoadAll<GameObject>("Prefab");
 
         //Convert to a list for data manipuiation if necessary
         Manifest = loadedResources.ToList<GameObject>();
