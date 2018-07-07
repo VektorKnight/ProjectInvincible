@@ -5,6 +5,7 @@ using System.IO;
 
 
 using UnityEngine;
+using UnityEngine.
 
 public static class AssetManager{
 
@@ -20,6 +21,11 @@ public static class AssetManager{
         
         //Load all Gameobjects (prefabs) into an array
         var loadedResources = Resources.LoadAll<GameObject>("Prefab");
+
+        //remove any non-prefab objects
+        for(int i=0; i<loadedResources.Length;i++) {
+
+        }
 
         //Convert to a list for data manipuiation if necessary
         Manifest = loadedResources.ToList<GameObject>();
