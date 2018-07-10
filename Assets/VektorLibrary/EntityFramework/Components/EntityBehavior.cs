@@ -11,8 +11,11 @@ namespace VektorLibrary.EntityFramework.Components {
         // Property: Terminating
         public bool Terminating { get; private set; }
 
+        //Owner of object, -1 is the empty player
+        public int PlayerOwner = -1;
+
         // Unity Initialization
-        private void Start() {
+        public virtual void Start() {
             // Exit if already initialized
             if (Registered) return;
             
@@ -34,7 +37,7 @@ namespace VektorLibrary.EntityFramework.Components {
         public virtual void OnPhysicsUpdate(float physicsDelta) { }
         
         // Entity update callback
-        public virtual void OnEntityUpdate(float entityDelta) { }
+        public virtual void OnEntityHostUpdate(float entityDelta) { }
         
         // Render update callback
         public virtual void OnRenderUpdate(float renderDelta) { }

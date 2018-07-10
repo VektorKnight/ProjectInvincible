@@ -21,7 +21,7 @@
         /// Called immediately after PhysicsUpdate.
         /// </summary>
         /// <param name="entityDelta"></param>
-        void OnEntityUpdate(float entityDelta);
+        void OnEntityHostUpdate(float entityDelta);
         
         /// <summary>
         /// Called once per frame.

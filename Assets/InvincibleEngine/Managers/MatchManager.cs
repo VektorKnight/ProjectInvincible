@@ -1,19 +1,45 @@
-﻿using System.Collections;
+﻿//System
+using System;
+using System.ComponentModel;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
+//Unity 
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
+//Steam
+using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
+using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
+using _3rdParty.Steamworks.Plugins.Steamworks.NET;
+
+//Internal
+using SteamNet;
+
+public class Player {
+
+    public CSteamID PlayerID;
+
+    public int Resources;
+    public int SpawnSlot;
+    public int Team;
+
+}
 
 /// <summary>
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
 /// </summary>
 public class MatchManager : MonoBehaviour {
+
     //Match specific variables
     public bool MatchStarted;
+    
+    //List of players in the game
+    public Dictionary<CSteamID, Player> Players = new Dictionary<CSteamID, Player>();
 
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
-
-    //Preloaded Gameobejcts used by the manager
-    public GameObject StructureDropship;
 
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -62,17 +88,18 @@ public class MatchManager : MonoBehaviour {
     /// <param name="Orientation">rotation in degrees between 0 and 360</param>
     public void ConstructBuilding(ushort BuildingID, Vector2 Location, int Orientation) {
 
-        //Spawn a dropship and pass necessary parameters
     }
 
 
     #endregion
+
     //----------------------------------------------------
     #region  Starting/Stopping match
     //----------------------------------------------------
 
-    //Start match if everyone is ready, load into map and set lobby data
-    public void StartMatch(int MapID) {
+    //Start match if everyone is ready, load into map and set lobby data.
+    //Spawns player objects for each player joining
+    public void StartMatch(LobbyData data) {
 
     }
 
