@@ -287,10 +287,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff203a0b605c6e749bf8777d5a60a19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerOwner: -1
   UnitType: 0
   SelectionIndicator: {fileID: 1379948773590268}
   Health: 100
   CanProduce: 0
+  CanBeProduced: 0
+  BuildCost: 500
   BuildResources: 0
   Origin: {x: 0, y: 0, z: 0}
   BuildingEffect: {fileID: 198254761060156370}
@@ -428,7 +431,7 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 87
+      scalar: 2
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -1067,7 +1070,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 50
+      scalar: 8.8
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1230,7 +1233,7 @@ ParticleSystem:
       cycleCount: 1
       repeatInterval: 0.01
   SizeModule:
-    enabled: 0
+    enabled: 1
     curve:
       serializedVersion: 2
       minMaxState: 1
@@ -1241,21 +1244,21 @@ ParticleSystem:
         m_Curve:
         - serializedVersion: 3
           time: 0
-          value: 1
-          inSlope: -2
-          outSlope: -2
+          value: 0
+          inSlope: 2.514518
+          outSlope: 2.514518
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
-          outWeight: 0
+          outWeight: 0.07621247
         - serializedVersion: 3
           time: 1
           value: 0
-          inSlope: 0
-          outSlope: 0
+          inSlope: -3.993645
+          outSlope: -3.993645
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0
+          inWeight: 0.039260983
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2

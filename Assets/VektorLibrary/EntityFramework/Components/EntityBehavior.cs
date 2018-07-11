@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
+using InvincibleEngine.EntityFramework.Interfaces;
 using VektorLibrary.EntityFramework.Interfaces;
 using VektorLibrary.EntityFramework.Singletons;
 
 namespace VektorLibrary.EntityFramework.Components {
-    public abstract class EntityBehavior : MonoBehaviour, IEntity {
+    public abstract class EntityBehavior : MonoBehaviour, IEntity, ISelectable {
         
         // Property: Registered
         public bool Registered { get; private set; }
@@ -47,7 +48,13 @@ namespace VektorLibrary.EntityFramework.Components {
             Terminating = true;
             Destroy(this);
         }
-       
-        
+
+        public virtual void OnSelected() {
+
+        }
+
+        public virtual void OnDeselected() {
+
+        }
     }
 }

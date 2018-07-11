@@ -43,12 +43,12 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         }
 
-        public virtual void OnSelected() {
+        public override void OnSelected() {
             SelectionIndicator.GetComponent<Renderer>().enabled = true;
 
         }
 
-        public virtual void OnDeselected() {
+        public override void OnDeselected() {
             SelectionIndicator.GetComponent<Renderer>().enabled = false;
 
         }
