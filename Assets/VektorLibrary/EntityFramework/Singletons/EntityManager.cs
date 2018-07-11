@@ -16,7 +16,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
         public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
 
         // Private: Entity Behaviors
-        private HashedArray<IEntity> _behaviors = new HashedArray<IEntity>(1024);
+        public HashedArray<IEntity> _behaviors = new HashedArray<IEntity>(1024);
         
         // Private: State
         private bool _initialized;
