@@ -95,7 +95,7 @@ public class PlayerManager : MonoBehaviour {
             
             //EXTREMELY bad way of selecting, change later
             foreach(EntityBehavior n in EntityManager.Instance._behaviors) {
-                Debug.Log(n);
+
                 //Cache obejct position
                 objectPosition = Camera.main.WorldToScreenPoint(n.transform.position);
 

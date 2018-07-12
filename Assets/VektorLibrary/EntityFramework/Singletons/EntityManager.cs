@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using System;
+using System.Threading;
+using System.Collections;
 using VektorLibrary.Collections;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.EntityFramework.Interfaces;
@@ -19,7 +22,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
         public HashedArray<IEntity> _behaviors = new HashedArray<IEntity>(1024);
         
         // Private: State
-        private bool _initialized;
+        [SerializeField] private bool _initialized;
         
         // Private: Fixed Timestep
         private float _stepMaxDelta;
@@ -50,6 +53,9 @@ namespace VektorLibrary.EntityFramework.Singletons {
             // Calculate max deltas
             _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
 
+            //Start Coroutine
+            StartCoroutine(Tick());
+
             // We're done here
             _initialized = true;
         }
@@ -71,54 +77,54 @@ namespace VektorLibrary.EntityFramework.Singletons {
             Instance._behaviors.Remove(behavior);
             behavior.Terminate();
         }
-        
+
         // Unity Update
-        private void Update() {
+        IEnumerator Tick() {
+            while (true) {
 
-            // Exit if not initialized
-            if (!_initialized) return;
-           
-            // Calculate minimum of delta time and max delta
-            var deltaTime = Mathf.Min(Time.deltaTime, _stepMaxDelta);
-            
-          
-            // Iterate through the behaviors
-            for (var i = 0; i < _behaviors.Count; i++) {
+                // Exit if not initialized
+                // if (!_initialized) 
+                {
 
-                // Add delta time to the accumulator
-                _stepAccumulator += deltaTime;
+                    // Calculate minimum of delta time and max delta
+                    var deltaTime = Mathf.Min(Time.deltaTime, _stepMaxDelta);
 
-                // Reference the current behavior
-                var behavior = _behaviors[i];
 
-                // Handle fixed timestep callbacks and physics simulation
-                while (_stepAccumulator >= FIXED_TIMESTEP) {
+                    // Iterate through the behaviors
+                    for (var i = 0; i < _behaviors.Count; i++) {
 
-                    // Step the physics simulation if necessary
-                    if (!_physicsSimulated) {
-                        Physics.Simulate(deltaTime);
-                        _physicsSimulated = true;
+
+                        // Reference the current behavior
+                        var behavior = _behaviors[i];
+
+                        // Handle fixed timestep callbacks and physics simulation
+
+                        // Step the physics simulation if necessary
+                        if (!_physicsSimulated) {
+                            Physics.Simulate(deltaTime);
+                            _physicsSimulated = true;
+                        }
+
+                        // Check for any flags         
+                        if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+
+                        // Invoke the fixed timestep callbacks as necessary
+                        behavior.OnPhysicsUpdate(deltaTime);
+                        behavior.OnEntityHostUpdate(deltaTime);
+
+
+                        // Check for any flags and invoke the render callback if necessary    
+                        if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                        behavior.OnRenderUpdate(deltaTime);
                     }
-                    
-                    // Subtract the timestep/count from the accumulator
-                    _stepAccumulator -= FIXED_TIMESTEP / _behaviors.TailIndex;
 
-
-                    // Check for any flags         
-                     if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
-
-                    // Invoke the fixed timestep callbacks as necessary
-                    behavior.OnPhysicsUpdate(deltaTime);
-                    behavior.OnEntityHostUpdate(deltaTime);
+                    // Reset the physics simulated flag
+                    _physicsSimulated = false;                  
                 }
-                
-                // Check for any flags and invoke the render callback if necessary    
-                if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
-                behavior.OnRenderUpdate(deltaTime);
+
+                //Yeild Coroutine
+                yield return new WaitForSeconds(0.05f);
             }
-            
-            // Reset the physics simulated flag
-            _physicsSimulated = false;
         }
     }
 }

@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -29,7 +29,7 @@ MonoBehaviour:
     m_Settings:
       excludeSkybox: 0
   antialiasing:
-    m_Enabled: 0
+    m_Enabled: 1
     m_Settings:
       method: 1
       fxaaSettings:
@@ -42,8 +42,8 @@ MonoBehaviour:
   ambientOcclusion:
     m_Enabled: 1
     m_Settings:
-      intensity: 2.19
-      radius: 1.12
+      intensity: 4
+      radius: 0.59
       sampleCount: 10
       downsampling: 1
       forceForwardCompatibility: 0
@@ -100,10 +100,10 @@ MonoBehaviour:
     m_Enabled: 1
     m_Settings:
       bloom:
-        intensity: 0.11
-        threshold: 1.36
-        softKnee: 0.561
-        radius: 3.56
+        intensity: 0.63
+        threshold: 1.31
+        softKnee: 0.712
+        radius: 4.55
         antiFlicker: 0
       lensDirt:
         texture: {fileID: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
         neutralWhiteClip: 10
       basic:
         postExposure: 0
-        temperature: 12.5
+        temperature: 15.8
         tint: 0
         hueShift: 0
         saturation: 1.125

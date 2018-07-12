@@ -7,8 +7,8 @@ using UnityEngine;
 public class StructureBehavior : UnitBehavior {
 
     //Build cost in raw units
-    public int BuildCost = 500;
-    public int BuildResources = 0;
+    public float BuildCost = 500;
+    public float BuildResources = 0;
 
     //Initial build point, structures don't move
     public Vector3 Origin;
