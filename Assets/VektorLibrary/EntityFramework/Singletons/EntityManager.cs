@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
-using System;
-using System.Threading;
 using System.Collections;
 using VektorLibrary.Collections;
-using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.EntityFramework.Interfaces;
 
 namespace VektorLibrary.EntityFramework.Singletons {
@@ -29,14 +26,13 @@ namespace VektorLibrary.EntityFramework.Singletons {
         private float _stepAccumulator;
         private bool _physicsSimulated;
         
-        
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Preload() {
             //Make sure the Managers object exists
-            GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
+            GameObject managers = GameObject.Find("Managers") ?? new GameObject("Managers");
 
             // Ensure this singleton initializes at startup
-            if (Instance == null) Instance = Managers.GetComponent<EntityManager>() ?? Managers.AddComponent<EntityManager>();
+            if (Instance == null) Instance = managers.GetComponent<EntityManager>() ?? managers.AddComponent<EntityManager>();
 
             // Ensure this singleton does not get destroyed on scene load
             DontDestroyOnLoad(Instance.gameObject);
@@ -114,7 +110,7 @@ namespace VektorLibrary.EntityFramework.Singletons {
 
 
                         // Check for any flags and invoke the render callback if necessary    
-                        if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                        if (!behavior.Registered || behavior.Terminating) continue;
                         behavior.OnRenderUpdate(deltaTime);
                     }
 
