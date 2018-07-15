@@ -864,10 +864,7 @@ namespace SteamNet {
 
             //Unzip
             List<AmbiguousTypeHolder> messages = HexSerialize.Unzip(trim);
-
-            //Source Member
             
-
             //iterate through messages and act upon each
             foreach(AmbiguousTypeHolder n in messages) {
 

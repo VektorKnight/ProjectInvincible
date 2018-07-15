@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using InvincibleEngine;
 using UnityEngine;
+using VektorLibrary.EntityFramework.Interfaces;
+using VektorLibrary.EntityFramework.Singletons;
+using VektorLibrary.EntityFramework.Components;
 
 /// <summary>
 /// Handles player control and input to pass to match manager
@@ -14,16 +17,22 @@ public class PlayerManager : MonoBehaviour {
 
     //Selection variables
     private bool Selecting = false;
-
-    private Rect SelectionBox = new Rect(0, 0, 0, 0);
-
     private Texture2D SelectionTexture;
     private int SelectionBorderWidth = 2;
 
+    //Selection box values
+    private Rect SelectionBox = new Rect(0, 0, 0, 0);
+    Vector2 objectPosition = new Vector2();
+
+    //Location of mouse on screen
     public Vector2 MousePotition = new Vector2();
 
     // Singleton Instance Accessor
     public static PlayerManager Instance { get; private set; }
+
+    //List of selected Entities
+    List<EntityBehavior> SelectedEntities = new List<EntityBehavior>();
+
 
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -58,6 +67,7 @@ public class PlayerManager : MonoBehaviour {
 
         //Check and see if the player is trying to make a selection
         if (Input.GetMouseButtonDown(0)) {
+
             //Set selecting to true
             Selecting = true;
 
@@ -73,11 +83,35 @@ public class PlayerManager : MonoBehaviour {
 
         //On mouse up stop selecting
         if (Input.GetMouseButtonUp(0)) {
+            
+            //Toggle selecting
             Selecting = false;
 
+            //Deselect all objects
+            foreach(EntityBehavior n in SelectedEntities) {
+                n.OnDeselected();
+            }
+            SelectedEntities.Clear();
+            
+            //EXTREMELY bad way of selecting, change later
+            foreach(EntityBehavior n in EntityManager.Instance._behaviors) {
+
+                //Cache obejct position
+                objectPosition = Camera.main.WorldToScreenPoint(n.transform.position);
+
+                //account for weird mapping
+                objectPosition.y = Screen.height - objectPosition.y;
+
+                //Check if within selection and call on select if possible
+                if(SelectionBox.Contains(objectPosition)) {
+                    SelectedEntities.Add(n);
+                    n.OnSelected();
+                }                
+            }
 
             SelectionBox = new Rect(0, 0, 0, 0);
         }
+        
     }
 
     //Called when the player attempts to build somthing

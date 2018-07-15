@@ -9,7 +9,7 @@ using UnityEngine;
 
 public static class AssetManager{
 
-    private static List<GameObject> Manifest = new List<GameObject>();
+    private static List<NetworkEntity> Manifest = new List<NetworkEntity>();
 
     /// <summary>
     /// On game start generate recurrsive and non-random asset directory
@@ -20,7 +20,7 @@ public static class AssetManager{
         Debug.Log("<color=blue>Asset Manager generating manifest...</Color>");
         
         //Load all Gameobjects (prefabs) into an array
-        var loadedResources = Resources.LoadAll<GameObject>("Prefab");
+        var loadedResources = Resources.LoadAll<NetworkEntity>("");
 
         //remove any non-prefab objects
         for(int i=0; i<loadedResources.Length;i++) {
@@ -28,9 +28,9 @@ public static class AssetManager{
         }
 
         //Convert to a list for data manipuiation if necessary
-        Manifest = loadedResources.ToList<GameObject>();
+        Manifest = loadedResources.ToList<NetworkEntity>();
 
-        foreach(GameObject n in Manifest) {
+        foreach(NetworkEntity n in Manifest) {
             Debug.Log($"<color=blue>Asset {n.name} found with ID: {Manifest.IndexOf(n)}</Color>");
         }
         Debug.Log($"<color=blue>...Done. Found {Manifest.Count} prefabs in resource folder that can be spawned</Color>");
@@ -42,7 +42,7 @@ public static class AssetManager{
     /// <param name="ID">Asset ID</param>
     /// <returns></returns>
     public static GameObject LoadAssetByID(ushort ID) {
-        return Manifest[ID];
+        return Manifest[ID].gameObject;
     }
 
     public static ushort GetIDByAsset(GameObject asset) {
