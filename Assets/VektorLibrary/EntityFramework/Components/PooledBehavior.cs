@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using VektorLibrary.EntityFramework.Interfaces;
+using InvincibleEngine;
 
-namespace VektorLibrary.EntityFramework.Components {
+namespace InvincibleEngine {
     public abstract class PooledBehavior : EntityBehavior, IPoolable {
         public bool Initialized { get; private set; }
 

@@ -1,4 +1,4 @@
-﻿namespace InvincibleEngine.UnitFramework.Enums {
+﻿namespace InvincibleEngine{
     public enum UnitType {
         Structure,
         Land,

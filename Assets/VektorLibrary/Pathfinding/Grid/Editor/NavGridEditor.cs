@@ -1,7 +1,8 @@
 ﻿using UnityEditor;
 using UnityEngine;
-
-namespace VektorLibrary.Pathfinding.Grid.Editor {
+using InvincibleEngine;
+/*
+namespace InvincibleEngine {
     [CustomEditor(typeof(NavGridGenerator))]
     public class NavGridEditor : UnityEditor.Editor {    
         public override void OnInspectorGUI() {
@@ -15,3 +16,4 @@ namespace VektorLibrary.Pathfinding.Grid.Editor {
         }
     }
 }
+*/

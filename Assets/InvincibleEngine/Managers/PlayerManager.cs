@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using InvincibleEngine;
 using UnityEngine;
-using VektorLibrary.EntityFramework.Interfaces;
-using VektorLibrary.EntityFramework.Singletons;
-using VektorLibrary.EntityFramework.Components;
+
 
 /// <summary>
 /// Handles player control and input to pass to match manager
@@ -18,7 +16,7 @@ public class PlayerManager : MonoBehaviour {
     //Selection variables
     private bool Selecting = false;
     private Texture2D SelectionTexture;
-    private int SelectionBorderWidth = 2;
+    private readonly int SelectionBorderWidth = 2;
 
     //Selection box values
     private Rect SelectionBox = new Rect(0, 0, 0, 0);
@@ -31,7 +29,7 @@ public class PlayerManager : MonoBehaviour {
     public static PlayerManager Instance { get; private set; }
 
     //List of selected Entities
-    List<EntityBehavior> SelectedEntities = new List<EntityBehavior>();
+    public List<EntityBehavior> SelectedEntities = new List<EntityBehavior>();
 
 
     // Preload Method

@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VektorLibrary.EntityFramework.Components;
-using VektorLibrary.Pathfinding.AStar;
+using InvincibleEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-
+/*
 namespace VektorLibrary.Pathfinding.Grid {
     /// <summary>
     /// Unity component for generating nav grids.
@@ -108,3 +107,4 @@ namespace VektorLibrary.Pathfinding.Grid {
         }
     }
 }
+*/

@@ -1,5 +1,4 @@
-﻿using InvincibleEngine.UnitFramework.Components;
-using InvincibleEngine;
+﻿using InvincibleEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

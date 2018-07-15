@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
-using VektorLibrary.EntityFramework.Components;
+using InvincibleEngine;
 using VektorLibrary.Math;
 
 
-namespace InvincibleEngine.CameraSystem {
+namespace InvincibleEngine {
     /// <summary>
     /// Overhead camera suitable for RTS-style games.
     /// Author: VektorKnight

@@ -1,4 +1,4 @@
-﻿namespace InvincibleEngine.EntityFramework.Interfaces {
+﻿namespace InvincibleEngine {
     public interface ISelectable {
         void OnSelected();
         void OnDeselected();

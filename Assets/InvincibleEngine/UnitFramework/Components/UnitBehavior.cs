@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using InvincibleEngine.UnitFramework.Enums;
-using InvincibleEngine.UnitFramework.Interfaces;
-using VektorLibrary.EntityFramework.Components;
+using InvincibleEngine;
 using System;
 
-namespace InvincibleEngine.UnitFramework.Components {
+namespace InvincibleEngine {
     public class UnitBehavior : EntityBehavior, IUnit {
         
         public UnitType UnitType;
@@ -19,8 +17,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         //Base health of a unit
         public float Health = 100;
 
-        //Denotes what this unit can produce. For now, just a bool and it can produce anything
-        public bool CanProduce = false;
 
         //Denotes whether this unit can be built from somwhere, eventually this should be changed 
         //to a proper flag system that tells excactly where this unit can be made from

@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using InvincibleEngine.EntityFramework.Interfaces;
-using VektorLibrary.EntityFramework.Interfaces;
+
+using InvincibleEngine;
 using VektorLibrary.EntityFramework.Singletons;
 
-namespace VektorLibrary.EntityFramework.Components {
+namespace InvincibleEngine {
     public abstract class EntityBehavior : MonoBehaviour, IEntity, ISelectable {
         
         // Property: Registered
@@ -14,6 +14,8 @@ namespace VektorLibrary.EntityFramework.Components {
 
         //Owner of object, -1 is the empty player
         public int PlayerOwner = -1;
+
+        
 
         // Unity Initialization
         public virtual void Start() {

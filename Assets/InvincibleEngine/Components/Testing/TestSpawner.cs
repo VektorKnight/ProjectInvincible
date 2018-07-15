@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using VektorLibrary.EntityFramework.Components;
+using InvincibleEngine;
 
-namespace InvincibleEngine.Components.Testing {
+namespace InvincibleEngine{
     public class TestSpawner : EntityBehavior {
 
         public int GridSize = 64;

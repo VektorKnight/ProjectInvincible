@@ -1,4 +1,4 @@
-﻿namespace VektorLibrary.EntityFramework.Interfaces {
+﻿namespace InvincibleEngine {
     public interface IEntity {
         // Property: Registered
         bool Registered { get; }

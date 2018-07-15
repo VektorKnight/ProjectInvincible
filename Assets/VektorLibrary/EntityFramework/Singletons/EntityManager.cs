@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using VektorLibrary.Collections;
-using VektorLibrary.EntityFramework.Interfaces;
-
-namespace VektorLibrary.EntityFramework.Singletons {
+using InvincibleEngine;
+namespace InvincibleEngine {
     /// <summary>
     /// Manages entities implementing the IBehavior interface and relevant update callbacks.
     /// </summary>

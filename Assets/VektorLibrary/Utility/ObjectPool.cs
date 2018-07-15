@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using InvincibleEngine.Components.Generic;
 using UnityEngine;
-using VektorLibrary.EntityFramework.Components;
+using InvincibleEngine;
 
 namespace VektorLibrary.Utility {
     // Simple Object Pool

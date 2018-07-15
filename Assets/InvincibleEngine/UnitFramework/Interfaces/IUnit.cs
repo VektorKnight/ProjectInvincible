@@ -1,7 +1,5 @@
-﻿using InvincibleEngine.EntityFramework.Interfaces;
-using InvincibleEngine.UnitFramework.Enums;
-
-namespace InvincibleEngine.UnitFramework.Interfaces {
+﻿using InvincibleEngine;
+namespace InvincibleEngine {
     public interface IUnit : ISelectable, ICommandable {
         UnitType UnitType { get; }
         UnitTeam UnitTeam { get; }

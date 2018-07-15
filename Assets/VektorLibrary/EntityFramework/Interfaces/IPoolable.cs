@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace VektorLibrary.EntityFramework.Interfaces {
+namespace InvincibleEngine {
     public interface IPoolable {
         
         // Property: Initialized
