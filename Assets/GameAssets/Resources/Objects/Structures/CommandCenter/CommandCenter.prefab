@@ -289,8 +289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerOwner: -1
   BuildOptions:
-  - PrefabBuild: {fileID: 114846339121617532, guid: bc15331e9ba95cc45b8a76361b38ae0c,
-      type: 2}
+  - PrefabBuild: {fileID: 0}
   Icon: {fileID: 0}
   UnitType: 0
   SelectionIndicator: {fileID: 1379948773590268}

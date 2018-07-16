@@ -70,8 +70,7 @@ public class PlayerManager : MonoBehaviour {
 
         //instantiate preview object
         BuildPreview = Instantiate(new GameObject());
-        BuildPreview.AddComponent<MeshRenderer>();
-        BuildPreview.AddComponent<MeshFilter>();
+       
     }
 
     private void Update() {
@@ -82,11 +81,11 @@ public class PlayerManager : MonoBehaviour {
 
         //Determine where the mouse cursor is hovering
         RaycastHit hit;
-        if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
+        if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1024, 1 << 8)) {
             MousePoint = hit.point;
         }
 
-        //Don't use selection if clicking on UI or building somthing
+        //SELECTION MODE
         if ((!EventSystem.current.IsPointerOverGameObject() || Selecting) && !BuildMode) {
 
             //Check and see if the player is trying to make a selection
@@ -137,18 +136,21 @@ public class PlayerManager : MonoBehaviour {
             }
         }
 
-        //if building wait for interaction for building
+        //BUILD MODE
         if(BuildMode) {
 
             //Set build preview to mouse point
-            BuildPreview.transform.position = MousePoint;
+            BuildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
 
             //Attempt build when released
-           // if(Input.GetMouseButtonUp(0)) {
+            if(Input.GetMouseButtonDown(0)) {
+
+                //Destroy Preview 
+                Destroy(BuildPreview);
 
                 //cancel build mode
-             //   BuildMode = false;
-            //}
+                BuildMode = false;
+            }
         }
     }
 
@@ -156,12 +158,27 @@ public class PlayerManager : MonoBehaviour {
     public void OnBuildRequest(EntityBehavior building) {
 
         //Set build preview
-        BuildPreview.GetComponent<MeshFilter>().mesh = building.GetComponentInChildren<MeshFilter>().sharedMesh;
+        BuildPreview = GenerateEmptyObject(building.gameObject);
 
         //Activate Build Mode
         BuildMode = true;
     }
 
+    //Creates an empty object with no monobehaviors for preview
+    public GameObject GenerateEmptyObject(GameObject source) {
+
+        //instantiate object
+        GameObject g = Instantiate(source);
+
+        //Remove all behavior
+        foreach(MonoBehaviour n in g.GetComponentsInChildren<MonoBehaviour>()) {
+            Destroy(n);
+        }
+        
+        //Activate and return
+        g.SetActive(true);
+        return g;
+    }
 
     /// <summary>
     /// 

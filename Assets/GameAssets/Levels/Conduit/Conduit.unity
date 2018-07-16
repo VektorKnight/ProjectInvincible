@@ -5428,6 +5428,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 5.5717735
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
   m_IsPrefabAsset: 0
@@ -5651,6 +5655,12 @@ Prefab:
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 780611a67e8e941a2b3aa96e5915a793, type: 2}
   m_IsPrefabAsset: 0
+--- !u!114 &1029604683 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114846339121617532, guid: bc15331e9ba95cc45b8a76361b38ae0c,
+    type: 2}
+  m_PrefabInternal: {fileID: 157640465}
+  m_Script: {fileID: 11500000, guid: ff203a0b605c6e749bf8777d5a60a19b, type: 3}
 --- !u!1 &1147578970
 GameObject:
   m_ObjectHideFlags: 0
@@ -5846,6 +5856,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 5.5717716
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
   m_IsPrefabAsset: 0
@@ -5893,7 +5907,7 @@ GameObject:
   - component: {fileID: 1624663381}
   - component: {fileID: 1624663380}
   - component: {fileID: 1624663379}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6124,6 +6138,10 @@ Prefab:
       propertyPath: m_LocalScale.z
       value: 3.461029
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7764535d66594854a997cf842fcdd1b9, type: 3}
   m_IsPrefabAsset: 0
@@ -6155,7 +6173,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2032181305}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: StaticGeometry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6219,6 +6237,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114880948408523724, guid: 46cd9f183e12beb4cab620b467bfc7d5,
+        type: 2}
+      propertyPath: BuildOptions.Array.data[0].PrefabBuild
+      value: 
+      objectReference: {fileID: 1029604683}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 46cd9f183e12beb4cab620b467bfc7d5, type: 2}
   m_IsPrefabAsset: 0
