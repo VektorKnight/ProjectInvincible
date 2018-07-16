@@ -17,6 +17,7 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET;
 //Internal
 using SteamNet;
 
+//Player object for game communication
 public class Player {
 
     public CSteamID PlayerID;
@@ -25,6 +26,49 @@ public class Player {
     public int SpawnSlot;
     public int Team;
 
+}
+
+/// <summary>
+/// Interface for locking objects to a set grid
+/// By default, the grid is locked to 1 grid point = 1 unity meter
+/// </summary>
+public class GridSystem {
+
+    //Grid Dimensions
+    public int GridSizeX, GridSizeY;
+
+    //Stores node occupation
+    public Dictionary<Vector2, bool> Nodes = new Dictionary<Vector2, bool>();
+
+    private Vector3 WorldToGridPoint(Vector3 point) {
+
+        return new Vector3();
+    }
+
+    //Sets occupation of nodes
+    public void SetNodeOccupy(Vector2[] nodes, Vector2 position, bool value) {
+        for (int i = 0; i < nodes.Length; i++) {
+            Nodes[nodes[i]] = value;
+        }
+    }
+
+    //Returns false if any nodes have occupied spots
+    public bool GetNodeOccupy(Vector2[] nodes, Vector2 position) {
+               
+        for (int i = 0; i < nodes.Length; i++) {
+            
+            //if key does not exist, create it
+            if(!Nodes.ContainsKey(nodes[i]+position)) {
+
+            }
+            if (!Nodes[nodes[i]+position]) {
+                return false;
+            }
+        }
+
+        //return true after all node checks
+        return true;
+    }
 }
 
 /// <summary>
