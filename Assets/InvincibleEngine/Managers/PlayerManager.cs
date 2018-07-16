@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using InvincibleEngine;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// Handles player control and input to pass to match manager
@@ -24,6 +24,7 @@ public class PlayerManager : MonoBehaviour {
 
     //Location of mouse on screen
     public Vector2 MousePotition = new Vector2();
+    public Vector3 MousePoint = new Vector3();
 
     // Singleton Instance Accessor
     public static PlayerManager Instance { get; private set; }
@@ -31,6 +32,17 @@ public class PlayerManager : MonoBehaviour {
     //List of selected Entities
     public List<EntityBehavior> SelectedEntities = new List<EntityBehavior>();
 
+    //Building variables
+    private bool _BuildMode = false;
+    public bool BuildMode {
+        get {
+            return _BuildMode;
+        }
+        set {
+            _BuildMode = value;            
+        }
+    }
+    private GameObject BuildPreview;
 
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -55,6 +67,11 @@ public class PlayerManager : MonoBehaviour {
         SelectionTexture.SetPixel(1, 1, Color.white);
         SelectionTexture.wrapMode = TextureWrapMode.Repeat;
         SelectionTexture.Apply();
+
+        //instantiate preview object
+        BuildPreview = Instantiate(new GameObject());
+        BuildPreview.AddComponent<MeshRenderer>();
+        BuildPreview.AddComponent<MeshFilter>();
     }
 
     private void Update() {
@@ -63,58 +80,86 @@ public class PlayerManager : MonoBehaviour {
         //Set mouse position
         MousePotition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
 
-        //Check and see if the player is trying to make a selection
-        if (Input.GetMouseButtonDown(0)) {
-
-            //Set selecting to true
-            Selecting = true;
-
-            //Set initial values of box
-            SelectionBox = new Rect(MousePotition.x, MousePotition.y, 0, 0);
+        //Determine where the mouse cursor is hovering
+        RaycastHit hit;
+        if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) {
+            MousePoint = hit.point;
         }
 
-        //As long as it's held make the rectangle 
-        if (Input.GetMouseButton(0)) {
-            SelectionBox.width = MousePotition.x - SelectionBox.x;
-            SelectionBox.height = MousePotition.y - SelectionBox.y;
-        }
+        //Don't use selection if clicking on UI or building somthing
+        if ((!EventSystem.current.IsPointerOverGameObject() || Selecting) && !BuildMode) {
 
-        //On mouse up stop selecting
-        if (Input.GetMouseButtonUp(0)) {
-            
-            //Toggle selecting
-            Selecting = false;
+            //Check and see if the player is trying to make a selection
+            if (Input.GetMouseButtonDown(0)) {
 
-            //Deselect all objects
-            foreach(EntityBehavior n in SelectedEntities) {
-                n.OnDeselected();
-            }
-            SelectedEntities.Clear();
-            
-            //EXTREMELY bad way of selecting, change later
-            foreach(EntityBehavior n in EntityManager.Instance._behaviors) {
+                //Set selecting to true
+                Selecting = true;
 
-                //Cache obejct position
-                objectPosition = Camera.main.WorldToScreenPoint(n.transform.position);
-
-                //account for weird mapping
-                objectPosition.y = Screen.height - objectPosition.y;
-
-                //Check if within selection and call on select if possible
-                if(SelectionBox.Contains(objectPosition)) {
-                    SelectedEntities.Add(n);
-                    n.OnSelected();
-                }                
+                //Set initial values of box
+                SelectionBox = new Rect(MousePotition.x, MousePotition.y, 0, 0);
             }
 
-            SelectionBox = new Rect(0, 0, 0, 0);
+            //As long as it's held make the rectangle 
+            if (Input.GetMouseButton(0) && Selecting) {
+                SelectionBox.width = MousePotition.x - SelectionBox.x;
+                SelectionBox.height = MousePotition.y - SelectionBox.y;
+            }
+
+            //On mouse up stop selecting
+            if (Input.GetMouseButtonUp(0) && Selecting) {
+
+                //Toggle selecting
+                Selecting = false;
+
+                //Deselect all objects
+                foreach (EntityBehavior n in SelectedEntities) {
+                    n.OnDeselected();
+                }
+                SelectedEntities.Clear();
+
+                //EXTREMELY bad way of selecting, change later
+                foreach (EntityBehavior n in EntityManager.Instance._behaviors) {
+
+                    //Cache obejct position
+                    objectPosition = Camera.main.WorldToScreenPoint(n.transform.position);
+
+                    //account for weird mapping
+                    objectPosition.y = Screen.height - objectPosition.y;
+
+                    //Check if within selection and call on select if possible
+                    if (SelectionBox.Contains(objectPosition)) {
+                        SelectedEntities.Add(n);
+                        n.OnSelected();
+                    }
+                }
+
+                SelectionBox = new Rect(0, 0, 0, 0);
+            }
         }
-        
+
+        //if building wait for interaction for building
+        if(BuildMode) {
+
+            //Set build preview to mouse point
+            BuildPreview.transform.position = MousePoint;
+
+            //Attempt build when released
+           // if(Input.GetMouseButtonUp(0)) {
+
+                //cancel build mode
+             //   BuildMode = false;
+            //}
+        }
     }
 
     //Called when the player attempts to build somthing
-    public void OnBuildPreview(GameObject building) {
+    public void OnBuildRequest(EntityBehavior building) {
 
+        //Set build preview
+        BuildPreview.GetComponent<MeshFilter>().mesh = building.GetComponentInChildren<MeshFilter>().sharedMesh;
+
+        //Activate Build Mode
+        BuildMode = true;
     }
 
 

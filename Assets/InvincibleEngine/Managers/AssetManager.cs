@@ -22,16 +22,12 @@ public static class AssetManager{
         //Load all Gameobjects (prefabs) into an array
         var loadedResources = Resources.LoadAll<NetworkEntity>("");
 
-        //remove any non-prefab objects
-        for(int i=0; i<loadedResources.Length;i++) {
-
-        }
-
         //Convert to a list for data manipuiation if necessary
         Manifest = loadedResources.ToList<NetworkEntity>();
 
         foreach(NetworkEntity n in Manifest) {
             Debug.Log($"<color=blue>Asset {n.name} found with ID: {Manifest.IndexOf(n)}</Color>");
+            n.AssetID = (ushort)Manifest.IndexOf(n);
         }
         Debug.Log($"<color=blue>...Done. Found {Manifest.Count} prefabs in resource folder that can be spawned</Color>");
     }

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-
+using UnityEngine.UI;
 using InvincibleEngine;
 using VektorLibrary.EntityFramework.Singletons;
 
@@ -15,7 +15,11 @@ namespace InvincibleEngine {
         //Owner of object, -1 is the empty player
         public int PlayerOwner = -1;
 
-        
+        //Build Options
+        [SerializeField] public BuildOption[] BuildOptions;
+
+        //Image used for unit icon
+        public Sprite Icon;
 
         // Unity Initialization
         public virtual void Start() {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using SteamNet;
 
 /// <summary>
@@ -12,6 +13,7 @@ public class NetworkEntity : MonoBehaviour {
     public ushort NetID;
     public ushort AssetID;
 
+    
 	// Use this for initialization
 	void Awake () {
 
