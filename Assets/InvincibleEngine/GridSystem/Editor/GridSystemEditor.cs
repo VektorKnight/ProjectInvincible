@@ -2,8 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridSystemEditor : MonoBehaviour {
+//Only compile in editor mode
+#if UNITY_EDITOR
+using UnityEditor;
 
+
+
+public class GridSystemEditor : MonoBehaviour {
+    
 	// Use this for initialization
 	void Start () {
 		
@@ -14,3 +20,4 @@ public class GridSystemEditor : MonoBehaviour {
 		
 	}
 }
+#endif

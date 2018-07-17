@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using InvincibleEngine;
 
+
+
 namespace InvincibleEngine {
 
     /// <summary>
@@ -11,51 +13,31 @@ namespace InvincibleEngine {
     /// </summary>
     public class GridSystem {
 
-        //Grid Dimensions
-        public int GridSizeX, GridSizeY;
-        
-        //Stores node occupation
-        public Dictionary<Vector2, bool> Nodes = new Dictionary<Vector2, bool>();
+        public class GridData {
 
-        //Converts a world point into grid space
-        public Vector3 WorldToGridPoint(Vector3 point) {
-
-            //Find x,z coordinates
-            Vector3 gridPoint = new Vector3(Mathf.RoundToInt(point.x), point.y, Mathf.RoundToInt(point.z));
-
-            //Raycast to get height at location of grid
-            RaycastHit hit;
-            if (Physics.Raycast(gridPoint += Vector3.up, Vector3.down, out hit, 5, 1 << 8)) {
-                gridPoint.y = hit.point.y;
-            }
-
-            //return point
-            return gridPoint;
-        }
-
-        //Sets occupation of nodes
-        public void SetNodeOccupy(Vector2[] nodes, Vector2 position, bool value) {
-            for (int i = 0; i < nodes.Length; i++) {
-                Nodes[nodes[i]] = value;
+            //grid point data
+            struct GridPoint {
+                
+                //Enabled/disabled grid point
+                public bool State;              
             }
         }
 
-        //Returns false if any nodes have occupied spots
-        public bool GetNodeOccupy(Vector2[] nodes, Vector2 position) {
+        /// <summary>
+        /// Saves current grid data to a local file that can be loaded
+        /// </summary>
+        public void SaveGridToFile() {
 
-            for (int i = 0; i < nodes.Length; i++) {
 
-                //if key does not exist, create it
-                if (!Nodes.ContainsKey(nodes[i] + position)) {
+        }
 
-                }
-                if (!Nodes[nodes[i] + position]) {
-                    return false;
-                }
-            }
+        /// <summary>
+        /// Returns the grid from the local file
+        /// </summary>
+        /// <returns></returns>
+        public GridData GetGridFromFile() {
 
-            //return true after all node checks
-            return true;
+            return new GridData();
         }
     }
 }
