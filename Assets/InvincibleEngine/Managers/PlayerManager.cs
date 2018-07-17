@@ -121,7 +121,7 @@ namespace InvincibleEngine.Managers {
         // Building state of the manager
         private void BuildingState(float deltaTime) {
             // Set build preview to mouse point
-            _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
+            //:: REMOVED WHILE GRID SYSTEM IS MOVED:: _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
 
             // Attempt build when released
             if (!Input.GetMouseButtonDown(0)) return;
