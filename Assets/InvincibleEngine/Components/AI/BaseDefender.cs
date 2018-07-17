@@ -117,7 +117,7 @@ namespace InvincibleEngine.Components.AI {
 			GameObject[] targets;
 			if (!AIUtility.ScanForObjects(transform.position, _maxStrayDistance * 0.9f, _sensorLayers, out targets)) return;
 			_currentTarget = targets[0].transform;
-			_stateMachine.AddTask(EngageState);
+			_stateMachine.AddState(EngageState);
 			_lastScanTime = Time.time;
 		}
 		
@@ -125,14 +125,14 @@ namespace InvincibleEngine.Components.AI {
 		private void EngageState(float deltaTime) {
 			// Exit this state if the target is null or no longer active
 			if (_currentTarget == null || _currentTarget.gameObject.activeSelf == false) {
-				_stateMachine.RemoveTask();
+				_stateMachine.RemoveState();
 				return;
 			}
 			
 			// Exit this state if we've traversed too far from the last path node
 			var pathDistance = VektorMath.PlanarDistance(_pathNodes[_pathIndex].position, transform.position, Vector3.up);
 			if (pathDistance > _maxStrayDistance) {
-				_stateMachine.RemoveTask();
+				_stateMachine.RemoveState();
 				return;
 			}
 			

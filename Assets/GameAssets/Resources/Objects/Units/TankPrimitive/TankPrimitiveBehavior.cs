@@ -5,7 +5,7 @@ using UnityEngine.AI;
 namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 	[RequireComponent(typeof(NavMeshAgent))]
 	[RequireComponent(typeof(LineRenderer))]
-	public class TankPrimitiveBehavior : MonoBehaviour {
+	public class TankPrimitiveBehavior : LandUnitBehavior {
 		
 		// Unity Inspector
 		[Header("Debugging")] 
@@ -16,7 +16,7 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 		private LineRenderer _lineRenderer;
 
 		// Use this for initialization
-		private void Start () {
+		public override void Start () {
 			// Reference required components
 			_navAgent = GetComponent<NavMeshAgent>();
 			_lineRenderer = GetComponent<LineRenderer>();
@@ -25,6 +25,8 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 			_lineRenderer.useWorldSpace = true;
 			_lineRenderer.positionCount = 1;
 			_lineRenderer.SetPosition(0, transform.position);
+			
+			base.Start();
 		}
 	
 		// Update is called once per frame

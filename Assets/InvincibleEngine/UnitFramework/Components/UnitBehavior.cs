@@ -32,7 +32,7 @@ namespace InvincibleEngine {
         }
 
         public void Awake() {
-            SelectionIndicator.GetComponent<Renderer>().enabled = false;
+            SelectionIndicator.SetActive(false);
         }
 
         public virtual void IssueCommand(CommandType cmd, object arg, bool overrideQueue = false) {
@@ -40,12 +40,12 @@ namespace InvincibleEngine {
         }
 
         public override void OnSelected() {
-            SelectionIndicator.GetComponent<Renderer>().enabled = true;
+            SelectionIndicator.SetActive(true);
 
         }
 
         public override void OnDeselected() {
-            SelectionIndicator.GetComponent<Renderer>().enabled = false;
+            SelectionIndicator.SetActive(false);
 
         }
 

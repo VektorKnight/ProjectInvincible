@@ -13,41 +13,47 @@ namespace VektorLibrary.AI.Systems {
     /// <typeparam name="T">The parameter passed to the active task.</typeparam>
     public class StackFSM<T> : IStateMachine<T> {
         // Default task
-        private readonly Action<T> _defaultTask;
+        private readonly Action<T> _defaultState;
 
         // FSM Stack
-        private readonly Stack<Action<T>> _taskStack = new Stack<Action<T>>();
+        private readonly Stack<Action<T>> _stateStack = new Stack<Action<T>>();
 
         // Constructor
-        public StackFSM(Action<T> defaultTask) {
-            _defaultTask = defaultTask;
+        public StackFSM(Action<T> defaultState) {
+            _defaultState = defaultState;
         }
 
         // Get the current task from the stack
-        public Action<T> GetCurrentTask() {
+        public Action<T> GetCurrentState() {
             // Return the task at the top of the stack or return the default task if empty
-            return _taskStack.Count > 0 ? _taskStack.Peek() : _defaultTask;
+            return _stateStack.Count > 0 ? _stateStack.Peek() : _defaultState;
         }
 
         // Push a new task to the stack
-        public void AddTask(Action<T> actiontask) {
-            _taskStack.Push(actiontask);
+        public void AddState(Action<T> state) {
+            _stateStack.Push(state);
+        }
+        
+        // Forcibly sets the state of the FSM
+        public void SetState(Action<T> state) {
+            _stateStack.Clear();
+            _stateStack.Push(state);
         }
 
         // Pop a task from the stack
-        public void RemoveTask() {
-            _taskStack.Pop();
+        public void RemoveState() {
+            _stateStack.Pop();
         }
         
         // Clear the entire stack
-        public void ClearTasks() {
-            _taskStack.Clear();
+        public void Reset() {
+            _stateStack.Clear();
         }
 
         // Update the task machine
         public void Update(T param) {
             // Update the current task
-            GetCurrentTask()?.Invoke(param);
+            GetCurrentState()?.Invoke(param);
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 using SteamNet;
 using InvincibleEngine;
+using InvincibleEngine.Managers;
 
 public class UIActionPanel : MonoBehaviour {
 

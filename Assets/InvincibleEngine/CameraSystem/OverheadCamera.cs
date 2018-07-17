@@ -81,7 +81,7 @@ namespace InvincibleEngine {
         }
         
         // Physics Update Callback
-        public override void OnPhysicsUpdate(float physicsDelta) {
+        private void FixedUpdate() {
             // Create a ray from the mouse screen position
             var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
             
@@ -94,7 +94,7 @@ namespace InvincibleEngine {
         }
 
         // Render Update Callback
-        public override void OnRenderUpdate(float renderDelta) {
+        private void Update() {
             // Exit if not initialized
             if (!Registered) return;
             
@@ -104,8 +104,8 @@ namespace InvincibleEngine {
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
                 // Apply low-pass filtering to mouse deltas
-                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * _panSpeed * renderDelta);
-                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * _panSpeed * renderDelta);
+                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * _panSpeed * Time.deltaTime);
+                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * _panSpeed * Time.deltaTime);
                 
                 // Create delta value
                 var dPos = new Vector3(_smoothX, 0f, _smoothY);
@@ -115,8 +115,8 @@ namespace InvincibleEngine {
             }
             else {
                 // Get pan input values from keyboard
-                _inputValues.x = Input.GetAxis("Horizontal") * (_panSpeed * 4f) * renderDelta;
-                _inputValues.z = Input.GetAxis("Vertical") * (_panSpeed * 4f) * renderDelta;
+                _inputValues.x = Input.GetAxis("Horizontal") * (_panSpeed * 4f) * Time.deltaTime;
+                _inputValues.z = Input.GetAxis("Vertical") * (_panSpeed * 4f) * Time.deltaTime;
             }
             
             // Update previous mouse position
@@ -124,14 +124,14 @@ namespace InvincibleEngine {
             
             // Get zoom input values
             _scrollWheel.AddSample(Input.GetAxis("Mouse ScrollWheel"));
-            _inputValues.y += _scrollWheel * _zoomSpeed * renderDelta;
+            _inputValues.y += _scrollWheel * _zoomSpeed * Time.deltaTime;
             _inputValues.y = Mathf.Clamp01(_inputValues.y);
-            _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * renderDelta);
+            _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * Time.deltaTime);
             
             // Move towards cursor if enabled and zooming
             _targetPosition = (Math.Abs(_zoomValue - _inputValues.y) > 0.0538f) ? _targetPosition : _mouseWorld;
             if (_scrollWheel > 0f && _zoomValue < 0.98f) 
-                transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _refVT, _panSpeed * _panSpeed * renderDelta);
+                transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _refVT, _panSpeed * _panSpeed * Time.deltaTime);
             
             // Interpolate control values
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);

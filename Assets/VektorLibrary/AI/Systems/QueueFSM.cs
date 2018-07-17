@@ -24,30 +24,36 @@ namespace VektorLibrary.AI.Systems {
         }
 
         // Get the current task from the queue
-        public Action<T> GetCurrentTask() {
+        public Action<T> GetCurrentState() {
             // Return the task at the front of the queue or return the default task if empty
             return _taskQueue.Count > 0 ? _taskQueue.Peek() : _defaultTask;
         }
 
         // Push a new task to the queue
-        public void AddTask(Action<T> task) {
+        public void AddState(Action<T> task) {
             _taskQueue.Enqueue(task);
+        }
+        
+        // Forcibly sets the state of the FSM
+        public void SetState(Action<T> state) {
+            Reset();
+            _taskQueue.Enqueue(state);
         }
 
         // Remove the task at the front of the queue
-        public void RemoveTask() {
+        public void RemoveState() {
             _taskQueue.Dequeue();
         }
         
         // Clear the entire queue
-        public void ClearTasks() {
+        public void Reset() {
             _taskQueue.Clear();
         }
 
         // Update the state machine
         public void Update(T param) {
             // Update the current task
-            GetCurrentTask()?.Invoke(param);
+            GetCurrentState()?.Invoke(param);
         }
     }
 }

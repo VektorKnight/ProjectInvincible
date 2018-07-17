@@ -15,7 +15,7 @@ namespace InvincibleEngine {
         public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
 
         // Private: Entity Behaviors
-        public HashedArray<IEntity> _behaviors = new HashedArray<IEntity>(1024);
+        public HashedArray<EntityBehavior> _behaviors = new HashedArray<EntityBehavior>(1024);
         
         // Private: State
         [SerializeField] private bool _initialized;
@@ -56,15 +56,14 @@ namespace InvincibleEngine {
         }
         
         // Register an entity behavior
-        public static void RegisterBehavior(IEntity behavior) {
+        public static void RegisterBehavior(EntityBehavior behavior) {
             // Add the behavior to the collection and initialize it
             Instance._behaviors.Add(behavior);
-            Debug.Log($"Behavior <i> {behavior} </i> added");
             behavior.OnRegister();
         }
         
         // Unregister an entity behavior
-        public static void UnregisterBehavior(IEntity behavior) {
+        public static void UnregisterBehavior(EntityBehavior behavior) {
             // Exit if the behavior is not registered
             if (!Instance._behaviors.Contains(behavior)) return;
             
