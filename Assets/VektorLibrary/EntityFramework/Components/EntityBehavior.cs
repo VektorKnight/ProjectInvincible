@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using InvincibleEngine;
+using InvincibleEngine.UnitFramework.Interfaces;
 using VektorLibrary.EntityFramework.Singletons;
 
 namespace InvincibleEngine {

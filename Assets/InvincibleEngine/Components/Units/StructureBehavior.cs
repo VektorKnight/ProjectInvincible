@@ -1,6 +1,7 @@
 ﻿using InvincibleEngine;
 using System.Collections;
 using System.Collections.Generic;
+using InvincibleEngine.UnitFramework.Components;
 using UnityEngine;
 
 public class StructureBehavior : UnitBehavior {

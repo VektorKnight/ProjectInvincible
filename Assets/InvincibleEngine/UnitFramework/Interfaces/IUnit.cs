@@ -1,5 +1,4 @@
-﻿using InvincibleEngine;
-namespace InvincibleEngine {
+﻿namespace InvincibleEngine.UnitFramework.Interfaces {
     public interface IUnit : ISelectable, ICommandable {
         UnitType UnitType { get; }
         UnitTeam UnitTeam { get; }

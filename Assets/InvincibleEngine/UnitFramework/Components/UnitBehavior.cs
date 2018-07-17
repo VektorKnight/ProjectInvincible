@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using InvincibleEngine;
-using System;
+﻿using System;
+using InvincibleEngine.UnitFramework.Enums;
+using InvincibleEngine.UnitFramework.Interfaces;
+using UnityEngine;
 
-namespace InvincibleEngine {
+namespace InvincibleEngine.UnitFramework.Components {
     public class UnitBehavior : EntityBehavior, IUnit {
         
         public UnitType UnitType;
@@ -12,14 +12,13 @@ namespace InvincibleEngine {
         public bool Selected { get; set; } = false;
 
         //Indicates unit selection
-        public GameObject SelectionIndicator;
+        private GameObject _selectionIndicator;
 
-        //Base health of a unit
+        // Base health of a unit
         public float Health = 100;
 
-
-        //Denotes whether this unit can be built from somwhere, eventually this should be changed 
-        //to a proper flag system that tells excactly where this unit can be made from
+        // Denotes whether this unit can be built from somwhere, eventually this should be changed 
+        // to a proper flag system that tells excactly where this unit can be made from
         public bool CanBeProduced = false;
 
         UnitType IUnit.UnitType {
@@ -30,22 +29,38 @@ namespace InvincibleEngine {
         public virtual void GenerateResource() {
 
         }
-
+        
+        // Initialization
         public void Awake() {
-            SelectionIndicator.SetActive(false);
+            // Attempt to load the default selection indicator from resources directory
+            var selectionPrefab = Resources.Load<GameObject>("Objects/Common/SelectionIndicator");
+            
+            // Instantiate the selection indicator as a child of this object
+            if (selectionPrefab != null) {
+                _selectionIndicator = Instantiate(selectionPrefab, transform);
+                _selectionIndicator.transform.localPosition = new Vector3(0f, 0.5f, 0f);
+                _selectionIndicator.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
+            }
+            
+            // Log an error if something goes boom boom
+            if (_selectionIndicator == null)
+                Debug.LogError("Failed to load default selection indicator prefab!");
+            
+            // Deactivate the indicator object if not null
+            _selectionIndicator?.SetActive(false);
         }
 
-        public virtual void IssueCommand(CommandType cmd, object arg, bool overrideQueue = false) {
+        public virtual void ProcessCommand(UnitCommand cmd, object arg, bool overrideQueue = false) {
 
         }
 
         public override void OnSelected() {
-            SelectionIndicator.SetActive(true);
+            _selectionIndicator.SetActive(true);
 
         }
 
         public override void OnDeselected() {
-            SelectionIndicator.SetActive(false);
+            _selectionIndicator.SetActive(false);
 
         }
 
