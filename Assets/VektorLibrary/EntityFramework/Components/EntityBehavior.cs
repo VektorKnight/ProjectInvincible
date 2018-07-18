@@ -63,5 +63,10 @@ namespace InvincibleEngine {
         public virtual void OnDeselected() {
 
         }
+        
+        // Called when object enters view
+        protected virtual void OnBecameVisible() {
+            
+        }
     }
 }

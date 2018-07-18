@@ -32,9 +32,6 @@ namespace InvincibleEngine.Managers {
         // Building variables
         public bool BuildMode { get; set; }
         private GameObject _buildPreview;
-        
-        // State Machine
-        private StackFSM<float> _stateMachine;
 
         // Preload Method
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -61,15 +58,37 @@ namespace InvincibleEngine.Managers {
 
             // instantiate preview object
             _buildPreview = Instantiate(new GameObject());
-            
-            // Initialize the state machine
-            _stateMachine = new StackFSM<float>(SelectionState);
         }
         
-        // Default state of the manager (Selection)
-        private void SelectionState(float deltaTime) {
+        // Building state of the manager
+        private void BuildingState(float deltaTime) {
+            // Set build preview to mouse point
+            //:: REMOVED WHILE GRID SYSTEM IS MOVED:: _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
+
+            // Attempt build when released
+            if (!Input.GetMouseButtonDown(0)) return;
+            
+            // Destroy Preview 
+            Destroy(_buildPreview);
+
+            // Cancel build mode
+            BuildMode = false;
+        }
+
+        private void Update() {
+            // Set mouse position
+            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+            // Determine where the mouse cursor is hovering
+            RaycastHit hit;
+            if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1024, 1 << 8)) {
+                MousePoint = hit.point;
+            }
+            
+            // Selection code
             if (EventSystem.current.IsPointerOverGameObject() && !_selecting) return;
-            //Check and see if the player is trying to make a selection
+            
+            // Check and see if the player is trying to make a selection
             if (Input.GetMouseButtonDown(0)) {
 
                 // Set selecting to true
@@ -109,49 +128,14 @@ namespace InvincibleEngine.Managers {
                     objectPosition.y = Screen.height - objectPosition.y;
 
                     // Check if within selection and call on select if possible
-                    if (!_selectionBox.Contains(objectPosition)) continue;
-                    SelectedEntities.Add(entity);
+                    if (!_selectionBox.Contains(objectPosition, true)) continue;
+                    SelectedEntities.Add(entity);                       
                     entity.OnSelected();
                 }
 
                 _selectionBox = new Rect(0, 0, 0, 0);
             }
-        }
-        
-        // Building state of the manager
-        private void BuildingState(float deltaTime) {
-            // Set build preview to mouse point
-            //:: REMOVED WHILE GRID SYSTEM IS MOVED:: _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
-
-            // Attempt build when released
-            if (!Input.GetMouseButtonDown(0)) return;
             
-            // Destroy Preview 
-            Destroy(_buildPreview);
-
-            // Cancel build mode
-            BuildMode = false;
-        }
-        
-        // Commanding state of the manager
-        private void CommandingState(float deltaTime) {
-            
-        }
-
-        private void Update() {
-            //TODO: TEMPORARY SELECTION INDICATIONS
-
-            //Set mouse position
-            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-
-            //Determine where the mouse cursor is hovering
-            RaycastHit hit;
-            if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1024, 1 << 8)) {
-                MousePoint = hit.point;
-            }
-            
-            // Update the state machine
-            _stateMachine.Update(Time.deltaTime);
         }
 
         //Called when the player attempts to build somthing

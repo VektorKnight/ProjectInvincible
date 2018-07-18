@@ -1,47 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-
-
 using UnityEngine;
 
+namespace InvincibleEngine.Managers {
+    public static class AssetManager{
 
-public static class AssetManager{
+        private static List<NetworkEntity> _manifest = new List<NetworkEntity>();
 
-    private static List<NetworkEntity> Manifest = new List<NetworkEntity>();
-
-    /// <summary>
-    /// On game start generate recurrsive and non-random asset directory
-    /// who's ID is the index of the obejct in the collection
-    /// </summary>
-    [RuntimeInitializeOnLoadMethod]
-    static void GenerateManifest() {
-        Debug.Log("<color=blue>Asset Manager generating manifest...</Color>");
+        /// <summary>
+        /// On game start generate recurrsive and non-random asset directory
+        /// who's ID is the index of the obejct in the collection
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod]
+        static void GenerateManifest() {
+            Debug.Log("<color=blue>Asset Manager generating manifest...</Color>");
         
-        //Load all Gameobjects (prefabs) into an array
-        var loadedResources = Resources.LoadAll<NetworkEntity>("");
+            // Load all Gameobjects (prefabs) into an array
+            var loadedResources = Resources.LoadAll<NetworkEntity>("");
 
-        //Convert to a list for data manipuiation if necessary
-        Manifest = loadedResources.ToList<NetworkEntity>();
+            // Convert to a list for data manipuiation if necessary
+            _manifest = loadedResources.ToList<NetworkEntity>();
 
-        foreach(NetworkEntity n in Manifest) {
-            Debug.Log($"<color=blue>Asset {n.name} found with ID: {Manifest.IndexOf(n)}</Color>");
-            n.AssetID = (ushort)Manifest.IndexOf(n);
+            foreach(NetworkEntity n in _manifest) {
+                Debug.Log($"<color=blue>Asset {n.name} found with ID: {_manifest.IndexOf(n)}</Color>");
+                n.AssetID = (ushort)_manifest.IndexOf(n);
+            }
+            Debug.Log($"<color=blue>...Done. Found {_manifest.Count} prefabs in resource folder that can be spawned</Color>");
         }
-        Debug.Log($"<color=blue>...Done. Found {Manifest.Count} prefabs in resource folder that can be spawned</Color>");
-    }
 
-    /// <summary>
-    /// Retrieve asset by ID
-    /// </summary>
-    /// <param name="ID">Asset ID</param>
-    /// <returns></returns>
-    public static GameObject LoadAssetByID(ushort ID) {
-        return Manifest[ID].gameObject;
-    }
+        /// <summary>
+        /// Retrieve asset by ID
+        /// </summary>
+        /// <param name="ID">Asset ID</param>
+        /// <returns></returns>
+        public static GameObject LoadAssetByID(ushort ID) {
+            return _manifest[ID].gameObject;
+        }
 
-    public static ushort GetIDByAsset(GameObject asset) {
-        return asset.GetComponent<NetworkEntity>().AssetID;
+        public static ushort GetIDByAsset(GameObject asset) {
+            return asset.GetComponent<NetworkEntity>().AssetID;
+        }
     }
 }

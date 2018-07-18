@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 //Project
 using HexSerializer;
 using System.Globalization;
+using InvincibleEngine.Managers;
 
 namespace SteamNet {
 
