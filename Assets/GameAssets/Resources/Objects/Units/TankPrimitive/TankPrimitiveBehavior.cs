@@ -30,10 +30,7 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 		}
 	
 		// Update is called once per frame
-		protected override void Update () {
-			// Call base method
-			base.Update();
-			
+		private void Update () {		
 			// Check for mouse click
 			if (!Input.GetKeyDown(KeyCode.Mouse0)) return;
 			

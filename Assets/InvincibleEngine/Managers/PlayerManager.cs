@@ -135,10 +135,9 @@ namespace InvincibleEngine.Managers {
 
                 _selectionBox = new Rect(0, 0, 0, 0);
             }
-            
         }
 
-        //Called when the player attempts to build somthing
+        // Called when the player attempts to build somthing
         public void OnBuildRequest(EntityBehavior building) {
 
             //Set build preview

@@ -74,8 +74,8 @@ namespace InvincibleEngine {
             
             // Initialize mouse low-pass filters
             _scrollWheel = new LowPassFloat(8);
-            _smoothX = new LowPassFloat(4);
-            _smoothY = new LowPassFloat(4);
+            _smoothX = new LowPassFloat(2);
+            _smoothY = new LowPassFloat(2);
         }
         
         // FixedUpdate
@@ -98,8 +98,8 @@ namespace InvincibleEngine {
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
                 // Apply low-pass filtering to mouse deltas
-                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * (_panSpeed / 4f) * Time.deltaTime);
-                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * (_panSpeed / 4f) * Time.deltaTime);
+                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * (_panSpeed / 6f) * Time.deltaTime);
+                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * (_panSpeed / 6f) * Time.deltaTime);
                 
                 // Create delta value
                 var dPos = new Vector3(_smoothX, 0f, _smoothY);
@@ -154,7 +154,7 @@ namespace InvincibleEngine {
                 var mouseDistance = mouseDirection.magnitude;
                 mouseDirection = mouseDirection.normalized;
 
-                transform.position += new Vector3(mouseDirection.x, 0f, mouseDirection.y) * mouseDistance * (1f - _zoomValue) * Time.deltaTime;
+                transform.position += new Vector3(mouseDirection.x, 0f, mouseDirection.y) * _panSpeed * (1f - _zoomValue) * Time.deltaTime;
             }
 
             // Calculate camera z-offset with trig (black magic)

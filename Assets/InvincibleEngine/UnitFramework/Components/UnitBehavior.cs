@@ -44,8 +44,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Instantiate the selection indicator as a child of this object
             if (selectionPrefab != null) {
-                _selectionIndicator = Instantiate(selectionPrefab, transform.position, Quaternion.identity);
-                //_selectionIndicator.transform.localPosition = new Vector3(0f, 0.5f, 0f);
+                _selectionIndicator = Instantiate(selectionPrefab, transform);
+                _selectionIndicator.transform.localPosition = new Vector3(0f, 0.5f, 0f);
                 _selectionIndicator.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
             }
             
@@ -55,10 +55,6 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Deactivate the indicator object if not null
             _selectionIndicator?.SetActive(false);
-        }
-
-        protected virtual void Update() {
-            _selectionIndicator.transform.position = transform.position;
         }
 
         public virtual void ProcessCommand(UnitCommand cmd, object arg, bool overrideQueue = false) {

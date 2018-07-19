@@ -252,10 +252,10 @@ MonoBehaviour:
   _pitchRange: {x: 60, y: 90}
   _pitchRangeOrbit: {x: 0, y: 90}
   _orbitModeMaximum: 0.25
-  _panSpeedRange: {x: 60, y: 160}
+  _panSpeedRange: {x: 50, y: 150}
   _zoomSpeed: 60
   _rotateSpeed: 10
-  _zoomSmoothing: 20
+  _zoomSmoothing: 10
   _edgeScrollBuffer: 6
   _geometryMask:
     serializedVersion: 2
