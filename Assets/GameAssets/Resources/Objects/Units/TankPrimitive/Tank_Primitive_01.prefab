@@ -126,7 +126,8 @@ MonoBehaviour:
   PlayerOwner: -1
   BuildOptions: []
   Icon: {fileID: 21300000, guid: b968aa9362f752c48972b9f30bf765b5, type: 3}
-  UnitType: 1
+  _unitType: 1
+  _supportedCommands: 0
   Health: 100
   CanBeProduced: 0
   _showPath: 1

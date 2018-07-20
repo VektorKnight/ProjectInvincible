@@ -1,6 +1,8 @@
 ﻿using System;
+using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
+using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
 
 namespace InvincibleEngine.UnitFramework.Components {
@@ -9,11 +11,14 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Unity Inspector
         [Header("Unit Settings")]
         [SerializeField] private UnitType _unitType;
-        [SerializeField] private UnitCommand _supportedCommands;
+        [SerializeField] private UnitCommands _supportedCommands;
+        
+        // Private: Component References
+        private Renderer _renderer;
         
         // Public Properties
         public UnitType UnitType => _unitType;
-        public UnitCommand SupportedCommands => _supportedCommands;
+        public UnitCommands SupportedCommands => _supportedCommands;
         public UnitTeam UnitTeam { get; set; }
         public bool Invulnerable { get; private set; }
         public bool Selected { get; set; } = false;
@@ -26,7 +31,7 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         // Denotes whether this unit can be built from somwhere, eventually this should be changed 
         // to a proper flag system that tells excactly where this unit can be made from
-        public bool CanBeProduced = false;
+        public bool CanBeProduced;
 
         UnitType IUnit.UnitType {
             get {
@@ -38,7 +43,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
         
         // Initialization
-        public void Awake() {
+        public override void OnRegister() {
+            // Reference required components
+            _renderer = GetComponent<Renderer>();
+            
             // Attempt to load the default selection indicator from resources directory
             var selectionPrefab = Resources.Load<GameObject>("Objects/Common/SelectionIndicator");
             
@@ -55,25 +63,44 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Deactivate the indicator object if not null
             _selectionIndicator?.SetActive(false);
+            
+            // Call base method
+            base.OnRegister();
         }
 
-        public virtual void ProcessCommand(UnitCommand cmd, object arg, bool overrideQueue = false) {
-
+        public override void OnRenderUpdate(float deltaTime) {
+            // Determine if this object is on screen or not
+            if (GeometryUtility.TestPlanesAABB(OverheadCamera.Instance.FrustrumPlanes, _renderer.bounds)) 
+                OverheadCamera.Instance.VisibleObjects.Add(this);
+            else 
+                OverheadCamera.Instance.VisibleObjects.Remove(this);
+            
         }
 
-        public override void OnSelected() {
+        public virtual void OnSelected() {
             _selectionIndicator.SetActive(true);
 
         }
 
-        public override void OnDeselected() {
+        public virtual void OnDeselected() {
             _selectionIndicator.SetActive(false);
 
+        }
+
+        public virtual void OnBecameVisible() {
+            
+        }
+
+        public virtual void OnBecameInvisible() {
+            
         }
 
         public virtual void TakeDamage(float damage) {
 
         }
-        
+
+        public void ProcessCommand<T>(UnitCommand<T> command, bool overrideQueue = true) {
+            throw new NotImplementedException();
+        }
     }
 }

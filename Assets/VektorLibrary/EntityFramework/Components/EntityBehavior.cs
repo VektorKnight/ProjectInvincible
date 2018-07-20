@@ -1,11 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using InvincibleEngine;
-using InvincibleEngine.UnitFramework.Interfaces;
-using VektorLibrary.EntityFramework.Singletons;
+﻿using InvincibleEngine;
+using UnityEngine;
 
-namespace InvincibleEngine {
-    public abstract class EntityBehavior : MonoBehaviour, IEntity, ISelectable {
+namespace VektorLibrary.EntityFramework.Components {
+    public abstract class EntityBehavior : MonoBehaviour {
         
         // Property: Registered
         public bool Registered { get; private set; }
@@ -41,11 +38,8 @@ namespace InvincibleEngine {
             Registered = true;
         }
         
-        // Physics update callback
-        public virtual void OnPhysicsUpdate(float physicsDelta) { }
-        
-        // Entity update callback
-        public virtual void OnEntityHostUpdate(float entityDelta) { }
+        // Entity update callback   
+        public virtual void OnSimUpdate(float fixedDelta, bool isHost) { }
         
         // Render update callback
         public virtual void OnRenderUpdate(float renderDelta) { }
@@ -54,19 +48,6 @@ namespace InvincibleEngine {
         public virtual void Terminate() {
             Terminating = true;
             Destroy(this);
-        }
-
-        public virtual void OnSelected() {
-
-        }
-
-        public virtual void OnDeselected() {
-
-        }
-        
-        // Called when object enters view
-        protected virtual void OnBecameVisible() {
-            
         }
     }
 }

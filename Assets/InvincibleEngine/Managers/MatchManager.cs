@@ -17,6 +17,7 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET;
 //Internal
 using SteamNet;
 using InvincibleEngine;
+using VektorLibrary.EntityFramework.Components;
 
 //Player object for game communication
 public class Player {

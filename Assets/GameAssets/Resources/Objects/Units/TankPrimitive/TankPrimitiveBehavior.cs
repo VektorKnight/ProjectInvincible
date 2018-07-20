@@ -16,7 +16,7 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 		private LineRenderer _lineRenderer;
 
 		// Use this for initialization
-		public override void Start () {
+		public override void OnRegister () {
 			// Reference required components
 			_navAgent = GetComponent<NavMeshAgent>();
 			_lineRenderer = GetComponent<LineRenderer>();
@@ -26,23 +26,27 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 			_lineRenderer.positionCount = 1;
 			_lineRenderer.SetPosition(0, transform.position);
 			
-			base.Start();
+			base.OnRegister();
 		}
 	
 		// Update is called once per frame
-		private void Update () {		
+		public override void OnRenderUpdate (float deltaTime) {		
 			// Check for mouse click
-			if (!Input.GetKeyDown(KeyCode.Mouse0)) return;
-			
-			// Cast a ray from the mouse position to the world
-			var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			
-			// Exit if the raycast doesn't hit sturf
-			if (!Physics.Raycast(mouseRay, out hit)) return;
-			
-			// Update the pathfinding destination if the raycast hits sturf
-			_navAgent.SetDestination(hit.point);
+			if (Input.GetKeyDown(KeyCode.Mouse0)) {
+
+				// Cast a ray from the mouse position to the world
+				var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+				RaycastHit hit;
+
+				// Exit if the raycast doesn't hit sturf
+				if (!Physics.Raycast(mouseRay, out hit)) return;
+
+				// Update the pathfinding destination if the raycast hits sturf
+				_navAgent.SetDestination(hit.point);
+			}
+
+			// Call base method
+			base.OnRenderUpdate(deltaTime);
 		}
 	}
 }

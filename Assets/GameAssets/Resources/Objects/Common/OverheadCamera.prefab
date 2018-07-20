@@ -130,8 +130,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 3840
-  field of view: 70
+  far clip plane: 1024
+  field of view: 60
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -248,7 +248,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c38eb1a08b1e2148b6420abfc4db4e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heightRange: {x: 10, y: 120}
+  PlayerOwner: -1
+  BuildOptions: []
+  Icon: {fileID: 0}
+  _heightRange: {x: 10, y: 200}
   _pitchRange: {x: 60, y: 90}
   _pitchRangeOrbit: {x: 0, y: 90}
   _orbitModeMaximum: 0.25

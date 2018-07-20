@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using InvincibleEngine.UnitFramework.Components;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VektorLibrary.AI.Systems;
+using VektorLibrary.EntityFramework.Components;
 
 namespace InvincibleEngine.Managers {
     /// <summary>
@@ -17,9 +19,9 @@ namespace InvincibleEngine.Managers {
         public static PlayerManager Instance { get; private set; }
 
         // Selection Variables
-        private bool _selecting = false;
-        private Texture2D _selectionTexture;
         private const int SELECTION_BORDER_WIDTH = 2;
+        private bool _selecting;
+        private Texture2D _selectionTexture;
         private Rect _selectionBox = new Rect(0, 0, 0, 0);
 
         // Location of mouse on screen
@@ -27,7 +29,7 @@ namespace InvincibleEngine.Managers {
         public Vector3 MousePoint;
 
         // List of selected Entities
-        public List<EntityBehavior> SelectedEntities = new List<EntityBehavior>();
+        public List<UnitBehavior> SelectedEntities = new List<UnitBehavior>();
 
         // Building variables
         public bool BuildMode { get; set; }
@@ -111,13 +113,13 @@ namespace InvincibleEngine.Managers {
                 _selecting = false;
 
                 // Deselect all objects
-                foreach (EntityBehavior n in SelectedEntities) {
-                    n.OnDeselected();
+                foreach (var behavior in SelectedEntities) {
+                    behavior.OnDeselected();
                 }
                 SelectedEntities.Clear();
 
                 // EXTREMELY bad way of selecting, change later
-                foreach (var entity in EntityManager.Instance._behaviors) {
+                foreach (var entity in OverheadCamera.Instance.VisibleObjects) {
                     // Workaround: Skip null objects
                     if (entity == null) continue;
                     

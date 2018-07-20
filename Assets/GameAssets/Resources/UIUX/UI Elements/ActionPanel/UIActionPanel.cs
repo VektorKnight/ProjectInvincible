@@ -5,6 +5,7 @@ using UnityEngine;
 using SteamNet;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
+using VektorLibrary.EntityFramework.Components;
 
 public class UIActionPanel : MonoBehaviour {
 

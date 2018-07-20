@@ -46,7 +46,7 @@ public class StructureBehavior : UnitBehavior {
     }
 
     //Behavior
-    public override void OnEntityHostUpdate(float entityDelta) {
+    public override void OnSimUpdate(float fixedDelta, bool isHost) {
  
         //Structures, while being build, disable some of their functionality and play build animations
         if(Building) {
@@ -70,7 +70,6 @@ public class StructureBehavior : UnitBehavior {
             }
         }
 
-        base.OnEntityHostUpdate(entityDelta);
-
+        base.OnSimUpdate(fixedDelta, isHost);
     }
 }

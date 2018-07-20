@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace InvincibleEngine.UnitFramework.Enums {
-    [Flags] public enum UnitCommand {
+    [Flags] public enum UnitCommands {
         Move = 0,
         AMove = 1,
         Engage = 2,

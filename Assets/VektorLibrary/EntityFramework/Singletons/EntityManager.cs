@@ -2,6 +2,9 @@
 using System.Collections;
 using VektorLibrary.Collections;
 using InvincibleEngine;
+using SteamNet;
+using VektorLibrary.EntityFramework.Components;
+
 namespace InvincibleEngine {
     /// <summary>
     /// Manages entities implementing the IBehavior interface and relevant update callbacks.
@@ -15,7 +18,7 @@ namespace InvincibleEngine {
         public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
 
         // Private: Entity Behaviors
-        public HashedArray<EntityBehavior> _behaviors = new HashedArray<EntityBehavior>(1024);
+        private HashedArray<EntityBehavior> _entityBehaviors;
         
         // Private: State
         [SerializeField] private bool _initialized;
@@ -35,10 +38,13 @@ namespace InvincibleEngine {
 
             // Ensure this singleton does not get destroyed on scene load
             DontDestroyOnLoad(Instance.gameObject);
+            
+            // Initialize the instance
+            Instance.Initialize();
         }
 
         // Initialization        
-        private void Start() {
+        private void Initialize() {
             // Exit if already initialized
             if (_initialized) return;            
           
@@ -47,9 +53,8 @@ namespace InvincibleEngine {
             
             // Calculate max deltas
             _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
-
-            //Start Coroutine
-            StartCoroutine(Tick());
+            
+            _entityBehaviors = new HashedArray<EntityBehavior>(1024);
 
             // We're done here
             _initialized = true;
@@ -58,66 +63,51 @@ namespace InvincibleEngine {
         // Register an entity behavior
         public static void RegisterBehavior(EntityBehavior behavior) {
             // Add the behavior to the collection and initialize it
-            Instance._behaviors.Add(behavior);
+            Instance._entityBehaviors.Add(behavior);
             behavior.OnRegister();
         }
         
         // Unregister an entity behavior
         public static void UnregisterBehavior(EntityBehavior behavior) {
             // Exit if the behavior is not registered
-            if (!Instance._behaviors.Contains(behavior)) return;
+            if (!Instance._entityBehaviors.Contains(behavior)) return;
             
             // Remove the behavior
-            Instance._behaviors.Remove(behavior);
+            Instance._entityBehaviors.Remove(behavior);
             behavior.Terminate();
         }
-
+        
         // Unity Update
-        IEnumerator Tick() {
-            while (true) {
-
-                // Exit if not initialized
-                // if (!_initialized) 
-                {
-
-                    // Calculate minimum of delta time and max delta
-                    var deltaTime = Mathf.Min(Time.deltaTime, _stepMaxDelta);
-
-
-                    // Iterate through the behaviors
-                    for (var i = 0; i < _behaviors.Count; i++) {
-
-
-                        // Reference the current behavior
-                        var behavior = _behaviors[i];
-
-                        // Handle fixed timestep callbacks and physics simulation
-
-                        // Step the physics simulation if necessary
-                        if (!_physicsSimulated) {
-                            Physics.Simulate(deltaTime);
-                            _physicsSimulated = true;
-                        }
-
-                        // Check for any flags         
-                        if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
-
-                        // Invoke the fixed timestep callbacks as necessary
-                        behavior.OnPhysicsUpdate(deltaTime);
-                        behavior.OnEntityHostUpdate(deltaTime);
-
-
-                        // Check for any flags and invoke the render callback if necessary    
-                        if (!behavior.Registered || behavior.Terminating) continue;
-                        behavior.OnRenderUpdate(deltaTime);
-                    }
-
-                    // Reset the physics simulated flag
-                    _physicsSimulated = false;                  
+        private void Update() {        
+            // Calculate minimum of delta time and max delta
+            var deltaTime = Mathf.Min(Time.deltaTime, _stepMaxDelta);
+            
+            // Add delta time to the accumulator
+            _stepAccumulator += deltaTime;
+            
+            // Step the physics simulation and callback as needed
+            while (_stepAccumulator >= FIXED_TIMESTEP) {
+                // Step the simulation by delta time
+                Physics.Simulate(deltaTime);
+                
+                // Invoke the callback on all registered objects
+                // No touchy, leave as a for-loop for optimization
+                for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
+                    var behavior = _entityBehaviors[i];
+                    if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                    behavior.OnSimUpdate(FIXED_TIMESTEP, true);
                 }
-
-                //Yeild Coroutine
-                yield return new WaitForSeconds(0.05f);
+                
+                // Subtract delta time from the accumulator
+                _stepAccumulator -= deltaTime;
+            }
+            
+            // Invoke the render update callback
+            // No touchy, leave as a for-loop for optimization
+            for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
+                var behavior = _entityBehaviors[i];
+                if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                behavior.OnRenderUpdate(Time.deltaTime);
             }
         }
     }

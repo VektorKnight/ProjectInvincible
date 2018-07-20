@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using InvincibleEngine;
+using InvincibleEngine.UnitFramework.Components;
+using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
+using VektorLibrary.Utility;
 
 
 namespace InvincibleEngine {
@@ -9,7 +13,10 @@ namespace InvincibleEngine {
     /// Overhead camera suitable for RTS-style games.
     /// Author: VektorKnight
     /// </summary>
-    public class OverheadCamera : MonoBehaviour {
+    public class OverheadCamera : EntityBehavior {
+        // TEMPORARY
+        public static OverheadCamera Instance;
+        
         // Unity Inspector
         [Header("Camera View (Overhead)")]
         [SerializeField] private Vector2 _heightRange = new Vector2(20f, 200f);
@@ -61,25 +68,40 @@ namespace InvincibleEngine {
         private Vector3 _refVt;
         
         // Public: Useful Properties
+        public HashSet<UnitBehavior> VisibleObjects { get; private set; }
         public Vector3 MouseWorld { get; private set; }
         public Camera PlayerCamera => _camera;
-        
+        public Plane[] FrustrumPlanes { get; private set; }
+
         // Initialization
-        private void Awake() {            
+        public override void OnRegister() {            
             // Ensure the camera reference has been set
             if (_camera == null) {
                 Debug.LogWarning($"{name}: The required camera reference is missing, please check your configuration!");
                 return;
             }
             
+            // Initialize frustrum planes array
+            FrustrumPlanes = new Plane[6];
+            
             // Initialize mouse low-pass filters
             _scrollWheel = new LowPassFloat(8);
             _smoothX = new LowPassFloat(2);
             _smoothY = new LowPassFloat(2);
+            
+            // Initialize on-screen objects set
+            VisibleObjects = new HashSet<UnitBehavior>();
+
+            Instance = this;
+            
+            DebugReadout.AddField("Visible Units");
+            
+            // Call base method
+            base.OnRegister();
         }
         
         // FixedUpdate
-        private void FixedUpdate() {
+        public override void OnSimUpdate(float fixedDelta, bool isHost) {
             var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
 
             // Perform a raycast from the mouse position to the game world
@@ -91,7 +113,13 @@ namespace InvincibleEngine {
         }
 
         // Render Update Callback
-        private void Update() {
+        public override void OnRenderUpdate(float deltaTime) {
+            // Update debug readout
+            DebugReadout.UpdateField("Visible Units", VisibleObjects.Count.ToString());
+            
+            // Update frustrum planes
+            GeometryUtility.CalculateFrustumPlanes(_camera, FrustrumPlanes);
+            
             // Update current mouse position
             _mouseCurrent = Input.mousePosition;
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
+using VektorLibrary.EntityFramework.Components;
 
 public class UIAction : MonoBehaviour {
     public Image DisplayImage;

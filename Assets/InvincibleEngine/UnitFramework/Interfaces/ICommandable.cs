@@ -1,7 +1,7 @@
-﻿using InvincibleEngine.UnitFramework.Enums;
+﻿using InvincibleEngine.UnitFramework.DataTypes;
 
 namespace InvincibleEngine.UnitFramework.Interfaces {
     public interface ICommandable {
-        void ProcessCommand(UnitCommand cmd, object arg, bool overrideQueue = false);
+        void ProcessCommand<T>(UnitCommand<T> command, bool overrideQueue = true);
     }
 }
