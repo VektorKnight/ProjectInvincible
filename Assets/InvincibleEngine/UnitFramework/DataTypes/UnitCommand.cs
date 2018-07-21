@@ -1,12 +1,12 @@
 ﻿using InvincibleEngine.UnitFramework.Enums;
 
 namespace InvincibleEngine.UnitFramework.DataTypes {
-    public struct UnitCommand<T> {
-        public UnitCommands Command;
-        public T Data;
+    public struct UnitCommand {
+        public UnitActions Action;
+        public object Data;
         
-        public UnitCommand(UnitCommands command, T data) {
-            Command = command;
+        public UnitCommand(UnitActions action, object data) {
+            Action = action;
             Data = data;
         }
     }

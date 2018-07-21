@@ -1,5 +1,9 @@
 ﻿using System.Collections.Generic;
+using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.Components;
+using InvincibleEngine.UnitFramework.DataTypes;
+using InvincibleEngine.UnitFramework.Enums;
+using InvincibleEngine.UnitFramework.Interfaces;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VektorLibrary.AI.Systems;
@@ -26,7 +30,6 @@ namespace InvincibleEngine.Managers {
 
         // Location of mouse on screen
         public Vector2 MousePosition;
-        public Vector3 MousePoint;
 
         // List of selected Entities
         public List<UnitBehavior> SelectedEntities = new List<UnitBehavior>();
@@ -79,16 +82,14 @@ namespace InvincibleEngine.Managers {
 
         private void Update() {
             // Set mouse position
-            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-
-            // Determine where the mouse cursor is hovering
-            RaycastHit hit;
-            if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, 1024, 1 << 8)) {
-                MousePoint = hit.point;
-            }
+            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);         
             
-            // Selection code
-            if (EventSystem.current.IsPointerOverGameObject() && !_selecting) return;
+            // Handle default movement command (right-click)
+            if (SelectedEntities.Count > 0 && Input.GetKeyDown(KeyCode.Mouse1)) {
+                foreach (var unit in SelectedEntities) {
+                    unit.ProcessCommand(new UnitCommand(UnitActions.Move, OverheadCamera.MouseData.WorldPosition));
+                }
+            }
             
             // Check and see if the player is trying to make a selection
             if (Input.GetMouseButtonDown(0)) {
@@ -109,32 +110,52 @@ namespace InvincibleEngine.Managers {
             // On mouse up stop selecting
             if (Input.GetMouseButtonUp(0) && _selecting) {
 
-                // Toggle selecting
+                // Toggle selecting bool
                 _selecting = false;
 
-                // Deselect all objects
+                // Invoke the OnDeselected callback on all entities
                 foreach (var behavior in SelectedEntities) {
                     behavior.OnDeselected();
                 }
+                
+                // Clear the list of selected entities
                 SelectedEntities.Clear();
-
-                // EXTREMELY bad way of selecting, change later
-                foreach (var entity in OverheadCamera.Instance.VisibleObjects) {
-                    // Workaround: Skip null objects
-                    if (entity == null) continue;
+                
+                // Check the mouse delta to determine if this was a single click or drag selection
+                var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
+                
+                // Assume single click if delta is small and select the hovered object if possible
+                if (mouseDelta.magnitude < 4f) {
+                    // Check if the cursor is hovering over an object and determine if it can be selected
+                    var hoveredObject = OverheadCamera.MouseData.HoveredObject;
+                    var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
                     
-                    // Cache obejct position
-                    var objectPosition = Camera.main.WorldToScreenPoint(entity.transform.position);
-
-                    // account for weird mapping
-                    objectPosition.y = Screen.height - objectPosition.y;
-
-                    // Check if within selection and call on select if possible
-                    if (!_selectionBox.Contains(objectPosition, true)) continue;
-                    SelectedEntities.Add(entity);                       
-                    entity.OnSelected();
+                    // Select the hovered object if possible
+                    if (selectable != null) {
+                        SelectedEntities.Add(selectable);
+                        selectable.OnSelected();
+                    }
                 }
 
+                // Optimized selection using on-screen objects
+                foreach (var entity in OverheadCamera.VisibleObjects) {                 
+                    // Cache screen position of object
+                    var objectPosition = OverheadCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
+
+                    // Account for odd screen mapping
+                    objectPosition.y = Screen.height - objectPosition.y;
+
+                    // If the object is within the rect, select it, else continue
+                    if (!_selectionBox.Contains(objectPosition, true)) continue;
+                    
+                    // Add the object to the list of selected entities
+                    SelectedEntities.Add(entity);
+                    
+                    // Invoke the OnSelected callback
+                    entity.OnSelected();
+                }
+                
+                // Reset the selection rect
                 _selectionBox = new Rect(0, 0, 0, 0);
             }
         }

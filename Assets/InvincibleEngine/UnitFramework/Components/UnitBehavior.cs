@@ -1,7 +1,9 @@
 ﻿using System;
+using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
+using InvincibleEngine.UnitFramework.Utility;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
 
@@ -11,14 +13,16 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Unity Inspector
         [Header("Unit Settings")]
         [SerializeField] private UnitType _unitType;
-        [SerializeField] private UnitCommands _supportedCommands;
         
-        // Private: Component References
-        private Renderer _renderer;
+        // Protected: Component References
+        protected Renderer UnitRenderer;
+        
+        // Protected: Command Processing
+        protected CommandParser CommandParser = new CommandParser();
         
         // Public Properties
         public UnitType UnitType => _unitType;
-        public UnitCommands SupportedCommands => _supportedCommands;
+        public UnitActions SupportedCommands { get; protected set; }
         public UnitTeam UnitTeam { get; set; }
         public bool Invulnerable { get; private set; }
         public bool Selected { get; set; } = false;
@@ -45,7 +49,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Initialization
         public override void OnRegister() {
             // Reference required components
-            _renderer = GetComponent<Renderer>();
+            UnitRenderer = GetComponent<Renderer>();
             
             // Attempt to load the default selection indicator from resources directory
             var selectionPrefab = Resources.Load<GameObject>("Objects/Common/SelectionIndicator");
@@ -70,10 +74,10 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         public override void OnRenderUpdate(float deltaTime) {
             // Determine if this object is on screen or not
-            if (GeometryUtility.TestPlanesAABB(OverheadCamera.Instance.FrustrumPlanes, _renderer.bounds)) 
-                OverheadCamera.Instance.VisibleObjects.Add(this);
+            if (GeometryUtility.TestPlanesAABB(OverheadCamera.FrustrumPlanes, UnitRenderer.bounds)) 
+                OverheadCamera.VisibleObjects.Add(this);
             else 
-                OverheadCamera.Instance.VisibleObjects.Remove(this);
+                OverheadCamera.VisibleObjects.Remove(this);
             
         }
 
@@ -99,8 +103,8 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         }
 
-        public void ProcessCommand<T>(UnitCommand<T> command, bool overrideQueue = true) {
-            throw new NotImplementedException();
+        public void ProcessCommand(UnitCommand command) {
+            CommandParser.ProcessCommand(command);
         }
     }
 }

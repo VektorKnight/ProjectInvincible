@@ -101,7 +101,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1487541928149596}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 54.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4768304376661592}
@@ -251,18 +251,18 @@ MonoBehaviour:
   PlayerOwner: -1
   BuildOptions: []
   Icon: {fileID: 0}
-  _heightRange: {x: 10, y: 200}
+  _heightRange: {x: 20, y: 200}
   _pitchRange: {x: 60, y: 90}
   _pitchRangeOrbit: {x: 0, y: 90}
   _orbitModeMaximum: 0.25
-  _panSpeedRange: {x: 50, y: 150}
-  _zoomSpeed: 60
+  _panSpeedRange: {x: 75, y: 175}
+  _zoomSpeed: 100
   _rotateSpeed: 10
-  _zoomSmoothing: 10
+  _zoomSmoothing: 0.1
   _edgeScrollBuffer: 6
   _geometryMask:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 1
   _zoomToCursor: 1
   _enableEdgeScroll: 1
   _enableRotation: 1

@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using InvincibleEngine;
+using InvincibleEngine.DataTypes;
 using InvincibleEngine.UnitFramework.Components;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
+using UnityEngine;
 
-
-namespace InvincibleEngine {
+namespace InvincibleEngine.CameraSystem {
     /// <summary>
     /// Overhead camera suitable for RTS-style games.
     /// Author: VektorKnight
     /// </summary>
     public class OverheadCamera : EntityBehavior {
-        // TEMPORARY
+        // Single object instance
         public static OverheadCamera Instance;
         
         // Unity Inspector
@@ -47,52 +46,52 @@ namespace InvincibleEngine {
         
         // Private: View
         private float _panSpeed;
-        private float _heightValue;
         private float _pitchValue;
         private float _zOffset;
+        private HashSet<UnitBehavior> _visibleObjects;
+        private Plane[] _frustrumPlanes;
         
         // Private: Input
-        private Vector3 _inputValues;
+        private Vector4 _inputValues;
         private float _zoomValue, _refV;
-        private LowPassFloat _scrollWheel;
         private Vector2 _mousePrevious;
-        private Vector2 _mouseCurrent;
+        private MouseData _mouseData;
         
         // Private: Mouse Smoothing
         private LowPassFloat _smoothX;
         private LowPassFloat _smoothY;
         
-        // Private: Cursor Position / Target
-        private Vector3 _targetPosition;
-        private Vector2 _screenCenter;
-        private Vector3 _refVt;
-        
-        // Public: Useful Properties
-        public HashSet<UnitBehavior> VisibleObjects { get; private set; }
-        public Vector3 MouseWorld { get; private set; }
-        public Camera PlayerCamera => _camera;
-        public Plane[] FrustrumPlanes { get; private set; }
+        // Public Static: Useful Properties
+        public static HashSet<UnitBehavior> VisibleObjects => Instance._visibleObjects;
+        public static Plane[] FrustrumPlanes => Instance._frustrumPlanes;
+        public static MouseData MouseData => Instance._mouseData;
+        public static Camera PlayerCamera => Instance._camera;
 
         // Initialization
-        public override void OnRegister() {            
+        public override void OnRegister() {
+            // Ensure this camera is the only instance in the scene
+            if (Instance == null) { Instance = this; }
+            else if (Instance != this) { Destroy(gameObject); }
+            
             // Ensure the camera reference has been set
             if (_camera == null) {
                 Debug.LogWarning($"{name}: The required camera reference is missing, please check your configuration!");
                 return;
             }
             
+            // Ensure the camera object is centered and aligned
+            _camera.transform.localPosition = Vector3.zero;
+            _camera.transform.localRotation = Quaternion.identity;
+            
             // Initialize frustrum planes array
-            FrustrumPlanes = new Plane[6];
+            _frustrumPlanes = new Plane[6];
             
             // Initialize mouse low-pass filters
-            _scrollWheel = new LowPassFloat(8);
             _smoothX = new LowPassFloat(2);
             _smoothY = new LowPassFloat(2);
             
             // Initialize on-screen objects set
-            VisibleObjects = new HashSet<UnitBehavior>();
-
-            Instance = this;
+            _visibleObjects = new HashSet<UnitBehavior>();
             
             DebugReadout.AddField("Visible Units");
             
@@ -109,7 +108,8 @@ namespace InvincibleEngine {
             var hasHit = Physics.Raycast(mouseRay, out rayHit, 1024, _geometryMask);
 
             // Update the mouse world position if the raycast hit something
-            MouseWorld = hasHit ? new Vector3(rayHit.point.x, transform.position.y, rayHit.point.z) : transform.position;
+            _mouseData.WorldPosition = hasHit ? rayHit.point : transform.position;
+            _mouseData.HoveredObject = hasHit ? rayHit.collider.gameObject : null;
         }
 
         // Render Update Callback
@@ -121,19 +121,19 @@ namespace InvincibleEngine {
             GeometryUtility.CalculateFrustumPlanes(_camera, FrustrumPlanes);
             
             // Update current mouse position
-            _mouseCurrent = Input.mousePosition;
+            _mouseData.ScreenPosition = Input.mousePosition;
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
                 // Apply low-pass filtering to mouse deltas
-                _smoothX.AddSample((_mousePrevious.x - _mouseCurrent.x) * (_panSpeed / 6f) * Time.deltaTime);
-                _smoothY.AddSample((_mousePrevious.y - _mouseCurrent.y) * (_panSpeed / 6f) * Time.deltaTime);
+                _smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x) * (_panSpeed / 8f) * Time.deltaTime);
+                _smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y) * (_panSpeed / 8f) * Time.deltaTime);
                 
-                // Create delta value
-                var dPos = new Vector3(_smoothX, 0f, _smoothY);
+                // Create delta value from low-pass values
+                var mouseDelta = new Vector3(_smoothX, 0f, _smoothY);
                 
                 // Apply delta to rig transform
-                transform.position += dPos;
+                transform.position += mouseDelta;
             }
             else {
                 // Get pan input values from keyboard
@@ -158,40 +158,44 @@ namespace InvincibleEngine {
             }
             
             // Update previous mouse position
-            _mousePrevious = _mouseCurrent;
+            _mousePrevious = _mouseData.ScreenPosition;
             
             // Get zoom input values
-            _scrollWheel.AddSample(Input.GetAxis("Mouse ScrollWheel"));
-            _inputValues.y += _scrollWheel * _zoomSpeed * Time.deltaTime;
-            _inputValues.y = Mathf.Clamp01(_inputValues.y);
-            _zoomValue = Mathf.SmoothDamp(_zoomValue, _inputValues.y, ref _refV, _zoomSmoothing * Time.deltaTime);
+            _inputValues.w = Mathf.SmoothDamp(_inputValues.w, Input.GetAxis("Mouse ScrollWheel"), ref _refV, _zoomSmoothing);
+            _zoomValue = Mathf.Clamp01(1f - (transform.position.y - _heightRange.x) / _heightRange.y);
             
             // Interpolate control values
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);
-            _heightValue = Mathf.Lerp(_heightRange.y, _heightRange.x, _zoomValue);
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
-            // Move towards cursor if enabled and zooming
-            if (_zoomToCursor && _scrollWheel > 0f && _zoomValue < 0.98f) {
-                // Recalculate screen center
-                _screenCenter.x = Screen.width / 2f;
-                _screenCenter.y = Screen.height / 2f;
-                
-                // Calculate direction and distance of mouse cursor from center
-                var mouseDirection = (_mouseCurrent - _screenCenter);
-                var mouseDistance = mouseDirection.magnitude;
-                mouseDirection = mouseDirection.normalized;
+            // Zoom to cursor if enabled and input is valid
+            if (_zoomToCursor && (int)Mathf.Sign(_inputValues.w) != 0) {
 
-                transform.position += new Vector3(mouseDirection.x, 0f, mouseDirection.y) * _panSpeed * (1f - _zoomValue) * Time.deltaTime;
+                // Calculate direction to cursor world position
+                var mouseDirection = MouseData.WorldPosition - transform.position;
+
+                // Calculate movement vector
+                var movementVector = mouseDirection.normalized * _inputValues.w * _zoomSpeed;
+                
+                // Cancel X/Z deltas if we are fully zoomed in or out
+                if (Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon || Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon)
+                    movementVector = new Vector3(0f, movementVector.y, 0f);
+
+                // Apply movement vector to camera rig transform
+                transform.position += movementVector;
             }
 
-            // Calculate camera z-offset with trig (black magic)
-            _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * _heightValue;
+            // Apply input values to rig transform and clamp height
+            transform.position = new Vector3(transform.position.x + _inputValues.x, 
+                                             Mathf.Clamp(transform.position.y, _heightRange.x, _heightRange.y), 
+                                             transform.position.z + _inputValues.z);
             
-            // Apply rig and camera transform values
-            transform.position = new Vector3(transform.position.x + _inputValues.x, 0f, transform.position.z + _inputValues.z);
-            _camera.transform.localPosition = new Vector3(0f, _heightValue, _zOffset);
+            // Calculate camera z-offset with trig to correct for parallax error (black magic)
+            _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * transform.position.y;
+            
+            // Apply desired rotation based on height to camera transform
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
+            _camera.transform.localPosition = Vector3.forward * _zOffset;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using InvincibleEngine.Components.Units;
+﻿using System;
+using InvincibleEngine.Components.Units;
+using InvincibleEngine.UnitFramework.Enums;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,6 +19,18 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 
 		// Use this for initialization
 		public override void OnRegister () {
+			// Declare supported commands
+			SupportedCommands = UnitActions.Move |
+			                    UnitActions.AMove |
+			                    UnitActions.Patrol |
+			                    UnitActions.Stop |
+			                    UnitActions.Hold |
+			                    UnitActions.Engage;
+			
+			// Register command handlers
+			CommandParser.RegisterHandler(UnitActions.Move, MoveCommandHandler);
+			CommandParser.RegisterHandler(UnitActions.AMove, MoveCommandHandler);
+			
 			// Reference required components
 			_navAgent = GetComponent<NavMeshAgent>();
 			_lineRenderer = GetComponent<LineRenderer>();
@@ -28,25 +42,14 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 			
 			base.OnRegister();
 		}
-	
-		// Update is called once per frame
-		public override void OnRenderUpdate (float deltaTime) {		
-			// Check for mouse click
-			if (Input.GetKeyDown(KeyCode.Mouse0)) {
-
-				// Cast a ray from the mouse position to the world
-				var mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-				RaycastHit hit;
-
-				// Exit if the raycast doesn't hit sturf
-				if (!Physics.Raycast(mouseRay, out hit)) return;
-
-				// Update the pathfinding destination if the raycast hits sturf
-				_navAgent.SetDestination(hit.point);
-			}
-
-			// Call base method
-			base.OnRenderUpdate(deltaTime);
+		
+		// Command Handler: Move/AMove
+		private void MoveCommandHandler(object data) {
+			// Verify data is expected type
+			if (!(data is Vector3)) return;
+			
+			// Set the navagent destination
+			_navAgent.SetDestination((Vector3) data);
 		}
 	}
 }

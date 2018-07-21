@@ -28,7 +28,7 @@ GameObject:
   - component: {fileID: 195848101477619378}
   m_Layer: 0
   m_Name: Tank_Primitive_01
-  m_TagString: Untagged
+  m_TagString: Entity
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -127,7 +127,6 @@ MonoBehaviour:
   BuildOptions: []
   Icon: {fileID: 21300000, guid: b968aa9362f752c48972b9f30bf765b5, type: 3}
   _unitType: 1
-  _supportedCommands: 0
   Health: 100
   CanBeProduced: 0
   _showPath: 1
