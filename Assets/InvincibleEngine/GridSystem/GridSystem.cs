@@ -45,7 +45,7 @@ namespace InvincibleEngine {
             Vector3 terrainDimensions = activeTerrain.size;
 
             //Divide and remain
-            int rem;
+            int rem, a = new int(), b = new int();
             int GridWidth = Math.DivRem(Mathf.CeilToInt(terrainDimensions.x), GridScale, out rem);
             int GridHeight = Math.DivRem(Mathf.CeilToInt(terrainDimensions.z), GridScale, out rem);
 
@@ -79,12 +79,20 @@ namespace InvincibleEngine {
                     //Sample Navmesh, set flags
                     allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, Terrain.activeTerrain.terrainData.GetHeight(u * GridScale, v * GridScale), v * GridScale), out hit, GridScale, NavMesh.AllAreas);
                     n.GridFlags = allowed ? GridFlags.Open : GridFlags.Occupied;
+                    if(allowed) {
+                        a++;
+                    }
+                    else {
+                        b++;
+                    }
 
                     //Append to node list
                     GridPoints.Add(activekey, n);
 
                 }
             }
+
+            Debug.Log($"Generated grid with {a} good nodes and {b} inactive nodes");
         }
     }
 }

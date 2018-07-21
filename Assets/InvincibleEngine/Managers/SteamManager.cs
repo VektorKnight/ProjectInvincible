@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 //Project
 using HexSerializer;
 using System.Globalization;
+using InvincibleEngine;
 using InvincibleEngine.Managers;
 
 namespace SteamNet {
@@ -302,6 +303,7 @@ namespace SteamNet {
             return wasInit;
         }
 
+        GridSystem GridSystem = new GridSystem();
         
         /// <summary>
         /// Start relative coroutines
@@ -309,6 +311,7 @@ namespace SteamNet {
         public void Start() {
             InitializeSteam();
             StartCoroutine(NetworkUpdate());
+            GridSystem.GenerateGrid();
         }
 
         public void Update() {
@@ -325,6 +328,8 @@ namespace SteamNet {
             //Check for packets all the time
             ReadPackets();
         }
+
+
 
         //----------------------------------------------------
         #region  Sync lobby information and other iterated network behavior like checking for state changes and launching game when ready
