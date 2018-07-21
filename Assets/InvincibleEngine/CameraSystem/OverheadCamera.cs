@@ -178,7 +178,7 @@ namespace InvincibleEngine.CameraSystem {
                 var movementVector = mouseDirection.normalized * _inputValues.w * _zoomSpeed;
                 
                 // Cancel X/Z deltas if we are fully zoomed in or out
-                if (Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon || Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon)
+                if (Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon || Math.Abs(transform.position.y - _heightRange.y) < float.Epsilon)
                     movementVector = new Vector3(0f, movementVector.y, 0f);
 
                 // Apply movement vector to camera rig transform
