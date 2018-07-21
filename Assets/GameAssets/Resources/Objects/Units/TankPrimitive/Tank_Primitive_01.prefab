@@ -26,7 +26,7 @@ GameObject:
   - component: {fileID: 120603556774537382}
   - component: {fileID: 114607497393256244}
   - component: {fileID: 195848101477619378}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Tank_Primitive_01
   m_TagString: Entity
   m_Icon: {fileID: 0}
