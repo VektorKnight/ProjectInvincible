@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using InvincibleEngine.DataTypes;
 using InvincibleEngine.UnitFramework.Components;
+using InvincibleEngine.UnitFramework.DataTypes;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
@@ -12,9 +13,9 @@ namespace InvincibleEngine.CameraSystem {
     /// Overhead camera suitable for RTS-style games.
     /// Author: VektorKnight
     /// </summary>
-    public class OverheadCamera : EntityBehavior {
+    public class InvincibleCamera : EntityBehavior {
         // Single object instance
-        public static OverheadCamera Instance;
+        public static InvincibleCamera Instance;
         
         // Unity Inspector
         [Header("Camera View (Overhead)")]
@@ -37,6 +38,9 @@ namespace InvincibleEngine.CameraSystem {
         [SerializeField] private bool _zoomToCursor = true;
         [SerializeField] private bool _enableEdgeScroll = true;
         [SerializeField] private bool _enableRotation = true;
+
+        [Header("Icon Rendering")] 
+        [SerializeField] [Range(0f, 1f)] private float _iconThreshold;
 
         [Header("Required Objects")] 
         [SerializeField] private Camera _camera;
@@ -61,11 +65,16 @@ namespace InvincibleEngine.CameraSystem {
         private LowPassFloat _smoothX;
         private LowPassFloat _smoothY;
         
+        // Private: Icon Rendering
+        private Canvas _iconCanvas;
+        private bool _iconsRendered;
+        
         // Public Static: Useful Properties
         public static HashSet<UnitBehavior> VisibleObjects => Instance._visibleObjects;
         public static Plane[] FrustrumPlanes => Instance._frustrumPlanes;
         public static MouseData MouseData => Instance._mouseData;
         public static Camera PlayerCamera => Instance._camera;
+        public static bool IconsRendered => Instance._iconsRendered;
 
         // Initialization
         public override void OnRegister() {
@@ -78,6 +87,10 @@ namespace InvincibleEngine.CameraSystem {
                 Debug.LogWarning($"{name}: The required camera reference is missing, please check your configuration!");
                 return;
             }
+            
+            // Load and instantiate the icon canvas
+            var iconCanvasPrefab = Resources.Load<GameObject>("Objects/Common/UnitIconCanvas");
+            _iconCanvas = Instantiate(iconCanvasPrefab, Vector3.zero, Quaternion.identity).GetComponent<Canvas>();
             
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
@@ -97,6 +110,17 @@ namespace InvincibleEngine.CameraSystem {
             
             // Call base method
             base.OnRegister();
+        }
+        
+        // Appends a unit icon to the canvas
+        public static void AppendUnitIcon(UnitIcon icon) {
+            if (icon == null || Instance == null) return;
+            icon.SetParent(Instance._iconCanvas.transform);
+        }
+        
+        // Returns the screen position of a given transform
+        public static Vector2 GetScreenPosition(Vector3 position) {
+            return Instance._camera.WorldToScreenPoint(position);
         }
         
         // FixedUpdate
@@ -122,6 +146,10 @@ namespace InvincibleEngine.CameraSystem {
             
             // Update current mouse position
             _mouseData.ScreenPosition = Input.mousePosition;
+            
+            // Update icon canvas rendering
+            _iconsRendered = _zoomValue < _iconThreshold;
+            _iconCanvas.gameObject.SetActive(_iconsRendered);
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
@@ -162,7 +190,7 @@ namespace InvincibleEngine.CameraSystem {
             
             // Get zoom input values
             _inputValues.w = Mathf.SmoothDamp(_inputValues.w, Input.GetAxis("Mouse ScrollWheel"), ref _refV, _zoomSmoothing);
-            _zoomValue = Mathf.Clamp01(1f - (transform.position.y - _heightRange.x) / _heightRange.y);
+            _zoomValue = Mathf.Clamp01(1f - (transform.position.y - _heightRange.x) / (_heightRange.y - _heightRange.x));
             
             // Interpolate control values
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);

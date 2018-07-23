@@ -44,7 +44,7 @@ public class UIActionPanel : MonoBehaviour {
             }
 
             //generate actions for object
-            foreach (BuildOption n in _CurrentlySelectedObject.BuildOptions) {
+            /*foreach (BuildOption n in _CurrentlySelectedObject.BuildOptions) {
 
                 //instantiate object
                 UIAction u = Instantiate(ActionPrefab, transform);
@@ -52,7 +52,7 @@ public class UIActionPanel : MonoBehaviour {
                 //Set values for object
                 u.Action = n.PrefabBuild;
                 u.DisplayImage.sprite = n.PrefabBuild.Icon;
-            }
+            }*/
         }
     }
 }

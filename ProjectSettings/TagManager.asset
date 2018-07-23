@@ -11,6 +11,7 @@ TagManager:
   - CameraSystem
   - PlayerSpawn
   - PreviewCamera
+  - IconCanvas
   layers:
   - Default
   - TransparentFX

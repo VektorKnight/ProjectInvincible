@@ -53,9 +53,6 @@ namespace VektorLibrary.Utility {
             AddField("FPS");
             _fpsCounter = new FpsCounter();
             
-           //AddField("Pool Unique");
-           //AddField("Pool Active");
-           //AddField("Pool Total");
         }
         
         // Toggle display the of readout
@@ -120,11 +117,6 @@ namespace VektorLibrary.Utility {
             
             // Update FPS Counter
             UpdateField("FPS", $"{Instance._fpsCounter.UpdateValues()} (Δ{Time.deltaTime * 1000f:n1}ms)");
-            
-            // Update Pool Stats
-            //UpdateField("Pool Unique", GlobalObjectManager.UniquePoolCount.ToString());
-            //UpdateField("Pool Active", GlobalObjectManager.ActiveObjectCount.ToString());
-            //UpdateField("Pool Total", GlobalObjectManager.TotalObjectCount.ToString());
             
             // Iterate through the debug fields and add them to the readout
             var displayText = new StringBuilder();

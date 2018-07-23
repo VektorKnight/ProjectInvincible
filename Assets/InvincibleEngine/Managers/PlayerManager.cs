@@ -87,7 +87,7 @@ namespace InvincibleEngine.Managers {
             // Handle default movement command (right-click)
             if (SelectedEntities.Count > 0 && Input.GetKeyDown(KeyCode.Mouse1)) {
                 foreach (var unit in SelectedEntities) {
-                    unit.ProcessCommand(new UnitCommand(UnitActions.Move, OverheadCamera.MouseData.WorldPosition));
+                    unit.ProcessCommand(new UnitCommand(UnitActions.Move, InvincibleCamera.MouseData.WorldPosition));
                 }
             }
             
@@ -127,7 +127,7 @@ namespace InvincibleEngine.Managers {
                 // Assume single click if delta is small and select the hovered object if possible
                 if (mouseDelta.magnitude < 4f) {
                     // Check if the cursor is hovering over an object and determine if it can be selected
-                    var hoveredObject = OverheadCamera.MouseData.HoveredObject;
+                    var hoveredObject = InvincibleCamera.MouseData.HoveredObject;
                     var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
                     
                     // Select the hovered object if possible
@@ -138,9 +138,9 @@ namespace InvincibleEngine.Managers {
                 }
 
                 // Optimized selection using on-screen objects
-                foreach (var entity in OverheadCamera.VisibleObjects) {                 
+                foreach (var entity in InvincibleCamera.VisibleObjects) {                 
                     // Cache screen position of object
-                    var objectPosition = OverheadCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
+                    var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
 
                     // Account for odd screen mapping
                     objectPosition.y = Screen.height - objectPosition.y;

@@ -6,6 +6,7 @@ using InvincibleEngine.UnitFramework.Interfaces;
 using InvincibleEngine.UnitFramework.Utility;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
+using Outline = cakeslice.Outline;
 
 namespace InvincibleEngine.UnitFramework.Components {
     public class UnitBehavior : EntityBehavior, IUnit {
@@ -13,6 +14,11 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Unity Inspector
         [Header("Unit Settings")]
         [SerializeField] private UnitType _unitType;
+        [SerializeField] private UnitIcon _unitIcon;
+        [SerializeField] public BuildOption[] BuildOptions;
+        
+        // Protected: Unit Icon
+        protected UnitIcon UnitIcon;
         
         // Protected: Component References
         protected Renderer UnitRenderer;
@@ -25,10 +31,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         public UnitActions SupportedCommands { get; protected set; }
         public UnitTeam UnitTeam { get; set; }
         public bool Invulnerable { get; private set; }
-        public bool Selected { get; set; } = false;
+        public bool Selected { get; private set; }
 
-        //Indicates unit selection
-        private GameObject _selectionIndicator;
+        // Indicates unit selection
+        private Outline _selectionIndicator;
 
         // Base health of a unit
         public float Health = 100;
@@ -44,21 +50,25 @@ namespace InvincibleEngine.UnitFramework.Components {
         }       
         public virtual void GenerateResource() {
 
-        }
+        }       
+
+        // Image used for unit icon
+        public Sprite Icon;
         
         // Initialization
         public override void OnRegister() {
             // Reference required components
             UnitRenderer = GetComponent<Renderer>();
             
-            // Attempt to load the default selection indicator from resources directory
-            var selectionPrefab = Resources.Load<GameObject>("Objects/Common/SelectionIndicator");
+            // Reference required outline component
+            _selectionIndicator = GetComponent<Outline>();
             
-            // Instantiate the selection indicator as a child of this object
-            if (selectionPrefab != null) {
-                _selectionIndicator = Instantiate(selectionPrefab, transform);
-                _selectionIndicator.transform.localPosition = new Vector3(0f, 0.5f, 0f);
-                _selectionIndicator.transform.localEulerAngles = new Vector3(-90f, 0f, 0f);
+            // Instantiate this unit's icon if possible
+            if (_unitIcon != null) {
+                UnitIcon = Instantiate(_unitIcon);
+                UnitIcon.Initialize();
+                InvincibleCamera.AppendUnitIcon(UnitIcon);
+                UnitIcon.SetSelected(false);
             }
             
             // Log an error if something goes boom boom
@@ -66,7 +76,7 @@ namespace InvincibleEngine.UnitFramework.Components {
                 Debug.LogError("Failed to load default selection indicator prefab!");
             
             // Deactivate the indicator object if not null
-            _selectionIndicator?.SetActive(false);
+            _selectionIndicator.enabled = false;
             
             // Call base method
             base.OnRegister();
@@ -74,29 +84,39 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         public override void OnRenderUpdate(float deltaTime) {
             // Determine if this object is on screen or not
-            if (GeometryUtility.TestPlanesAABB(OverheadCamera.FrustrumPlanes, UnitRenderer.bounds)) 
-                OverheadCamera.VisibleObjects.Add(this);
-            else 
-                OverheadCamera.VisibleObjects.Remove(this);
-            
+            if (UnitIcon != null)
+                UnitIcon.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position));
+
+            if (GeometryUtility.TestPlanesAABB(InvincibleCamera.FrustrumPlanes, UnitRenderer.bounds)) {
+                InvincibleCamera.VisibleObjects.Add(this);
+                UnitIcon?.SetRender(true);
+            }
+            else {
+                InvincibleCamera.VisibleObjects.Remove(this);
+                UnitIcon?.SetRender(false);
+            }
         }
 
         public virtual void OnSelected() {
-            _selectionIndicator.SetActive(true);
-
+            // Show selection indicator if icons are not rendered
+            _selectionIndicator.enabled = true;
+            
+            // Set icon state to selected
+            UnitIcon.SetSelected(true);
+            
+            // Set selected flag
+            Selected = true;
         }
 
         public virtual void OnDeselected() {
-            _selectionIndicator.SetActive(false);
-
-        }
-
-        public virtual void OnBecameVisible() {
+            // Hide selection indicator
+            _selectionIndicator.enabled = false;
             
-        }
-
-        public virtual void OnBecameInvisible() {
+            // Set icon state to unselected
+            UnitIcon.SetSelected(false);
             
+            // Set selected flag
+            Selected = false;
         }
 
         public virtual void TakeDamage(float damage) {
