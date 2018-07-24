@@ -17,6 +17,9 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET;
 //Internal
 using SteamNet;
 using InvincibleEngine;
+using InvincibleEngine.UnitFramework.Components;
+using InvincibleEngine.UnitFramework.DataTypes;
+
 using VektorLibrary.EntityFramework.Components;
 
 //Player object for game communication
@@ -27,6 +30,8 @@ public class Player {
     public int Resources;
     public int SpawnSlot;
     public int Team;
+
+    
 
 }
 
@@ -61,10 +66,6 @@ public class MatchManager : MonoBehaviour {
         DontDestroyOnLoad(Instance.gameObject);
     }
 
-    private void Start() {
-        
-    }
-
     /// <summary>
     /// Check for win conditions and other game related states
     /// </summary>
@@ -86,6 +87,11 @@ public class MatchManager : MonoBehaviour {
     //----------------------------------------------------
     #region  Basic Game functionality (spawn building, command relay)
     //----------------------------------------------------
+
+    public void OnCommand(UnitCommand command) {
+
+    }
+
 
     /// <summary>
     /// Spawns a dropship that will take the structure to the destination and deploy it
