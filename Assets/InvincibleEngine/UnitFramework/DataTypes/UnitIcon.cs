@@ -5,34 +5,33 @@ namespace InvincibleEngine.UnitFramework.DataTypes {
     [RequireComponent(typeof(Image))]
     [RequireComponent(typeof(Shadow))]
     public class UnitIcon : MonoBehaviour {
-        // Unity Inspector
-        [Header("Sprite Setup")] 
-        [SerializeField] private Sprite _selected;
-        [SerializeField] private Sprite _unselected;
-        
         // Private: Required References
         private Image _image;
         private Shadow _shadow;
         
         // Initialization
-        public void Initialize() {
+        public void Initialize(Sprite sprite, Color color) {
             // Reference required components
             _image = GetComponent<Image>();
             _shadow = GetComponent<Shadow>();
             
-            // Set default sprite
-            _image.sprite = _unselected;
-            _image.SetNativeSize();
+            // Set default sprite and color
+            SetSprite(sprite);
+            SetColor(color);
             
             // Set default outline state
             _shadow.effectColor = Color.white;
             _shadow.enabled = false;
         }
         
+        // Set the primary sprite of the icon
+        public void SetSprite(Sprite sprite) {
+            _image.sprite = sprite;
+            _image.SetNativeSize();
+        }
+        
         // Set selection state of the icon
         public void SetSelected(bool selected) {
-            _image.sprite = selected ? _selected : _unselected;
-            _image.SetNativeSize();
             _shadow.enabled = selected;
         }
         

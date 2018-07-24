@@ -148,7 +148,7 @@ namespace InvincibleEngine.CameraSystem {
             _mouseData.ScreenPosition = Input.mousePosition;
             
             // Update icon canvas rendering
-            _iconsRendered = _zoomValue < _iconThreshold;
+            _iconsRendered = _zoomValue <= _iconThreshold;
             _iconCanvas.gameObject.SetActive(_iconsRendered);
 
             // Branch for pan controls (mouse vs keyboard)

@@ -22,16 +22,16 @@ TagManager:
   - 
   - 
   - LevelGeometry
-  - Props
-  - Players
+  - Scenery
   - Projectiles
-  - Weapons
-  - Foliage
-  - AimAssist
-  - Entities
-  - 
-  - 
-  - 
+  - Team1
+  - Team2
+  - Team3
+  - Team4
+  - Team5
+  - Team6
+  - Team7
+  - Team8
   - 
   - 
   - 

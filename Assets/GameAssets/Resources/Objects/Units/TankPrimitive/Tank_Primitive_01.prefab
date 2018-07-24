@@ -140,13 +140,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerOwner: -1
+  _tempTeam: 0
+  _tempColor: {r: 1, g: 0.24056602, b: 0.24056602, a: 1}
   _unitType: 1
-  _unitIcon: {fileID: 114458024943887586, guid: a890992857dfcab438c232b5ade4e76c,
-    type: 2}
+  _iconSprite: {fileID: 21300000, guid: 8f31d89c4688da14abc379a8cf5c8d5a, type: 3}
   BuildOptions: []
   Health: 100
   CanBeProduced: 0
-  Icon: {fileID: 21300000, guid: b968aa9362f752c48972b9f30bf765b5, type: 3}
   _showPath: 1
 --- !u!120 &120603556774537382
 LineRenderer:

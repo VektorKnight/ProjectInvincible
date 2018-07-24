@@ -1,4 +1,6 @@
-﻿namespace InvincibleEngine.UnitFramework.Interfaces {
+﻿using InvincibleEngine.UnitFramework.Enums;
+
+namespace InvincibleEngine.UnitFramework.Interfaces {
     public interface IUnit : ISelectable, ICommandable {
         UnitType UnitType { get; }
         UnitTeam UnitTeam { get; }

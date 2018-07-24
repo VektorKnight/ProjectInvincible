@@ -1,11 +1,12 @@
 fileFormatVersion: 2
 guid: a1f0eb6bdc7ed2b4caf1aefefad5f25c
 ModelImporter:
-  serializedVersion: 22
+  serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
     400000: //RootNode
     2100000: Material
+    2100002: Material.001
     2300000: //RootNode
     3300000: //RootNode
     4300000: Tank_Primitive_01
@@ -60,6 +61,8 @@ ModelImporter:
     secondaryUVHardAngle: 88
     secondaryUVPackMargin: 4
     useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 1

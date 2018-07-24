@@ -1,18 +1,17 @@
 ﻿using System;
+using System.Collections;
 using InvincibleEngine.Components.Units;
+using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.Enums;
+using InvincibleEngine.UnitFramework.Utility;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 	[RequireComponent(typeof(NavMeshAgent))]
-	[RequireComponent(typeof(LineRenderer))]
 	public class TankPrimitiveBehavior : LandUnitBehavior {
-		
-		// Unity Inspector
-		[Header("Debugging")] 
-		[SerializeField] private bool _showPath = true;
-		
+	
 		// Required References
 		private NavMeshAgent _navAgent;
 		private LineRenderer _lineRenderer;
@@ -30,16 +29,11 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 			// Register command handlers
 			CommandParser.RegisterHandler(UnitActions.Move, MoveCommandHandler);
 			CommandParser.RegisterHandler(UnitActions.AMove, MoveCommandHandler);
+			CommandParser.RegisterHandler(UnitActions.Stop, StopCommandHandler);
 			
 			// Reference required components
-			_navAgent = GetComponent<NavMeshAgent>();
-			_lineRenderer = GetComponent<LineRenderer>();
-			
-			// Initialize line renderer
-			_lineRenderer.useWorldSpace = true;
-			_lineRenderer.positionCount = 1;
-			_lineRenderer.SetPosition(0, transform.position);
-			
+			_navAgent = GetComponent<NavMeshAgent>();			
+
 			base.OnRegister();
 		}
 		
@@ -50,6 +44,11 @@ namespace GameAssets.Resources.Objects.Units.TankPrimitive {
 			
 			// Set the navagent destination
 			_navAgent.SetDestination((Vector3) data);
+		}
+		
+		// Command Handler: Stop
+		private void StopCommandHandler(object data) {
+			_navAgent.ResetPath();
 		}
 	}
 }

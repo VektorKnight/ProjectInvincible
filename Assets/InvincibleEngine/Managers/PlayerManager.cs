@@ -84,10 +84,20 @@ namespace InvincibleEngine.Managers {
             // Set mouse position
             MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);         
             
-            // Handle default movement command (right-click)
-            if (SelectedEntities.Count > 0 && Input.GetKeyDown(KeyCode.Mouse1)) {
-                foreach (var unit in SelectedEntities) {
-                    unit.ProcessCommand(new UnitCommand(UnitActions.Move, InvincibleCamera.MouseData.WorldPosition));
+            // Handle commands ()
+            if (SelectedEntities.Count > 0) {
+                // Movement Command ([Q] or [Mouse1])
+                if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Mouse1)) {
+                    foreach (var unit in SelectedEntities) {
+                        unit.ProcessCommand(new UnitCommand(UnitActions.Move, InvincibleCamera.MouseData.WorldPosition));
+                    }
+                }
+                
+                // Stop Command ([S])
+                if (Input.GetKeyDown(KeyCode.End)) {
+                    foreach (var unit in SelectedEntities) {
+                        unit.ProcessCommand(new UnitCommand(UnitActions.Stop, null));
+                    }
                 }
             }
             
