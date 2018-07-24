@@ -56,6 +56,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         public UnitType UnitType => _unitType;
         public UnitActions SupportedCommands { get; protected set; }
         public UnitTeam UnitTeam => _tempTeam;
+        public Sprite IconSprite => _iconSprite;
         public bool Invulnerable { get; private set; }
         public bool Selected { get; private set; }
         
@@ -71,7 +72,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Initialization
         public override void OnRegister() {
             // Reference required components
-            UnitRenderer = GetComponent<Renderer>();
+            UnitRenderer = GetComponentInChildren<MeshRenderer>();
             LineRenderer = GetComponent<LineRenderer>();
             SelectionIndicator = GetComponent<Outline>();
             
@@ -162,6 +163,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
 
         public override void OnRenderUpdate(float deltaTime) {
+
+
             // Determine if this object is on screen or not
             if (Icon != null)
                 Icon.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position));

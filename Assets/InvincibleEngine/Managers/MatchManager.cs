@@ -23,16 +23,10 @@ using InvincibleEngine.UnitFramework.DataTypes;
 using VektorLibrary.EntityFramework.Components;
 
 //Player object for game communication
-public class Player {
-
-    public CSteamID PlayerID;
-
+public class Player {    
     public int Resources;
     public int SpawnSlot;
     public int Team;
-
-    
-
 }
 
 
@@ -73,6 +67,10 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+    private void Start() {
+        GridSystem.GenerateGrid();
+    }
+
     //----------------------------------------------------
     #region  Game flow control, spawning players and command centers on Game Start
     //----------------------------------------------------
@@ -88,7 +86,14 @@ public class MatchManager : MonoBehaviour {
     #region  Basic Game functionality (spawn building, command relay)
     //----------------------------------------------------
 
-    public void OnCommand(UnitCommand command) {
+    /// <summary>
+    /// Accepts unit commands from either directly from the player manager of this client
+    /// or from the network from other clients, excecutes them if this game is a host match
+    /// 
+    /// if this is a client game then the command is relayed to the host machine
+    /// </summary>
+    /// <param name="command"></param>
+    public void OnCommand(UnitCommand command, CSteamID playerSource) {
 
     }
 
@@ -97,7 +102,7 @@ public class MatchManager : MonoBehaviour {
     /// Spawns a dropship that will take the structure to the destination and deploy it
     /// </summary>
     /// <param name="BuildingID">Building asset ID</param>
-    /// <param name="Location">Coordinates on world grid</param>
+    /// <param name="Location">cooresponding grid coordinates</param>
     /// <param name="Orientation">rotation in degrees between 0 and 360</param>
     public void ConstructBuilding(EntityBehavior BuildingID, Vector2 Location, int Orientation) {
 

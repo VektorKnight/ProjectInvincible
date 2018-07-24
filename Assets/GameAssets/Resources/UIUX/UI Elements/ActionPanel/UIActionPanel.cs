@@ -6,11 +6,12 @@ using SteamNet;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
 using VektorLibrary.EntityFramework.Components;
+using InvincibleEngine.UnitFramework.Components;
 
 public class UIActionPanel : MonoBehaviour {
 
     //Object displaying actions of
-    private EntityBehavior _CurrentlySelectedObject;
+    private UnitBehavior _CurrentlySelectedObject;
 
     //Prefab for displaying actions
     public UIAction ActionPrefab;
@@ -44,15 +45,15 @@ public class UIActionPanel : MonoBehaviour {
             }
 
             //generate actions for object
-            /*foreach (BuildOption n in _CurrentlySelectedObject.BuildOptions) {
+            foreach (BuildOption n in _CurrentlySelectedObject.BuildOptions) {
 
                 //instantiate object
                 UIAction u = Instantiate(ActionPrefab, transform);
 
                 //Set values for object
                 u.Action = n.PrefabBuild;
-                u.DisplayImage.sprite = n.PrefabBuild.Icon;
-            }*/
+                u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
+            }
         }
     }
 }

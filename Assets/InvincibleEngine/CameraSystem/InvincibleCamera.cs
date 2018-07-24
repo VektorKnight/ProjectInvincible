@@ -146,6 +146,7 @@ namespace InvincibleEngine.CameraSystem {
             
             // Update current mouse position
             _mouseData.ScreenPosition = Input.mousePosition;
+           
             
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold;

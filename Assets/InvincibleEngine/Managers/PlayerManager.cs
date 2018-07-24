@@ -100,77 +100,102 @@ namespace InvincibleEngine.Managers {
                     }
                 }
             }
-            
-            // Check and see if the player is trying to make a selection
-            if (Input.GetMouseButtonDown(0)) {
 
-                // Set selecting to true
-                _selecting = true;
+            //if in build mode, display preview options for player
+            if(BuildMode) {
 
-                // Set initial values of box
-                _selectionBox = new Rect(MousePosition.x, MousePosition.y, 0, 0);
-            }
+                //Show the build preview at nearby grid points
+                _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
 
-            // As long as it's held make the rectangle 
-            if (Input.GetMouseButton(0) && _selecting) {
-                _selectionBox.width = MousePosition.x - _selectionBox.x;
-                _selectionBox.height = MousePosition.y - _selectionBox.y;
-            }
-
-            // On mouse up stop selecting
-            if (Input.GetMouseButtonUp(0) && _selecting) {
-
-                // Toggle selecting bool
-                _selecting = false;
-
-                // Invoke the OnDeselected callback on all entities
-                foreach (var behavior in SelectedEntities) {
-                    behavior.OnDeselected();
+                //Change the render color based on if the node we are hovering over is occupied
+                if(!MatchManager.Instance.GridSystem.GetGridOccupy(InvincibleCamera.MouseData.WorldPosition,new Vector2[0])) {
+                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
                 }
-                
-                // Clear the list of selected entities
-                SelectedEntities.Clear();
-                
-                // Check the mouse delta to determine if this was a single click or drag selection
-                var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
-                
-                // Assume single click if delta is small and select the hovered object if possible
-                if (mouseDelta.magnitude < 4f) {
-                    // Check if the cursor is hovering over an object and determine if it can be selected
-                    var hoveredObject = InvincibleCamera.MouseData.HoveredObject;
-                    var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
-                    
-                    // Select the hovered object if possible
-                    if (selectable != null) {
-                        SelectedEntities.Add(selectable);
-                        selectable.OnSelected();
+                else {
+                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
+                }
+
+                //On left click, try and construct the building
+                if (Input.GetMouseButtonDown(0)) {
+
+                }
+            }
+
+            //Do not run selection tasks if in build mode
+            if (!BuildMode) {
+
+                // Check and see if the player is trying to make a selection
+                if (Input.GetMouseButtonDown(0)) {
+
+                    // Set selecting to true
+                    _selecting = true;
+
+                    // Set initial values of box
+                    _selectionBox = new Rect(MousePosition.x, MousePosition.y, 0, 0);
+                }
+
+                // As long as it's held make the rectangle 
+                if (Input.GetMouseButton(0) && _selecting) {
+                    _selectionBox.width = MousePosition.x - _selectionBox.x;
+                    _selectionBox.height = MousePosition.y - _selectionBox.y;
+                }
+
+                // On mouse up stop selecting
+                if (Input.GetMouseButtonUp(0) && _selecting) {
+
+                    // Toggle selecting bool
+                    _selecting = false;
+
+                    // Invoke the OnDeselected callback on all entities
+                    foreach (var behavior in SelectedEntities) {
+                        behavior.OnDeselected();
                     }
+
+                    // Clear the list of selected entities
+                    SelectedEntities.Clear();
+
+                    // Check the mouse delta to determine if this was a single click or drag selection
+                    var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
+
+                    // Assume single click if delta is small and select the hovered object if possible
+                    if (mouseDelta.magnitude < 4f) {
+                        // Check if the cursor is hovering over an object and determine if it can be selected
+                        var hoveredObject = InvincibleCamera.MouseData.HoveredObject;
+                        var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
+
+                        // Select the hovered object if possible
+                        if (selectable != null) {
+                            SelectedEntities.Add(selectable);
+                            selectable.OnSelected();
+                        }
+                    }
+
+                    // Optimized selection using on-screen objects
+                    foreach (var entity in InvincibleCamera.VisibleObjects) {
+                        // Cache screen position of object
+                        var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
+
+                        // Account for odd screen mapping
+                        objectPosition.y = Screen.height - objectPosition.y;
+
+                        // If the object is within the rect, select it, else continue
+                        if (!_selectionBox.Contains(objectPosition, true)) continue;
+
+                        // Add the object to the list of selected entities
+                        SelectedEntities.Add(entity);
+
+                        // Invoke the OnSelected callback
+                        entity.OnSelected();
+                    }
+
+                    // Reset the selection rect
+                    _selectionBox = new Rect(0, 0, 0, 0);
                 }
 
-                // Optimized selection using on-screen objects
-                foreach (var entity in InvincibleCamera.VisibleObjects) {                 
-                    // Cache screen position of object
-                    var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
-
-                    // Account for odd screen mapping
-                    objectPosition.y = Screen.height - objectPosition.y;
-
-                    // If the object is within the rect, select it, else continue
-                    if (!_selectionBox.Contains(objectPosition, true)) continue;
-                    
-                    // Add the object to the list of selected entities
-                    SelectedEntities.Add(entity);
-                    
-                    // Invoke the OnSelected callback
-                    entity.OnSelected();
-                }
-                
-                // Reset the selection rect
-                _selectionBox = new Rect(0, 0, 0, 0);
             }
         }
 
-        // Called when the player attempts to build somthing
+        // Called when the player wants to start building something, IE. generate preview object
         public void OnBuildRequest(EntityBehavior building) {
 
             //Set build preview
