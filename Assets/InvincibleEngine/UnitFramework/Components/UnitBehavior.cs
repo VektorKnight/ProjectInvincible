@@ -15,12 +15,11 @@ namespace InvincibleEngine.UnitFramework.Components {
     [RequireComponent(typeof(Outline))]
     [RequireComponent(typeof(LineRenderer))]
     public class UnitBehavior : EntityBehavior, IUnit {
-        
-        // Unity Inspector
-        [Header("TEMP DEBUG")] 
-        [SerializeField] private Team _tempTeam;
-        [SerializeField] private Color _tempColor;
-        
+
+        // Constant: Team Layers Start/End
+        public static readonly int[] TeamLayerBounds = {11, 18};
+
+        // Unity Inspector        
         [Header("General Settings")]
         [SerializeField] private UnitType _unitType;
         [SerializeField] private Sprite _iconSprite;
@@ -52,9 +51,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Public Properties
         public UnitType UnitType => _unitType;
-        public UnitActions SupportedCommands { get; protected set; }
-        public Team UnitTeam => _tempTeam;
+        public Team UnitTeam { get; private set; }
+        public Color UnitColor { get; private set; }
         public Sprite IconSprite => _iconSprite;
+        public UnitActions SupportedCommands { get; protected set; }
         public bool Invulnerable { get; private set; }
         public bool Selected { get; private set; }
 
@@ -74,8 +74,11 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Initialize line renderer
             LineRenderer.useWorldSpace = true;
             LineRenderer.positionCount = 2;
-            LineRenderer.startColor = _tempColor;
-            LineRenderer.endColor = _tempColor;
+            LineRenderer.startColor = TeamColor.GetTeamColor(UnitTeam);
+            LineRenderer.endColor = TeamColor.GetTeamColor(UnitTeam);
+            
+            // Fetch team color from team
+            UnitColor = TeamColor.GetTeamColor(UnitTeam);
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {
@@ -97,7 +100,7 @@ namespace InvincibleEngine.UnitFramework.Components {
                 
                 // Instantiate and initialize the unit icon
                 Icon = Instantiate(template);
-                Icon.Initialize(_iconSprite, _tempColor);
+                Icon.Initialize(_iconSprite, UnitColor);
                 InvincibleCamera.AppendUnitIcon(Icon);
                 Icon.SetSelected(false);
             }
@@ -111,12 +114,38 @@ namespace InvincibleEngine.UnitFramework.Components {
             ScanInterval = new WaitForSeconds(Random.Range(ScanIntervalRange.x, ScanIntervalRange.y));
             SqrScanRadius = ScanRadius * ScanRadius;
             
+            // Calculate the scan layers based on the unit team
+            CalculateLayers();
+            
             // Start the scanning routine if necessary
             if (AutoAcquireTargets)
                 StartCoroutine(nameof(ScanForTargets));
             
             // Call base method
             base.OnRegister();
+        }
+        
+        // Set this unit's team and update related objects
+        public virtual void SetTeam(Team team) {
+            UnitTeam = team;
+            UnitColor = TeamColor.GetTeamColor(team);
+            Icon?.SetColor(UnitColor);
+            CalculateLayers();
+        }
+        
+        // Calculate the layers and masks for this unit
+        protected virtual void CalculateLayers() {
+            // Make sure this unit's layer is set to match it's team
+            gameObject.layer = TeamLayerBounds[0] + (int) UnitTeam;
+            
+            // Calculate the scan layers for target acquisition
+            foreach (var team in Enum.GetValues(typeof(Team))) {
+                // Skip this unit's team
+                if ((Team) team == UnitTeam) continue;
+                
+                // Set the appropriate bit flags
+                ScanLayers = ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int) team);
+            }
         }
         
         // Time slicing coroutine
@@ -179,7 +208,8 @@ namespace InvincibleEngine.UnitFramework.Components {
                 Icon?.SetRender(false);
             }
         }
-
+        
+        // Called when this unit is selected
         public virtual void OnSelected() {
             // Show selection indicator if icons are not rendered
             SelectionIndicator.enabled = true;
@@ -190,7 +220,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Set selected flag
             Selected = true;
         }
-
+        
+        // Called when this unit is deselected
         public virtual void OnDeselected() {
             // Hide selection indicator
             SelectionIndicator.enabled = false;

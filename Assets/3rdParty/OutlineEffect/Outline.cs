@@ -41,9 +41,9 @@ namespace cakeslice
 
         private void Awake()
         {
-            Renderer = GetComponent<Renderer>();
+            Renderer = GetComponentInChildren<MeshRenderer>();
             SkinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
-            MeshFilter = GetComponent<MeshFilter>();
+            MeshFilter = GetComponentInChildren<MeshFilter>();
         }
 
         void OnEnable()

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections;
-using InvincibleEngine.Components.Units;
-using InvincibleEngine.UnitFramework.Components;
+﻿using InvincibleEngine.Components.Units;
 using InvincibleEngine.UnitFramework.Enums;
-using InvincibleEngine.UnitFramework.Utility;
 using UnityEngine;
 using UnityEngine.AI;
-using Random = UnityEngine.Random;
 
-namespace GameAssets.Resources.Objects.Units.TankPrimitive {
+namespace GameAssets.Resources.Objects.Units.Land_DebugTank {
 	[RequireComponent(typeof(NavMeshAgent))]
-	public class TankPrimitiveBehavior : LandUnitBehavior {
+	public class DebugTankBehavior : LandUnitBehavior {
 	
 		// Required References
 		private NavMeshAgent _navAgent;

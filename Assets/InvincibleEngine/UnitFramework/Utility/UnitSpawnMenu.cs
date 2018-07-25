@@ -19,7 +19,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         // Private: Current Settings
         private int _selectedUnit;
         private Team _selectedTeam;
-        private int _spawnCount;
+        private int _spawnCount = 1;
         
         // Private: State
         private bool _readyToSpawn;
@@ -40,6 +40,16 @@ namespace InvincibleEngine.UnitFramework.Utility {
             }
         }
         
+        // Unity Update
+        private void Update() {
+            // Exit if we are not ready to spawn a unit
+            if (!_readyToSpawn) return;
+            
+            // Spawn a unit at the cursor when the user clicks
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+                SpawnUnit();
+        }
+        
         // Callback for the selection dropdown
         public void OnUnitChanged(int index) {
             _selectedUnit = index;
@@ -51,18 +61,22 @@ namespace InvincibleEngine.UnitFramework.Utility {
         }
         
         // Callback for the spawn count field
-        public void OnCountChanged(int value) {
-            _spawnCount = value;
+        public void OnCountChanged(string raw) {
+            int.TryParse(raw, out _spawnCount);
         }
         
         // Callback for the spawn unit button
         public void OnSpawnReady() {
-            
+            _readyToSpawn = true;
         }
         
         // Method for spawning a unit based on current settings
         public void SpawnUnit() {
-            var unit = Instantiate(_spawnableUnits[_selectedUnit], InvincibleCamera.MouseData.WorldPosition, Quaternion.identity);
+            for (var i = 0; i < _spawnCount; i++) {
+                var unit = Instantiate(_spawnableUnits[_selectedUnit], InvincibleCamera.MouseData.WorldPosition, Quaternion.identity);
+                unit.SetTeam(_selectedTeam);
+            }
+            _readyToSpawn = false;
         }
     }
 }
