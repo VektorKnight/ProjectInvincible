@@ -6,15 +6,12 @@ using UnityEngine;
 
 public class StructureBehavior : UnitBehavior {
 
-    //Build cost in raw units
-    public float BuildCost = 500;
-    public float BuildResources = 0;
-
-    //Initial build point, structures don't move
-    public Vector3 Origin;
-
-    //Sturcture properties
-    float Height;
+    //Structure Properties
+    [Header("Structure Properties")]
+    [SerializeField] private float BuildCost = 500;
+    [SerializeField] private float BuildResources = 0;
+    [SerializeField] private Vector3 Origin;
+    [SerializeField] private float Height;
 
     //Static effects
     public ParticleSystem BuildingEffect;

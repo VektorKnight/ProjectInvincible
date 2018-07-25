@@ -81,7 +81,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4034073945628448
 Transform:
   m_ObjectHideFlags: 1
@@ -89,7 +89,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1247207604383098}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 0.94}
+  m_LocalPosition: {x: 0, y: 0, z: 3.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4147556414815278}
@@ -102,7 +102,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1791605148226350}
   m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 124.1, y: 7.96, z: -87.1}
+  m_LocalPosition: {x: 138.25296, y: -0.13, z: 67.84736}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4034073945628448}
@@ -118,8 +118,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1120578105517130}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0, z: 4.04}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 8.91}
+  m_LocalScale: {x: 2.3506, y: 2.3506, z: 2.3506}
   m_Children: []
   m_Father: {fileID: 4147556414815278}
   m_RootOrder: 1
@@ -276,8 +276,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerOwner: -1
-  _tempTeam: 0
-  _tempColor: {r: 0, g: 0, b: 0, a: 0}
   _unitType: 0
   _iconSprite: {fileID: 21300000, guid: a29ea91c770dc27458f55119e84ca02e, type: 3}
   BuildOptions: []
@@ -287,12 +285,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   ScanIntervalRange: {x: 0.2, y: 0.4}
-  ShowTargetingLine: 0
-  Health: 100
   CanBeProduced: 0
   BuildCost: 500
   BuildResources: 0
   Origin: {x: 0, y: 0, z: 0}
+  Height: 0
   BuildingEffect: {fileID: 198358474136860666}
   EnergyGen: 0
   ResourceGen: 0
