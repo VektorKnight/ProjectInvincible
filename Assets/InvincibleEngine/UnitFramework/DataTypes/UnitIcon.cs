@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace InvincibleEngine.UnitFramework.DataTypes {
     [RequireComponent(typeof(Image))]
     [RequireComponent(typeof(Shadow))]
     public class UnitIcon : MonoBehaviour {
+        // Private: Settings
+        private float _fadeTime = 0.1f;
+        
         // Private: Required References
         private Image _image;
         private Shadow _shadow;
@@ -52,6 +56,7 @@ namespace InvincibleEngine.UnitFramework.DataTypes {
         
         // Set render state (show/hide)
         public void SetRender(bool render) {
+            // Set the image state
             _image.enabled = render;
         }
     }

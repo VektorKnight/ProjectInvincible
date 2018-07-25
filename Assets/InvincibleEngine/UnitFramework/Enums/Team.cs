@@ -1,5 +1,5 @@
-﻿namespace InvincibleEngine{
-    public enum UnitTeam {
+﻿namespace InvincibleEngine.UnitFramework.Enums{
+    public enum Team {
         Red,
         Green,
         Blue,

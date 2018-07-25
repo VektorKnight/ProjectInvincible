@@ -102,7 +102,7 @@ namespace InvincibleEngine.Managers {
             }
 
             //if in build mode, display preview options for player
-            if(BuildMode) {
+            /*if(BuildMode) {
 
                 //Show the build preview at nearby grid points
                 _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
@@ -119,7 +119,7 @@ namespace InvincibleEngine.Managers {
                 if (Input.GetMouseButtonDown(0)) {
 
                 }
-            }
+            }*/
 
             //Do not run selection tasks if in build mode
             if (!BuildMode) {

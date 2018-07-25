@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using InvincibleEngine.DataTypes;
 using InvincibleEngine.UnitFramework.Components;
@@ -34,6 +35,7 @@ namespace InvincibleEngine.CameraSystem {
         [SerializeField] private int _edgeScrollBuffer = 6;
 
         [Header("Camera Features")] 
+        [SerializeField] private float _fadeTime = 0.25f;
         [SerializeField] private LayerMask _geometryMask;
         [SerializeField] private bool _zoomToCursor = true;
         [SerializeField] private bool _enableEdgeScroll = true;
@@ -67,7 +69,9 @@ namespace InvincibleEngine.CameraSystem {
         
         // Private: Icon Rendering
         private Canvas _iconCanvas;
+        private CanvasGroup _iconGroup;
         private bool _iconsRendered;
+        private bool _iconsChanged;
         
         // Public Static: Useful Properties
         public static HashSet<UnitBehavior> VisibleObjects => Instance._visibleObjects;
@@ -91,6 +95,7 @@ namespace InvincibleEngine.CameraSystem {
             // Load and instantiate the icon canvas
             var iconCanvasPrefab = Resources.Load<GameObject>("Objects/Common/UnitIconCanvas");
             _iconCanvas = Instantiate(iconCanvasPrefab, Vector3.zero, Quaternion.identity).GetComponent<Canvas>();
+            _iconGroup = _iconCanvas.GetComponent<CanvasGroup>();
             
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
@@ -123,7 +128,7 @@ namespace InvincibleEngine.CameraSystem {
             return Instance._camera.WorldToScreenPoint(position);
         }
         
-        // FixedUpdate
+        // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
             var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
 
@@ -147,10 +152,9 @@ namespace InvincibleEngine.CameraSystem {
             // Update current mouse position
             _mouseData.ScreenPosition = Input.mousePosition;
            
-            
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold;
-            _iconCanvas.gameObject.SetActive(_iconsRendered);
+            _iconCanvas.enabled = _iconsRendered;
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {

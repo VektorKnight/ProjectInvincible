@@ -7,6 +7,7 @@ using InvincibleEngine.UnitFramework.Interfaces;
 using InvincibleEngine.UnitFramework.Utility;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
+using VektorLibrary.Utility;
 using Outline = cakeslice.Outline;
 using Random = UnityEngine.Random;
 
@@ -17,7 +18,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Unity Inspector
         [Header("TEMP DEBUG")] 
-        [SerializeField] private UnitTeam _tempTeam;
+        [SerializeField] private Team _tempTeam;
         [SerializeField] private Color _tempColor;
         
         [Header("General Settings")]
@@ -30,9 +31,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected float ScanRadius = 50f;
         [SerializeField] protected LayerMask ScanLayers;
         [SerializeField] protected Vector2 ScanIntervalRange = new Vector2(0.2f, 0.4f);
-
-        [Header("Debugging")] 
-        [SerializeField] protected bool ShowTargetingLine;
         
         // Protected: Unit Icon
         protected UnitIcon Icon;
@@ -55,13 +53,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Public Properties
         public UnitType UnitType => _unitType;
         public UnitActions SupportedCommands { get; protected set; }
-        public UnitTeam UnitTeam => _tempTeam;
+        public Team UnitTeam => _tempTeam;
         public Sprite IconSprite => _iconSprite;
         public bool Invulnerable { get; private set; }
         public bool Selected { get; private set; }
-        
-        // Base health of a unit
-        public float Health = 100;
 
         // Denotes whether this unit can be built from somwhere, eventually this should be changed 
         // to a proper flag system that tells excactly where this unit can be made from
@@ -79,6 +74,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Initialize line renderer
             LineRenderer.useWorldSpace = true;
             LineRenderer.positionCount = 2;
+            LineRenderer.startColor = _tempColor;
+            LineRenderer.endColor = _tempColor;
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {
@@ -133,18 +130,21 @@ namespace InvincibleEngine.UnitFramework.Components {
                     // Set waiting flag to true if target found
                     WaitingForTarget = CurrentTarget == null;
                 }
+
+                LineRenderer.enabled = DebugReadout.ShowTargeting;
 				
                 // Make sure the current target is alive
                 if (CurrentTarget != null) {
-					
                     // Update line renderers if necessary
-                    if (ShowTargetingLine) {
+                    if (DebugReadout.ShowTargeting) {
                         LineRenderer.SetPosition(0, transform.position);
                         LineRenderer.SetPosition(1, CurrentTarget.transform.position);
                     }
 
-                    // Make sure the current target is within range
+                    // Calculate sqr distance to target
                     var sqrTargetDistance = Vector3.SqrMagnitude(transform.position - CurrentTarget.transform.position);
+                    
+                    // Check that the target is within range
                     if (sqrTargetDistance > SqrScanRadius) {
                         // Discard the current target if it's out of range
                         CurrentTarget = null;
@@ -154,17 +154,18 @@ namespace InvincibleEngine.UnitFramework.Components {
                     }
                 }
                 else {
-                    LineRenderer.SetPosition(0, Vector3.zero);
-                    LineRenderer.SetPosition(1, Vector3.zero);
+                    if (DebugReadout.ShowTargeting) {
+                        LineRenderer.SetPosition(0, Vector3.zero);
+                        LineRenderer.SetPosition(1, Vector3.zero);
+                    }
                 }
 				
                 yield return ScanInterval;
             }
         }
-
+        
+        // Render Update Callback
         public override void OnRenderUpdate(float deltaTime) {
-
-
             // Determine if this object is on screen or not
             if (Icon != null)
                 Icon.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position));

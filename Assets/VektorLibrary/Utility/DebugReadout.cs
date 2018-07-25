@@ -16,6 +16,7 @@ namespace VektorLibrary.Utility {
         // Unity Inspector
         [Header("Debug Readout Config")] 
         [SerializeField] private KeyCode _toggleKey = KeyCode.F2;
+        [SerializeField] private KeyCode _showTargetingKey = KeyCode.F3;
         [SerializeField] private Text _debugText;
         
         // Private: Debug Fields
@@ -26,9 +27,11 @@ namespace VektorLibrary.Utility {
         
         // Private: State
         private bool _enabled;
+        private bool _showTargeting;
         
         // Property: State
         public static bool Enabled => Instance._enabled;
+        public static bool ShowTargeting => Instance._showTargeting;
 
         // Initialization
         private void Awake() {
@@ -51,6 +54,8 @@ namespace VektorLibrary.Utility {
             UpdateField("Display", $"{Screen.width}x{Screen.height}");
             
             AddField("FPS");
+            
+            AddField("Show Targeting");
             _fpsCounter = new FpsCounter();
             
         }
@@ -109,14 +114,18 @@ namespace VektorLibrary.Utility {
         
         // Unity Update
         private void Update() {
-            // Check for key press
+            // Check for key presses
             if (Input.GetKeyDown(Instance._toggleKey)) ToggleReadout();
+            if (Input.GetKeyDown(Instance._showTargetingKey)) _showTargeting = !_showTargeting;
             
             // Exit if the readout is disabled
             if (!_enabled) return;
             
             // Update FPS Counter
             UpdateField("FPS", $"{Instance._fpsCounter.UpdateValues()} (Δ{Time.deltaTime * 1000f:n1}ms)");
+            
+            // Update show targeting
+            UpdateField("Show Targeting", _showTargeting.ToString());
             
             // Iterate through the debug fields and add them to the readout
             var displayText = new StringBuilder();

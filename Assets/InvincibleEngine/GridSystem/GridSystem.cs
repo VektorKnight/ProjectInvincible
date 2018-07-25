@@ -118,7 +118,8 @@ namespace InvincibleEngine {
         //Option for passing vector 3
         public GridPoint GetGridOccupy(Vector3 origin, Vector2[] volume) {
             var n = WorldToGridPoint(origin);
-            return GetGridOccupy(new Vector2Int((int)n.x,(int)n.z), volume);
+            //return GetGridOccupy(new Vector2Int((int)n,(int)n.z), volume);
+            return default(GridPoint);
         }
 
 
@@ -131,7 +132,8 @@ namespace InvincibleEngine {
             int x, z;
             x = (int)Math.Round(point.x / GridScale) * GridScale;
             z =  (int)Math.Round(point.z / GridScale) * GridScale;
-            UInt32=
+            //UInt32=
+            return default(GridPoint);
         }
     }
 }
