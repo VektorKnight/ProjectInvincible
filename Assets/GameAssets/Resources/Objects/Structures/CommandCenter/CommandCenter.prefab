@@ -104,7 +104,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1537147840757876}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.013, z: 0}
+  m_LocalPosition: {x: 0, y: 3.07, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4931771227324454}
@@ -131,7 +131,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1439999174300558}
   m_LocalRotation: {x: -0, y: -0.70710695, z: -0, w: 0.7071066}
-  m_LocalPosition: {x: 240.52, y: 0, z: 171.87}
+  m_LocalPosition: {x: 179, y: 0, z: 107.6}
   m_LocalScale: {x: 4.2354355, y: 1.892143, z: 1.8069538}
   m_Children:
   - {fileID: 4362995430610158}
@@ -230,11 +230,11 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1439999174300558}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2, y: 2, z: 2.0000002}
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Size: {x: 5.9302278, y: 6.057257, z: 6.1673136}
+  m_Center: {x: -0.05806593, y: 3.0286286, z: -0.20037594}
 --- !u!65 &65554386531263062
 BoxCollider:
   m_ObjectHideFlags: 1
@@ -306,7 +306,8 @@ MonoBehaviour:
   _unitType: 1
   _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
   BuildOptions:
-  - PrefabBuild: {fileID: 0}
+  - PrefabBuild: {fileID: 114846339121617532, guid: bc15331e9ba95cc45b8a76361b38ae0c,
+      type: 2}
   AutoAcquireTargets: 0
   ScanRadius: 50
   ScanLayers:
@@ -317,6 +318,7 @@ MonoBehaviour:
   BuildCost: 500
   BuildResources: 0
   Origin: {x: 0, y: 0, z: 0}
+  Height: 0
   BuildingEffect: {fileID: 198254761060156370}
   EnergyGen: 0
   ResourceGen: 0

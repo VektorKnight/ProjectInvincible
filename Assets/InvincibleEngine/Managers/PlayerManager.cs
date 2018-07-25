@@ -105,24 +105,24 @@ namespace InvincibleEngine.Managers {
             }
 
             //if in build mode, display preview options for player
-            /*if(BuildMode) {
+            if(BuildMode) {
 
                 //Show the build preview at nearby grid points
-                _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
+                _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).WorldPosition;
 
                 //Change the render color based on if the node we are hovering over is occupied
-                if(!MatchManager.Instance.GridSystem.GetGridOccupy(InvincibleCamera.MouseData.WorldPosition,new Vector2[0])) {
+                if(!MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
                 }
                 else {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
                 }
-
+                
                 //On left click, try and construct the building
                 if (Input.GetMouseButtonDown(0)) {
 
                 }
-            }*/
+            }
 
             //Do not run selection tasks if in build mode
             if (!BuildMode) {
