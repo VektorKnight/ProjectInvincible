@@ -19,7 +19,7 @@ public class UIActionPanel : MonoBehaviour {
     void Update() {
 
         //if nothing is selected, clear build list
-        if (PlayerManager.Instance.SelectedEntities.Count == 0) {
+        if (PlayerManager.SelectedUnits.Count == 0) {
 
             //clear current actions
             foreach (Transform child in transform) {
@@ -34,10 +34,10 @@ public class UIActionPanel : MonoBehaviour {
         }
 
         //Check to see if the selected unit changed
-        if (PlayerManager.Instance.SelectedEntities.Count > 0 && (_CurrentlySelectedObject == null || PlayerManager.Instance.SelectedEntities[0].name != _CurrentlySelectedObject.name)) {
+        if (PlayerManager.SelectedUnits.Count > 0 && (_CurrentlySelectedObject == null || PlayerManager.SelectedUnits[0].name != _CurrentlySelectedObject.name)) {
             
             //Set currently actioned entity
-            _CurrentlySelectedObject = PlayerManager.Instance.SelectedEntities[0];
+            _CurrentlySelectedObject = PlayerManager.SelectedUnits[0];
 
             //clear current actions
             foreach (Transform child in transform) {

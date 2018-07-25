@@ -303,10 +303,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerOwner: -1
-  _tempTeam: 0
-  _tempColor: {r: 1, g: 0, b: 0, a: 1}
   _unitType: 1
-  _iconSprite: {fileID: 21300000, guid: 0d04e4abcab18e146bb77cc7e6a35a76, type: 3}
+  _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
   BuildOptions:
   - PrefabBuild: {fileID: 0}
   AutoAcquireTargets: 0
@@ -315,8 +313,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   ScanIntervalRange: {x: 0.2, y: 0.4}
-  ShowTargetingLine: 0
-  Health: 100
   CanBeProduced: 0
   BuildCost: 500
   BuildResources: 0

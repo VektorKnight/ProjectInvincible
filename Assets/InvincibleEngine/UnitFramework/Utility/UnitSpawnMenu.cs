@@ -11,7 +11,6 @@ namespace InvincibleEngine.UnitFramework.Utility {
         [Header("Required Objects")] 
         [SerializeField] private Dropdown _unitDropdown;
         [SerializeField] private Dropdown _unitTeam;
-        [SerializeField] private InputField _countField;
         
         // Private: Spawnable Units
         private UnitBehavior[] _spawnableUnits;
@@ -66,7 +65,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         }
         
         // Callback for the spawn unit button
-        public void OnSpawnReady() {
+        public void OnSpawnClicked() {
             _readyToSpawn = true;
         }
         

@@ -32,11 +32,14 @@ namespace InvincibleEngine.Managers {
         public Vector2 MousePosition;
 
         // List of selected Entities
-        public List<UnitBehavior> SelectedEntities = new List<UnitBehavior>();
+        private readonly List<UnitBehavior> _selectedUnits = new List<UnitBehavior>();
 
         // Building variables
         public bool BuildMode { get; set; }
         private GameObject _buildPreview;
+        
+        // Public Static: Selection
+        public static List<UnitBehavior> SelectedUnits => Instance._selectedUnits;
 
         // Preload Method
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -85,17 +88,17 @@ namespace InvincibleEngine.Managers {
             MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);         
             
             // Handle commands ()
-            if (SelectedEntities.Count > 0) {
+            if (_selectedUnits.Count > 0) {
                 // Movement Command ([Q] or [Mouse1])
                 if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Mouse1)) {
-                    foreach (var unit in SelectedEntities) {
+                    foreach (var unit in _selectedUnits) {
                         unit.ProcessCommand(new UnitCommand(UnitActions.Move, InvincibleCamera.MouseData.WorldPosition));
                     }
                 }
                 
                 // Stop Command ([S])
                 if (Input.GetKeyDown(KeyCode.End)) {
-                    foreach (var unit in SelectedEntities) {
+                    foreach (var unit in _selectedUnits) {
                         unit.ProcessCommand(new UnitCommand(UnitActions.Stop, null));
                     }
                 }
@@ -147,12 +150,12 @@ namespace InvincibleEngine.Managers {
                     _selecting = false;
 
                     // Invoke the OnDeselected callback on all entities
-                    foreach (var behavior in SelectedEntities) {
+                    foreach (var behavior in _selectedUnits) {
                         behavior.OnDeselected();
                     }
 
                     // Clear the list of selected entities
-                    SelectedEntities.Clear();
+                    _selectedUnits.Clear();
 
                     // Check the mouse delta to determine if this was a single click or drag selection
                     var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
@@ -165,7 +168,7 @@ namespace InvincibleEngine.Managers {
 
                         // Select the hovered object if possible
                         if (selectable != null) {
-                            SelectedEntities.Add(selectable);
+                            _selectedUnits.Add(selectable);
                             selectable.OnSelected();
                         }
                     }
@@ -182,7 +185,7 @@ namespace InvincibleEngine.Managers {
                         if (!_selectionBox.Contains(objectPosition, true)) continue;
 
                         // Add the object to the list of selected entities
-                        SelectedEntities.Add(entity);
+                        _selectedUnits.Add(entity);
 
                         // Invoke the OnSelected callback
                         entity.OnSelected();

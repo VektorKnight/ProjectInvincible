@@ -69,7 +69,6 @@ namespace InvincibleEngine.CameraSystem {
         
         // Private: Icon Rendering
         private Canvas _iconCanvas;
-        private CanvasGroup _iconGroup;
         private bool _iconsRendered;
         private bool _iconsChanged;
         
@@ -95,7 +94,6 @@ namespace InvincibleEngine.CameraSystem {
             // Load and instantiate the icon canvas
             var iconCanvasPrefab = Resources.Load<GameObject>("Objects/Common/UnitIconCanvas");
             _iconCanvas = Instantiate(iconCanvasPrefab, Vector3.zero, Quaternion.identity).GetComponent<Canvas>();
-            _iconGroup = _iconCanvas.GetComponent<CanvasGroup>();
             
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
