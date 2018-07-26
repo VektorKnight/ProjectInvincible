@@ -23,26 +23,26 @@ public class UILobbySettings : MonoBehaviour {
     public void Update() {
 
         //Keep button up to date
-        if (SteamManager.Instance.Hosting) {
+        if (SteamNetManager.Instance.Hosting) {
             GameButtonText.text = "Start Game".ToUpper();
 
-            GameButton.interactable = (SteamManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? true : false);
-            GameButtonImage.color = (SteamManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? Ready : NotReady);
+            GameButton.interactable = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? true : false);
+            GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? Ready : NotReady);
         }
-        if (SteamManager.Instance.Connected) {
+        if (SteamNetManager.Instance.Connected) {
             GameButtonText.text = "Ready".ToUpper();
 
-            GameButtonImage.color = (SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers[SteamUser.GetSteamID()].IsReady ? Ready : NotReady);
+            GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[SteamUser.GetSteamID()].IsReady ? Ready : NotReady);
         }
-        if(SteamManager.Instance.NetworkState== ENetworkState.Stopped) {
+        if(SteamNetManager.Instance.NetworkState== ENetworkState.Stopped) {
             GameButtonImage.color = NotReady;
         }
 
         //Timer visual
-        if (SteamManager.Instance.CurrentlyJoinedLobby.TimerStarted) {
-            TimerText.text = SteamManager.Instance.CurrentlyJoinedLobby.TimerDisplay.ToString();
-            TimerOverlay.offsetMax = new Vector2((float)(-450 * SteamManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent), 0);
-            TimerImage.color = new Color(TimerImage.color.r, TimerImage.color.g, TimerImage.color.b, 1 - (float)SteamManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent);
+        if (SteamNetManager.Instance.CurrentlyJoinedLobby.TimerStarted) {
+            TimerText.text = SteamNetManager.Instance.CurrentlyJoinedLobby.TimerDisplay.ToString();
+            TimerOverlay.offsetMax = new Vector2((float)(-450 * SteamNetManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent), 0);
+            TimerImage.color = new Color(TimerImage.color.r, TimerImage.color.g, TimerImage.color.b, 1 - (float)SteamNetManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent);
         }
         else {
             TimerText.text = "5";
@@ -54,6 +54,6 @@ public class UILobbySettings : MonoBehaviour {
     //Sends a message to the lobby data to start the game
     //if we are a client, this just redies up
     public void StartGame() {
-        SteamManager.Instance.StartGame();
+        SteamNetManager.Instance.StartGame();
     }
 }

@@ -32,14 +32,14 @@ public class UIPlayerSlot : MonoBehaviour {
 
     private void Update() {
         //Make sure the color of this slot matches it's player
-        Color32 color= SteamManager.Instance.TeamColors?[SteamManager.Instance.CurrentlyJoinedLobby.LobbyMembers[CardID].team] ?? new Color32(0, 255, 0, 255);
+        Color32 color= SteamNetManager.Instance.TeamColors?[SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[CardID].team] ?? new Color32(0, 255, 0, 255);
         _ColoredBackground.color = color;
         _TeamPickBlocker.color = color;
            
     }
 
     public void TeamChangeRequest(int team) {
-        SteamManager.Instance.BroadcastChatMessage(new N_TMC(team));
+        SteamNetManager.Instance.BroadcastChatMessage(new N_TMC(team));
     }
 
 }

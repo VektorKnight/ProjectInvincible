@@ -16,13 +16,13 @@ public class UIChat : MonoBehaviour {
         };
 
         //Send Message
-        SteamManager.Instance.BroadcastChatMessage(message);
+        SteamNetManager.Instance.BroadcastChatMessage(message);
 
         //clear and refocus input field
         input.text = "";
         input.ActivateInputField();
     }
     private void Update() {
-        ChatBox.text = SteamManager.Instance.CurrentlyJoinedLobby.ChatLog;
+        ChatBox.text = SteamNetManager.Instance.CurrentlyJoinedLobby.ChatLog;
     }
 }

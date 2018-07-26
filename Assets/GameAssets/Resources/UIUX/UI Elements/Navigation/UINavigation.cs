@@ -30,7 +30,7 @@ public class UINavigation : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        switch (SteamManager.Instance.NetworkState) {
+        switch (SteamNetManager.Instance.NetworkState) {
             case ENetworkState.Connected: {
                     State.text = "In Lobby".ToUpper();
                     break;
@@ -48,10 +48,10 @@ public class UINavigation : MonoBehaviour {
     }
 
     public void Play() {
-        SteamManager.Instance.CreateLobby();
+        SteamNetManager.Instance.CreateLobby();
     }
 
     public void LeaveLobby() {
-        SteamManager.Instance.LeaveLobby("");
+        SteamNetManager.Instance.LeaveLobby("");
     }
 }

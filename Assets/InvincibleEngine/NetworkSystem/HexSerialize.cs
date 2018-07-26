@@ -6,27 +6,10 @@ using UnityEngine;
 using System.Reflection;
 using System.Linq;
 using System.Runtime.Serialization;
-
+using SteamNet;
 
 namespace HexSerializer {
-    public class AmbiguousTypeHolder {
-        public AmbiguousTypeHolder(object _obj, Type _type) {
-            obj = _obj;
-            type = _type;
-        }
-        public object obj;
-        public Type type;
-    }
-
-    public class SyncFieldIndexer {
-        public byte Index;
-        public object Data;
-    }
-
-    public class SyncField {
-
-    }
-
+   
     /// <summary>
     /// No subclasses please
     /// </summary>
@@ -403,10 +386,10 @@ namespace HexSerializer {
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static List<SyncFieldIndexer> GetObjectSyncFields(this GameObject input) {
+        public static List<SyncField> GetObjectSyncFields(this GameObject input) {
 
             //search through all components for those that are our own scripts
-            List<SyncFieldIndexer> Fields = new List<SyncFieldIndexer>();
+            List<SyncField> Fields = new List<SyncField>();
             
             try {
                foreach(Component n in GetComponentsSorted(input)) {
