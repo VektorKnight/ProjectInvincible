@@ -1,16 +1,5 @@
-﻿using UnityEngine;
-
-namespace InvincibleEngine {
-    public interface IPoolable {
-        
-        // Property: Initialized
-        bool Initialized { get; }
-
-        /// <summary>
-        /// Called when an object is initialized in pre-populated pool or instantiated for the first time in a dynamic pool.
-        /// </summary>
-        void Initialize();
-        
+﻿namespace VektorLibrary.EntityFramework.Interfaces {
+    public interface IPoolable {      
         /// <summary>
         /// Called when this object is retrieved from a pool.
         /// </summary>

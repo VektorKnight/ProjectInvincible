@@ -12,6 +12,10 @@ using Outline = cakeslice.Outline;
 using Random = UnityEngine.Random;
 
 namespace InvincibleEngine.UnitFramework.Components {
+    /// <summary>
+    /// Base class for all unit behaviors.
+    /// Base methods for this class should be called first in any overrides.
+    /// </summary>
     [RequireComponent(typeof(Outline))]
     [RequireComponent(typeof(LineRenderer))]
     public class UnitBehavior : EntityBehavior, IUnit {
@@ -23,19 +27,24 @@ namespace InvincibleEngine.UnitFramework.Components {
         [Header("General Settings")]
         [SerializeField] private UnitType _unitType;
         [SerializeField] private Sprite _iconSprite;
+        [SerializeField] private Sprite _healthBarSprite;
+        [SerializeField] protected float Health = 100f;
         [SerializeField] public BuildOption[] BuildOptions;
 
         [Header("Target Acquisition")] 
         [SerializeField] protected bool AutoAcquireTargets;
         [SerializeField] protected float ScanRadius = 50f;
-        [SerializeField] protected LayerMask ScanLayers;
         [SerializeField] protected Vector2 ScanIntervalRange = new Vector2(0.2f, 0.4f);
+
+        [Header("Destruction Aesthetics")] 
+        [SerializeField] protected ParticleSystem DeathEffect;
         
         // Protected: Unit Icon
-        protected UnitIcon Icon;
+        protected UnitScreenElement Icon;
+        protected UnitScreenElement HealthBar;
         
         // Protected: Component References
-        protected Renderer UnitRenderer;
+        protected MeshRenderer UnitRenderer;
         protected LineRenderer LineRenderer;
         protected Outline SelectionIndicator;
         
@@ -45,21 +54,29 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Protected: Target Acquisition
         protected TargetScanner Scanner;
         protected WaitForSeconds ScanInterval;
-        protected UnitBehavior CurrentTarget;
         protected bool WaitingForTarget = true;
         protected float SqrScanRadius;
         
-        // Public Properties
+        // Properties: Unit Metadata
         public UnitType UnitType => _unitType;
-        public Team UnitTeam { get; private set; }
-        public Color UnitColor { get; private set; }
+        public Team UnitTeam { get; protected set; }
+        public Color UnitColor { get; protected set; }
+        public float CurrentHealth { get; protected set; }
         public Sprite IconSprite => _iconSprite;
         public UnitActions SupportedCommands { get; protected set; }
-        public bool Invulnerable { get; private set; }
-        public bool Selected { get; private set; }
+        
+        // Properties: Target Acquisition
+        public UnitBehavior CurrentTarget { get; protected set; }
+        public LayerMask ScanLayers { get; protected set; }
+        public float WeaponRange => ScanRadius;
+        
+        // Properties: Unit State
+        public bool Invulnerable { get; protected set; }
+        public bool Selected { get; protected set; }
+        public bool Dying { get; protected set; }
 
-        // Denotes whether this unit can be built from somwhere, eventually this should be changed 
-        // to a proper flag system that tells excactly where this unit can be made from
+        // Denotes whether this unit can be built from somewhere, eventually this should be changed 
+        // to a proper flag system that tells exactly where this unit can be made from
         public bool CanBeProduced;  
         
         public virtual void GenerateResource() {}       
@@ -83,26 +100,38 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Construct this unit's icon if possible
             if (_iconSprite != null) {
                 // Declare template reference
-                UnitIcon template;
+                UnitScreenElement template;
                 
                 // Load the appropriate template for the unit type
                 switch (_unitType) {
                     case UnitType.Structure:
-                        template = Resources.Load<UnitIcon>("Objects/Templates/Icon-Structure");
+                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Structure");
                         break;
                     case UnitType.Special:
-                        template = Resources.Load<UnitIcon>("Objects/Templates/Icon-Special");
+                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Special");
                         break;
                     default:
-                        template = Resources.Load<UnitIcon>("Objects/Templates/Icon-Unit");
+                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Unit");
                         break;
                 }
                 
                 // Instantiate and initialize the unit icon
                 Icon = Instantiate(template);
                 Icon.Initialize(_iconSprite, UnitColor);
-                InvincibleCamera.AppendUnitIcon(Icon);
+                InvincibleCamera.AppendElement(Icon);
                 Icon.SetSelected(false);
+            }
+            
+            // Construct this unit's health bar if possible
+            if (_healthBarSprite != null) {
+                // Load the health bar template object
+                var template = Resources.Load<UnitScreenElement>("Objects/Templates/UI_HealthBar");
+
+                // Instantiate and initialize the health bar
+                HealthBar = Instantiate(template);
+                HealthBar.Initialize(_healthBarSprite, UnitColor);
+                InvincibleCamera.AppendElement(HealthBar);
+                HealthBar.SetSelected(false);
             }
             
             // Deactivate the indicator object if not null
@@ -121,22 +150,79 @@ namespace InvincibleEngine.UnitFramework.Components {
             if (AutoAcquireTargets)
                 StartCoroutine(nameof(ScanForTargets));
             
+            // Set current health = health
+            CurrentHealth = Health;
+            
             // Call base method
             base.OnRegister();
         }
         
+        // Sim Update Callback
+        public override void OnSimUpdate(float fixedDelta, bool isHost) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Check for lethal damage
+            if (CurrentHealth <= 0f)
+                OnDeath();
+            
+            // Call the base method
+            base.OnSimUpdate(fixedDelta, isHost);
+        }
+
+        // Render Update Callback
+        public override void OnRenderUpdate(float deltaTime) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Update icon screen position
+            if (Icon != null) {
+                Icon.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position));
+                Icon.SetRender(InvincibleCamera.IconsRendered);
+            }
+
+            // Update healthbar screen position and fill
+            if (HealthBar != null) {
+                HealthBar.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position) + (Vector2.up * 32f));
+                HealthBar.SetFill(CurrentHealth / Health);
+                HealthBar.SetRender(!InvincibleCamera.IconsRendered);
+            }
+
+            // Determine if this object is on screen or not
+            if (GeometryUtility.TestPlanesAABB(InvincibleCamera.FrustrumPlanes, UnitRenderer.bounds)) {
+                InvincibleCamera.VisibleObjects.Add(this);
+                //Icon?.SetRender(true);
+                //HealthBar?.SetRender(true);
+            }
+            else {
+                InvincibleCamera.VisibleObjects.Remove(this);
+                Icon?.SetRender(false);
+                HealthBar?.SetRender(false);
+            }
+        }
+        
         // Set this unit's team and update related objects
         public virtual void SetTeam(Team team) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Set new teama nd related values
             UnitTeam = team;
             UnitColor = TeamColor.GetTeamColor(team);
             Icon?.SetColor(UnitColor);
+            
+            // Recalculate layers and update the scanner
             CalculateLayers();
+            Scanner = new TargetScanner(ScanLayers);
         }
         
         // Calculate the layers and masks for this unit
         protected virtual void CalculateLayers() {
             // Make sure this unit's layer is set to match it's team
             gameObject.layer = TeamLayerBounds[0] + (int) UnitTeam;
+            
+            // Reset the scan mask to be safe
+            ScanLayers = new LayerMask();
             
             // Calculate the scan layers for target acquisition
             foreach (var team in Enum.GetValues(typeof(Team))) {
@@ -187,30 +273,20 @@ namespace InvincibleEngine.UnitFramework.Components {
                         LineRenderer.SetPosition(0, Vector3.zero);
                         LineRenderer.SetPosition(1, Vector3.zero);
                     }
+
+                    if (!WaitingForTarget) 
+                        WaitingForTarget = true;
                 }
 				
                 yield return ScanInterval;
             }
         }
         
-        // Render Update Callback
-        public override void OnRenderUpdate(float deltaTime) {
-            // Determine if this object is on screen or not
-            if (Icon != null)
-                Icon.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position));
-
-            if (GeometryUtility.TestPlanesAABB(InvincibleCamera.FrustrumPlanes, UnitRenderer.bounds)) {
-                InvincibleCamera.VisibleObjects.Add(this);
-                Icon?.SetRender(true);
-            }
-            else {
-                InvincibleCamera.VisibleObjects.Remove(this);
-                Icon?.SetRender(false);
-            }
-        }
-        
         // Called when this unit is selected
         public virtual void OnSelected() {
+            // Exit if this object is dying
+            if (Dying) return;
+            
             // Show selection indicator if icons are not rendered
             SelectionIndicator.enabled = true;
             
@@ -223,22 +299,68 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Called when this unit is deselected
         public virtual void OnDeselected() {
+            // Exit if this object is dying
+            if (Dying) return;
+            
             // Hide selection indicator
-            SelectionIndicator.enabled = false;
+            if (SelectionIndicator != null)
+                SelectionIndicator.enabled = false;
             
             // Set icon state to unselected
-            Icon.SetSelected(false);
+            Icon?.SetSelected(false);
             
             // Set selected flag
             Selected = false;
         }
-
-        public virtual void TakeDamage(float damage) {
-
-        }
-
-        public void ProcessCommand(UnitCommand command) {
+        
+        // Processes a given command
+        public virtual void ProcessCommand(UnitCommand command) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Relay the command to the parser
             CommandParser.ProcessCommand(command);
+        }
+        
+        // Applies the specified damage value to this unit
+        public virtual void ApplyDamage(float damage) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Exit if this unit is marked as invulnerable
+            if (Invulnerable) return;
+            
+            // Subtract the damage value from this unit's health
+            CurrentHealth -= damage;
+        }
+        
+        // Called when this unit is dealt lethal damage
+        public virtual void OnDeath() {
+            // Exit if this object is already dying
+            if (Dying) return;
+            
+            // Set the IsDying flag to true
+            Dying = true;
+            
+            // Instantiate the death particle effect
+            if (DeathEffect != null) {
+                var deathEffect = Instantiate(DeathEffect, transform.position, Quaternion.identity);
+                deathEffect.Play();
+            }
+            
+            // Destroy this unit's icon object if necessary
+            if (Icon != null)
+                Destroy(Icon.gameObject);
+            
+            // Destroy this unit's health bar object if necessary
+            if (HealthBar != null)
+                Destroy(HealthBar.gameObject);
+            
+            // Ensure this unit is removed from the visible objects set
+            InvincibleCamera.VisibleObjects.Remove(this);
+            
+            // Destroy this object
+            Destroy(gameObject);
         }
     }
 }

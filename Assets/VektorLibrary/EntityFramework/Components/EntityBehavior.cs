@@ -15,7 +15,7 @@ namespace VektorLibrary.EntityFramework.Components {
 
         // Unity Initialization
         public virtual void Start() {
-            // Exit if already initialized
+            // Exit if already registered
             if (Registered) return;
             
             // Register with the Entity Manager

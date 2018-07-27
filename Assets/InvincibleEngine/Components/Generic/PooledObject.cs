@@ -1,5 +1,6 @@
 ﻿using InvincibleEngine.Managers;
 using UnityEngine;
+using VektorLibrary.EntityFramework.Singletons;
 
 namespace InvincibleEngine.Components.Generic {
     public class PooledObject : MonoBehaviour {

@@ -3,9 +3,11 @@ using InvincibleEngine.CameraSystem;
 using InvincibleEngine.Managers;
 using InvincibleEngine.UnitFramework.Enums;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace InvincibleEngine.UnitFramework.Utility {
+    [RequireComponent(typeof(RectTransform))]
     public class UnitToolsMenu : MonoBehaviour {
         // Unity Inspector
         [Header("Required Objects")] 
@@ -18,7 +20,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         private bool _readyToTeleport;
         
         // Initialization
-        private void Awake() {
+        private void Awake() {        
             // Initialize the team dropdown
             foreach (var team in Enum.GetNames(typeof(Team))) {
                 _teamDropdown.options.Add(new Dropdown.OptionData(team));
@@ -28,7 +30,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         // Unity Update
         private void Update() {
             // Exit if we are not ready to teleport
-            if (!_readyToTeleport) return;
+            if (!_readyToTeleport || EventSystem.current.IsPointerOverGameObject()) return;
             
             // Call teleport units on mouse click
             if (Input.GetKeyDown(KeyCode.Mouse0))
@@ -62,7 +64,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         public void OnDestroyClicked() {
             var selectedUnits = PlayerManager.SelectedUnits;
             foreach (var unit in selectedUnits) {
-                Destroy(unit);
+                unit.OnDeath();
             }
         }
         

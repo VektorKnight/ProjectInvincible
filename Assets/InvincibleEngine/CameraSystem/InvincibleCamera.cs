@@ -116,7 +116,7 @@ namespace InvincibleEngine.CameraSystem {
         }
         
         // Appends a unit icon to the canvas
-        public static void AppendUnitIcon(UnitIcon icon) {
+        public static void AppendElement(UnitScreenElement icon) {
             if (icon == null || Instance == null) return;
             icon.SetParent(Instance._iconCanvas.transform);
         }
@@ -152,7 +152,7 @@ namespace InvincibleEngine.CameraSystem {
            
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold;
-            _iconCanvas.enabled = _iconsRendered;
+            //_iconCanvas.enabled = _iconsRendered;
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {

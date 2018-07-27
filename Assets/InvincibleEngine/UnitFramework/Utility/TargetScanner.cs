@@ -10,7 +10,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         private readonly Collider[] _scanBuffer;
         
         // LayerMask for scanning
-        private readonly LayerMask _scanMask;
+        private LayerMask _scanMask;
         
         // Constructor
         public TargetScanner(LayerMask scanMask) {
@@ -19,6 +19,11 @@ namespace InvincibleEngine.UnitFramework.Utility {
             
             // Set the scan mask
             _scanMask = scanMask;
+        }
+        
+        // Update the scan layer mask
+        public void UpdateScanMask(LayerMask mask) {
+            _scanMask = mask;
         }
         
         // Scan for nearest target

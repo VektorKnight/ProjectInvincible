@@ -3,6 +3,7 @@ using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.Enums;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace InvincibleEngine.UnitFramework.Utility {
@@ -42,7 +43,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         // Unity Update
         private void Update() {
             // Exit if we are not ready to spawn a unit
-            if (!_readyToSpawn) return;
+            if (!_readyToSpawn || EventSystem.current.IsPointerOverGameObject()) return;
             
             // Spawn a unit at the cursor when the user clicks
             if (Input.GetKeyDown(KeyCode.Mouse0))

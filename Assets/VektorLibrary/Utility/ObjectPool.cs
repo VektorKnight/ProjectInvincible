@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using InvincibleEngine;
+using VektorLibrary.EntityFramework.Components;
 
 namespace VektorLibrary.Utility {
     // Simple Object Pool
     public class ObjectPool : System.IDisposable {
         // Object to Pool
         private GameObject _pooledObject;
-        
-        // Private: Pool Allocation
-        private readonly bool _preAllocate;
 
         // Properties: Object Counts
         public int MaxObjects { get; }
@@ -26,11 +24,10 @@ namespace VektorLibrary.Utility {
         private static readonly ObjectPoolException InvalidReturnException =   new ObjectPoolException("Returned object does not belong to this Object Pool");
 
         // Constructor
-        public ObjectPool (GameObject poolObject, int maxObjects, bool preAllocate = false) {
+        public ObjectPool (GameObject poolObject, int maxObjects) {
             // Throw an exception if the specified object does not have a PooledBehavior attached
             if (poolObject.GetComponent<PooledBehavior>() == null) throw MissingComponentException;
 
-            _preAllocate = true;
             _pooledObject = poolObject;
             MaxObjects = maxObjects;
             
@@ -45,10 +42,7 @@ namespace VektorLibrary.Utility {
         /// <param name="rotation">Desired world rotation of the object.</param>
         /// <returns></returns>
         /// <exception cref="OverloadException">Thrown if this pool has reached it's maximum size.</exception>
-        public GameObject GetObject(Vector3 position, Quaternion rotation) {
-            // Throw an exception if there are no objects available in a pre-allocated pool
-            if (_openSet.Count == 0 && _preAllocate) throw OverloadException;
-            
+        public GameObject GetObject(Vector3 position, Quaternion rotation) {       
             // Throw an exception if the open set is empty and we cannot allocate more
             if (_openSet.Count == 0 && TotalObjects >= MaxObjects) throw OverloadException;          
             
@@ -70,7 +64,7 @@ namespace VektorLibrary.Utility {
             // Instantiate a new object, initialize it, and add it to the owned objects set
             gameObject = Object.Instantiate(_pooledObject, position, rotation);
             pooledBehavior = gameObject.GetComponent<PooledBehavior>();
-            pooledBehavior?.Initialize();
+            pooledBehavior?.Start();
             pooledBehavior?.OnRetrieved();
             _objects.Add(gameObject);  
             return gameObject;

@@ -31,7 +31,7 @@ namespace VektorLibrary.Utility {
             else {
                 // Make sure Unity's naming is trimmed to avoid errors
                 var key = poolObject.name.Replace("(Clone)", "").Trim();
-                MultiPool.Add(key, new ObjectPool(poolObject, maxSize, parent));
+                MultiPool.Add(key, new ObjectPool(poolObject, maxSize));
             }
         }
         
