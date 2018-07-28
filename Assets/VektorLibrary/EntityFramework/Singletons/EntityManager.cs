@@ -89,6 +89,7 @@ namespace InvincibleEngine {
             while (_stepAccumulator >= FIXED_TIMESTEP) {
                 // Step the simulation by delta time
                 Physics.Simulate(deltaTime);
+
                 
                 // Invoke the callback on all registered objects
                 // No touchy, leave as a for-loop for optimization

@@ -8,21 +8,21 @@ using UnityEngine;
 /// Energy is a ratio of how efficient everything will run based on (available energy/ desired energy)s
 /// </summary>
 public class Economy {
-    
+
     //Economy 
     protected float _resources = 0;
     protected float _energy = 0;
-    
+
     public float Resources {
-        get { }
+        get { return 0; }
         private set { }
     }
     public float EnergySum {
-        get { }
+        get { return 0; }
         private set { }
     }
     public float EnergyRatio {
-        get { }
+        get { return 0; }
         private set { }
     }
 
