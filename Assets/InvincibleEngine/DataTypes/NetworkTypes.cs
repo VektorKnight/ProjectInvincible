@@ -139,6 +139,9 @@ namespace SteamNet {
         //Indicated if this match has started 
         public bool MatchStarted = false;
 
+        //Player Econ
+        public Economy Economy = new Economy();
+
         //Chat log
         public void PostChat(string message, string source) {
             if (message.Length > 0) { ChatLog += $"<b>{source}</b>: {message}\n"; }
