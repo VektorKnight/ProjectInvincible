@@ -26,10 +26,12 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Unity Inspector        
         [Header("General Settings")]
         [SerializeField] private UnitType _unitType;
-        [SerializeField] private Sprite _iconSprite;
-        [SerializeField] private Sprite _healthBarSprite;
         [SerializeField] protected float Health = 100f;
         [SerializeField] public BuildOption[] BuildOptions;
+        
+        [Header("Gameplay UI Elements")]
+        [SerializeField] private Sprite _iconSprite;
+        [SerializeField] private Vector2Int _healthBarSize = new Vector2Int(48, 4);
 
         [Header("Target Acquisition")] 
         [SerializeField] protected bool AutoAcquireTargets;
@@ -52,7 +54,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         protected CommandParser CommandParser = new CommandParser();
         
         // Protected: Target Acquisition
-        protected TargetScanner Scanner;
         protected WaitForSeconds ScanInterval;
         protected bool WaitingForTarget = true;
         protected float SqrScanRadius;
@@ -122,24 +123,21 @@ namespace InvincibleEngine.UnitFramework.Components {
                 Icon.SetSelected(false);
             }
             
-            // Construct this unit's health bar if possible
-            if (_healthBarSprite != null) {
-                // Load the health bar template object
-                var template = Resources.Load<UnitScreenElement>("Objects/Templates/UI_HealthBar");
+            // Construct this unit's health bar
+            var healthBar = Resources.Load<UnitScreenElement>("Objects/Templates/UI_HealthBar");
 
-                // Instantiate and initialize the health bar
-                HealthBar = Instantiate(template);
-                HealthBar.Initialize(_healthBarSprite, UnitColor);
-                InvincibleCamera.AppendElement(HealthBar);
-                HealthBar.SetSelected(false);
-            }
+            // Instantiate and initialize the health bar
+            HealthBar = Instantiate(healthBar);
+            HealthBar.Initialize(_healthBarSize, UnitColor);
+            InvincibleCamera.AppendElement(HealthBar);
+            HealthBar.SetSelected(false);
+            
             
             // Deactivate the indicator object if not null
             if (SelectionIndicator != null)
                 SelectionIndicator.enabled = false;
             
             // Initialize the target scanner and supporting objects
-            Scanner = new TargetScanner(ScanLayers);
             ScanInterval = new WaitForSeconds(Random.Range(ScanIntervalRange.x, ScanIntervalRange.y));
             SqrScanRadius = ScanRadius * ScanRadius;
             
@@ -213,7 +211,6 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Recalculate layers and update the scanner
             CalculateLayers();
-            Scanner = new TargetScanner(ScanLayers);
         }
         
         // Calculate the layers and masks for this unit
@@ -240,7 +237,7 @@ namespace InvincibleEngine.UnitFramework.Components {
                 // If we are waiting for a target, initiate a scan
                 if (WaitingForTarget) {
                     // Scan for targets in range
-                    CurrentTarget = Scanner.ScanForNearestTarget(transform.position, ScanRadius);
+                    CurrentTarget = TargetScanner.ScanForNearestTarget(transform.position, ScanRadius, ScanLayers);
 					
                     // Set waiting flag to true if target found
                     WaitingForTarget = CurrentTarget == null;

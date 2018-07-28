@@ -9,17 +9,36 @@ namespace InvincibleEngine.UnitFramework.Components {
         private float _fadeTime = 0.1f;
         
         // Private: Required References
+        private RectTransform _rectTransform;
         private Image _image;
         private Shadow _shadow;
         
-        // Initialization
+        // Initialization (Sprite)
         public void Initialize(Sprite sprite, Color color) {
             // Reference required components
+            _rectTransform = GetComponent<RectTransform>();
             _image = GetComponent<Image>();
             _shadow = GetComponent<Shadow>();
             
             // Set default sprite and color
             SetSprite(sprite);
+            SetColor(color);
+            
+            // Set default outline state
+            _shadow.effectColor = Color.white;
+            _shadow.enabled = false;
+        }
+        
+        // Initialization (Dimensions Only)
+        public void Initialize(Vector2Int dimensions, Color color) {
+            // Reference required components
+            _rectTransform = GetComponent<RectTransform>();
+            _image = GetComponent<Image>();
+            _shadow = GetComponent<Shadow>();
+            
+            // Set dimensions and color
+            _image.sprite = null;
+            _rectTransform.sizeDelta = dimensions;
             SetColor(color);
             
             // Set default outline state

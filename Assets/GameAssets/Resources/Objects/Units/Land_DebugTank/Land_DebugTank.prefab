@@ -441,7 +441,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerOwner: -1
-  FireInterval: 0.75
+  FireInterval: 1
   PitchRange: {x: 0, y: 0}
   AimSpeed: 0
   Projectile: {fileID: 114392734301695176, guid: de56e9ee8cb844a45b40cb7e6ab40ebc,
@@ -464,10 +464,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerOwner: -1
   _unitType: 1
-  _iconSprite: {fileID: 21300000, guid: 8f31d89c4688da14abc379a8cf5c8d5a, type: 3}
-  _healthBarSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
   Health: 100
   BuildOptions: []
+  _iconSprite: {fileID: 21300000, guid: 8f31d89c4688da14abc379a8cf5c8d5a, type: 3}
+  _healthBarSize: {x: 48, y: 4}
   AutoAcquireTargets: 1
   ScanRadius: 50
   ScanIntervalRange: {x: 0.2, y: 0.6}

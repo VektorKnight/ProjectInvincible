@@ -6,5 +6,4 @@
         Naval,
         Special
     }
-    
 }
