@@ -50,6 +50,16 @@ namespace SteamNet {
         //Online Lobby Info
         public List<LobbyData> OnlineLobbies = new List<LobbyData>();
 
+        //Steam Data
+        [Header("Steam Data")]
+        public CSteamID CurrentLobbyID = new CSteamID();
+        public List<CSteamID> LobbysFoundOnServer = new List<CSteamID>();
+
+        //Instance Variables
+        public static SteamNetManager Instance;
+
+        //Entity Tracking
+        public List<NetworkEntity> EntityList = new List<NetworkEntity>();
 
         //Property Accessors
         public float NetUpdatesPerSecond {
@@ -65,6 +75,7 @@ namespace SteamNet {
             get { if (NetworkState == ENetworkState.Connected) { return true; } else { return false; } }
 
         }
+
         public bool TrackingEntities {
             get {
                 return _TrackingEntities;
@@ -75,19 +86,6 @@ namespace SteamNet {
                 OnTrackEntitiesToggle();
             }
         }
-
-
-        [Header("Steam Data")]
-        public CSteamID CurrentLobbyID = new CSteamID();
-        public List<CSteamID> LobbysFoundOnServer = new List<CSteamID>();
-
-        //Instance Variables
-        public static SteamNetManager Instance;
-
-
-        //Entity Tracking
-        public List<NetworkEntity> EntityList = new List<NetworkEntity>();
-
 
         //Steam Callback Variables
         protected Callback<LobbyCreated_t> m_CreateLobby;
