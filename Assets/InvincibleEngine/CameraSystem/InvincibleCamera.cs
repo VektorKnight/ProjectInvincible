@@ -77,6 +77,7 @@ namespace InvincibleEngine.CameraSystem {
         public static Plane[] FrustrumPlanes => Instance._frustrumPlanes;
         public static MouseData MouseData => Instance._mouseData;
         public static Camera PlayerCamera => Instance._camera;
+        public static float ZoomLevel => Instance._zoomValue;
         public static bool IconsRendered => Instance._iconsRendered;
 
         // Initialization

@@ -1,4 +1,5 @@
-﻿using InvincibleEngine.Managers;
+﻿using InvincibleEngine.AudioSystem;
+using InvincibleEngine.Managers;
 using InvincibleEngine.UnitFramework.Components;
 using UnityEngine;
 using VektorLibrary.EntityFramework.Components;
@@ -21,9 +22,12 @@ namespace InvincibleEngine.WeaponSystem {
 		[SerializeField] protected float ProjectileDamage;
 		[SerializeField] protected float ProjectileRange;		// Ignored for physical projectiles
 
+		[Header("Weapon Aesthetics")] 
+		[SerializeField] protected AudioClip FireSound;
+		[SerializeField] protected ParticleSystem MuzzleFlash;
+
 		[Header("Required Objects")] 
 		[SerializeField] protected Transform Muzzle;
-		[SerializeField] protected ParticleSystem MuzzleFlash;
 		
 		// Protected: Required References
 		protected UnitBehavior ParentUnit;
@@ -82,6 +86,10 @@ namespace InvincibleEngine.WeaponSystem {
 			// Instantiate and initialize the projectile at the muzzle position
 			var projectile = ObjectManager.GetObject(Projectile.gameObject, Muzzle.position, Muzzle.rotation);
 			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileDamage, ProjectileRange, ParentUnit.ScanLayers);
+			
+			// Try to play the fire sound effect
+			if (FireSound != null)
+				AudioManager.PlayClipAtPosition(transform.position, FireSound, 0.75f);
 			
 			// Play the muzzle flash particle system
 			if (MuzzleFlash != null)

@@ -449,8 +449,9 @@ MonoBehaviour:
   ProjectileVelocity: 100
   ProjectileDamage: 25
   ProjectileRange: 100
-  Muzzle: {fileID: 4405865719468858}
+  FireSound: {fileID: 8300000, guid: b98329077222e984d9471c7bac63eea3, type: 3}
   MuzzleFlash: {fileID: 198887225970519402}
+  Muzzle: {fileID: 4405865719468858}
 --- !u!114 &114607497393256244
 MonoBehaviour:
   m_ObjectHideFlags: 1
