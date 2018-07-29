@@ -67,7 +67,13 @@ namespace InvincibleEngine.UnitFramework.Components {
         public void SetFill(float fill) {
             fill = Mathf.Clamp01(fill);
 
-            _image.fillAmount = fill;
+            if (_image.sprite != null)
+                _image.fillAmount = fill;
+            else {
+                var scale = _rectTransform.localScale;
+                scale.x = fill;
+                _rectTransform.localScale = scale;
+            }
         }
         
         // Set the parent canvas

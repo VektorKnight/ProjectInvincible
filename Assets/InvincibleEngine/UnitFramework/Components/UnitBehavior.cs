@@ -85,7 +85,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Initialization
         public override void OnRegister() {
             // Reference required components
-            UnitRenderer = GetComponentInChildren<MeshRenderer>();
+            UnitRenderer = GetComponent<MeshRenderer>();
             LineRenderer = GetComponent<LineRenderer>();
             SelectionIndicator = GetComponent<Outline>();
             
@@ -97,6 +97,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Fetch team color from team
             UnitColor = TeamColor.GetTeamColor(UnitTeam);
+            UnitRenderer.material.SetColor("_TeamColor", UnitColor);
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {

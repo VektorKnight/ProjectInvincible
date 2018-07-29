@@ -3,26 +3,12 @@ guid: 095fdde2b5f419145a89af7ff2669ece
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
-    100000: DebugTank_Body
-    100002: DebugTank_Gun
-    100004: //RootNode
-    400000: DebugTank_Body
-    400002: DebugTank_Gun
-    400004: //RootNode
-    2100000: Material.001
-    2100002: TankArmor
-    2100004: TankMain
-    2100006: Armor Accent
-    2100008: TankGlow
-    2300000: DebugTank_Body
-    2300002: DebugTank_Gun
-    2300004: //RootNode
-    3300000: DebugTank_Body
-    3300002: DebugTank_Gun
-    3300004: //RootNode
-    4300000: DebugTank_Gun
-    4300002: DebugTank_Body
-    4300004: MediumTank_Mk2
+    100000: //RootNode
+    400000: //RootNode
+    2100000: TankMain
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: MediumTank_Mk2_Export
   externalObjects: {}
   materials:
     importMaterials: 1
