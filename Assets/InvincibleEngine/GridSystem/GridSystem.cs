@@ -22,7 +22,7 @@ namespace InvincibleEngine {
         //Scale of grid, scale of 1 = 1 grid point to 1 meter(s)
         //                        2 = 1 grid point to 2 meter(s)
         //                        8 = 1 grid point to 8 meter(s)
-        private int GridScale = 8;
+        private int GridScale = 4;
 
         //Holds all grid points
         private Dictionary<UInt32, GridPoint> GridPoints = new Dictionary<uint, GridPoint>();
@@ -96,7 +96,7 @@ namespace InvincibleEngine {
                     n.WorldPosition = new Vector3(u * GridScale, n.Height, v * GridScale);
 
                     //Sample Navmesh, set flags
-                    allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, n.Height, v * GridScale), out hit, GridScale, NavMesh.AllAreas);
+                    allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, n.Height, v * GridScale), out hit, GridScale/2, NavMesh.AllAreas);
                     n.Buildable = allowed ? true : false;
                     if (allowed) {
                         a++;
@@ -104,13 +104,15 @@ namespace InvincibleEngine {
                     else {
                         b++;
                     }
-                    
 
                     //Append to node list
                     GridPoints.Add((UInt32)((u * GridScale) << 16 | (v * GridScale)), n);
 
                 }
+
             }
+            //Log grid sum
+            Debug.Log($"Generate grid with {a} good nodes and {b} bad nodes");
         }
 
         //Combines two intergers on a bit level
