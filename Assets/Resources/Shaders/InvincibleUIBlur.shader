@@ -8,8 +8,7 @@ Shader "InvincibleEngine/Blur Behind UI" {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("MainTex", 2D) = "white" {}
         _Multiplier ("Multiplier", Float ) = 1
-        _BlurIterations ("Blur Iterations", Range(1, 16)) = 1
-        _BlurRadius ("Blur Radius", Range(1, 16)) = 1
+        _BlurRadius ("Blur Radius", Range(1, 32)) = 1
     }
     SubShader {
         Tags {
@@ -28,8 +27,8 @@ Shader "InvincibleEngine/Blur Behind UI" {
             ZWrite Off
             
             CGPROGRAM
-// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
-#pragma exclude_renderers d3d11 gles
+            // Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
+            #pragma exclude_renderers d3d11 gles
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
@@ -38,51 +37,24 @@ Shader "InvincibleEngine/Blur Behind UI" {
             #pragma target 3.0
             uniform sampler2D _GrabTexture;
             uniform float4 _Color;
-            uniform sampler2D _MainTex; uniform float4 _MainTex_ST;
+            uniform sampler2D _MainTex; 
+            uniform float4 _MainTex_ST;
             uniform float _Multiplier;
-            uniform float _BlurIterations;
-            float3 GaussianVertical( fixed iterations , float2 UV , float pxW , float pxH , float radius ){
-            // Compensate for flipped vertical UV
-                        	UV.y = 1 - UV.y;
-                                        
-                            // Define gaussian offsets and weights
-                            float offset[] = { 0, 1, 2, 3, 4, 5, 6};
-                            float weight[] = { 0.00598, 0.060626, 0.241843, 0.383103, 0.241843, 0.060626, 0.00598 };
-                                        
-                            // Initialize pixel sample
-                            float3 blurColor = tex2D(_GrabTexture, UV).rgb * 0.00598;
-                                        
-                            // Run filter as many times as needed
-                            for (int a = 0; a < iterations; a++) {
-                                // Gaussian 7-tap filter
-                                for (int i = 0; i < 7; i++) {
-                                    blurColor += tex2D(_GrabTexture, UV + float2(0.0, offset[i] + a) / pxH).rgb * weight[i];
-                                    blurColor += tex2D(_GrabTexture, UV - float2(0.0, offset[i] + a) / pxH).rgb * weight[i];
-                                    
-                                    blurColor += tex2D(_GrabTexture, UV + float2(offset[i] + a, 0.0) / pxW).rgb * weight[i];
-                                    blurColor += tex2D(_GrabTexture, UV - float2(offset[i] + a, 0.0) / pxW).rgb * weight[i];
-                                                
-                                    // Divide to retain brightness
-                                    blurColor /= 1.41421;
-                                }
-                            }
-                                        
-                            // Return the sample
-                            return blurColor;
-            }
-            
             uniform float _BlurRadius;
+            
             struct VertexInput {
                 float4 vertex : POSITION;
                 float2 texcoord0 : TEXCOORD0;
                 float4 vertexColor : COLOR;
             };
+            
             struct VertexOutput {
                 float4 pos : SV_POSITION;
                 float2 uv0 : TEXCOORD0;
                 float4 vertexColor : COLOR;
                 float4 projPos : TEXCOORD1;
             };
+            
             VertexOutput vert (VertexInput v) {
                 VertexOutput o = (VertexOutput)0;
                 o.uv0 = v.texcoord0;
@@ -92,18 +64,60 @@ Shader "InvincibleEngine/Blur Behind UI" {
                 COMPUTE_EYEDEPTH(o.projPos.z);
                 return o;
             }
+            
+            // Blur function that isn't quite gaussian so I called it uniform
+            float3 UniformBlur(float2 UV , float pxW , float pxH , float radius){
+                // Compensate for flipped vertical UV on UI stuff
+                UV.y = 1 - UV.y;
+                        
+                // Define offsets and weights
+                float offsets[] = {1, 2, 3, 4, 5};
+                float weights[] = {0.1, 0.125, 0.150, 0.175, 0.2};
+            
+                        
+                // Initialize sample
+                float4 sum = (0, 0, 0, 0);                               
+                float coefSum = 0.0;
+                float pxD = (pxH + pxW) / 1.41421356237;
+                              
+                // 5-iteration blur filter
+                for (int i = 0; i < 5; i++) {
+                    // Horizontal
+                    sum += tex2D(_GrabTexture, UV + float2(0.0, offsets[i] * radius) / pxH) * weights[i];
+                    sum += tex2D(_GrabTexture, UV - float2(0.0, offsets[i] * radius) / pxH) * weights[i];
+                    
+                    // Vertical                   
+                    sum += tex2D(_GrabTexture, UV + float2(offsets[i] * radius, 0.0) / pxW) * weights[i];
+                    sum += tex2D(_GrabTexture, UV - float2(offsets[i] * radius, 0.0) / pxW) * weights[i];
+                    
+                    // Diagonal (+x,+y/-x,-y)
+                    sum += tex2D(_GrabTexture, UV + (offsets[i] * radius) / pxD) * weights[i];
+                    sum += tex2D(_GrabTexture, UV - (offsets[i] * radius) / pxD) * weights[i];
+                    
+                    // Diagonal (-x,+y/+x,-y)
+                    sum += tex2D(_GrabTexture, UV + float2(-offsets[i] * radius, offsets[i] * radius) / pxD) * weights[i];
+                    sum += tex2D(_GrabTexture, UV + float2(offsets[i] * radius, -offsets[i] * radius) / pxD) * weights[i];
+                    
+                    // Sum the weights * add operations
+                    coefSum += 8 * weights[i];
+                }
+                                        
+                // Return the sample
+                return (sum).rgb / coefSum;
+            }
+            
             float4 frag(VertexOutput i) : COLOR {
+                // Grab the scene UV  and color data
                 float2 sceneUVs = (i.projPos.xy / i.projPos.w);
                 float4 sceneColor = tex2D(_GrabTexture, sceneUVs);
-////// Lighting:
-////// Emissive:
+                
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
                 float _mainTexAlpha = _MainTex_var.a;
                 float _screenPosU = sceneUVs.r;
                 float _screenPosVInv = (1.0 - sceneUVs.g);
                 float3 _sceneColor = tex2D( _GrabTexture, float2(_screenPosU,_screenPosVInv)).rgb;
                 float2 _screenPos = sceneUVs.rg;
-                float3 _blurredBackground = saturate((GaussianVertical( _BlurIterations , _screenPos , _ScreenParams.r , _ScreenParams.g , _BlurRadius )*_mainTexAlpha));
+                float3 _blurredBackground = saturate((UniformBlur(_screenPos , _ScreenParams.r , _ScreenParams.g , _BlurRadius ) * _mainTexAlpha));
                 float3 emissive = lerp((saturate(((1.0 - _mainTexAlpha)*_sceneColor))+_blurredBackground),(_MainTex_var.rgb*_Color.rgb*_Multiplier*i.vertexColor.rgb),(_MainTex_var.a*_Color.a*i.vertexColor.a));
                 float3 finalColor = emissive;
                 return fixed4(finalColor,1);
