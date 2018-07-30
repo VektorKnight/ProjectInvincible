@@ -43,6 +43,7 @@ namespace InvincibleEngine.CameraSystem {
 
         [Header("Icon Rendering")] 
         [SerializeField] [Range(0f, 1f)] private float _iconThreshold;
+        [SerializeField] [Range(0f, 1f)] private float _healthBarThreshold;
 
         [Header("Required Objects")] 
         [SerializeField] private Camera _camera;
@@ -70,7 +71,7 @@ namespace InvincibleEngine.CameraSystem {
         // Private: Icon Rendering
         private Canvas _iconCanvas;
         private bool _iconsRendered;
-        private bool _iconsChanged;
+        private bool _healthBarsRendered;
         
         // Public Static: Useful Properties
         public static HashSet<UnitBehavior> VisibleObjects => Instance._visibleObjects;
@@ -79,6 +80,7 @@ namespace InvincibleEngine.CameraSystem {
         public static Camera PlayerCamera => Instance._camera;
         public static float ZoomLevel => Instance._zoomValue;
         public static bool IconsRendered => Instance._iconsRendered;
+        public static bool HealthBarsRendered => Instance._healthBarsRendered;
 
         // Initialization
         public override void OnRegister() {
@@ -117,7 +119,7 @@ namespace InvincibleEngine.CameraSystem {
         }
         
         // Appends a unit icon to the canvas
-        public static void AppendElement(UnitScreenElement icon) {
+        public static void AppendElement(UnitScreenSprite icon) {
             if (icon == null || Instance == null) return;
             icon.SetParent(Instance._iconCanvas.transform);
         }
@@ -153,13 +155,15 @@ namespace InvincibleEngine.CameraSystem {
            
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold;
-            //_iconCanvas.enabled = _iconsRendered;
+            _healthBarsRendered = _zoomValue >= _healthBarThreshold;
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
                 // Apply low-pass filtering to mouse deltas
-                _smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x) * (_panSpeed / 8f) * Time.deltaTime);
-                _smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y) * (_panSpeed / 8f) * Time.deltaTime);
+                //_smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x) * (_panSpeed / 8f) * Time.deltaTime);
+                //_smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y) * (_panSpeed / 8f) * Time.deltaTime);
+                _smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x));
+                _smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y));
                 
                 // Create delta value from low-pass values
                 var mouseDelta = new Vector3(_smoothX, 0f, _smoothY);

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace _3rdParty.Standard_Assets.Environment.Water.Water.Scripts
+namespace UnityStandardAssets.Water
 {
     [ExecuteInEditMode]
     [RequireComponent(typeof(WaterBase))]

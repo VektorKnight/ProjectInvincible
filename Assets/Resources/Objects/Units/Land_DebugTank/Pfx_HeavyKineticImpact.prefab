@@ -38,7 +38,6 @@ GameObject:
   - component: {fileID: 4831257809419230}
   - component: {fileID: 198841956466499582}
   - component: {fileID: 199220857925622720}
-  - component: {fileID: 114690529230606042}
   - component: {fileID: 114382631526700666}
   m_Layer: 0
   m_Name: Pfx_HeavyKineticImpact
@@ -118,22 +117,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TimeOut: 2
   m_DetachChildren: 0
---- !u!114 &114690529230606042
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1628138637198586}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba1c79da60ef45b8b2958ca148f579b6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayerOwner: -1
-  _clip: {fileID: 8300000, guid: 6a4700bfd9209394c97e92f9cffed52a, type: 3}
-  _volume: 1
-  _pitch: 0
-  _nonSpatial: 0
 --- !u!198 &198159064825726338
 ParticleSystem:
   m_ObjectHideFlags: 1
@@ -5436,7 +5419,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 30
+        scalar: 16
         minScalar: 30
         maxCurve:
           serializedVersion: 2

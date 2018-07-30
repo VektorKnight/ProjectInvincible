@@ -1,13 +1,14 @@
 // Shader created with Shader Forge v1.38 
 // Shader Forge (c) Freya Holmer - http://www.acegikmo.com/shaderforge/
 // Note: Manually altering this data may prevent you from opening it in Shader Forge
-/*SF_DATA;ver:1.38;sub:START;pass:START;ps:flbk:,iptp:0,cusa:False,bamd:0,cgin:,lico:1,lgpr:1,limd:3,spmd:1,trmd:0,grmd:0,uamb:True,mssp:True,bkdf:True,hqlp:False,rprd:True,enco:False,rmgx:True,imps:True,rpth:0,vtps:0,hqsc:True,nrmq:1,nrsp:0,vomd:0,spxs:False,tesm:0,olmd:2,culm:0,bsrc:0,bdst:1,dpts:2,wrdp:True,dith:0,atcv:False,rfrpo:True,rfrpn:Refraction,coma:15,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,stcl:False,atwp:False,stva:128,stmr:255,stmw:255,stcp:6,stps:0,stfa:0,stfz:0,ofsf:0,ofsu:0,f2p0:False,fnsp:False,fnfb:False,fsmp:False;n:type:ShaderForge.SFN_Final,id:2865,x:32982,y:32640,varname:node_2865,prsc:2|diff-9927-OUT,spec-358-OUT,gloss-1813-OUT,normal-5964-RGB,emission-8235-OUT;n:type:ShaderForge.SFN_Multiply,id:6343,x:32114,y:32712,varname:node_6343,prsc:2|A-7736-RGB,B-6665-RGB;n:type:ShaderForge.SFN_Color,id:6665,x:31921,y:32805,ptovrint:False,ptlb:Albedo Color,ptin:_AlbedoColor,varname:_Color,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0.5019608,c2:0.5019608,c3:0.5019608,c4:1;n:type:ShaderForge.SFN_Tex2d,id:7736,x:31921,y:32620,ptovrint:True,ptlb:Albedo Texture,ptin:_MainTex,varname:_MainTex,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:0,isnm:False;n:type:ShaderForge.SFN_Tex2d,id:5964,x:32352,y:33066,ptovrint:True,ptlb:Normal Map,ptin:_BumpMap,varname:_BumpMap,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:3,isnm:True;n:type:ShaderForge.SFN_Slider,id:358,x:32352,y:32866,ptovrint:False,ptlb:Metallic,ptin:_Metallic,varname:node_358,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,min:0,cur:0,max:1;n:type:ShaderForge.SFN_Slider,id:1813,x:32352,y:32969,ptovrint:False,ptlb:Gloss,ptin:_Gloss,varname:_Metallic_copy,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,min:0,cur:0.8,max:1;n:type:ShaderForge.SFN_Color,id:1923,x:31921,y:33169,ptovrint:False,ptlb:Team Color,ptin:_TeamColor,varname:node_1923,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0,c2:0,c3:0,c4:0;n:type:ShaderForge.SFN_Tex2d,id:4044,x:31921,y:32978,ptovrint:False,ptlb:Team Map,ptin:_TeamMap,varname:node_4044,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:2,isnm:False;n:type:ShaderForge.SFN_Multiply,id:1884,x:32117,y:33049,varname:node_1884,prsc:2|A-4044-RGB,B-1923-RGB;n:type:ShaderForge.SFN_Lerp,id:9927,x:32352,y:32712,varname:node_9927,prsc:2|A-6343-OUT,B-1884-OUT,T-4044-A;n:type:ShaderForge.SFN_Tex2d,id:5988,x:31921,y:33363,ptovrint:False,ptlb:Emission Map,ptin:_EmissionMap,varname:node_5988,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:2,isnm:False;n:type:ShaderForge.SFN_Color,id:8054,x:31921,y:33552,ptovrint:False,ptlb:Emission Color,ptin:_EmissionColor,varname:node_8054,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0,c2:0,c3:0,c4:1;n:type:ShaderForge.SFN_Multiply,id:7824,x:32131,y:33424,varname:node_7824,prsc:2|A-5988-RGB,B-8054-RGB;n:type:ShaderForge.SFN_ValueProperty,id:3394,x:31921,y:33723,ptovrint:False,ptlb:Emission Power,ptin:_EmissionPower,varname:node_3394,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,v1:0;n:type:ShaderForge.SFN_Multiply,id:8235,x:32346,y:33472,varname:node_8235,prsc:2|A-7824-OUT,B-3394-OUT;proporder:6665-7736-1923-4044-8054-5988-5964-358-1813-3394;pass:END;sub:END;*/
+/*SF_DATA;ver:1.38;sub:START;pass:START;ps:flbk:,iptp:0,cusa:False,bamd:0,cgin:,lico:1,lgpr:1,limd:3,spmd:1,trmd:0,grmd:0,uamb:True,mssp:True,bkdf:True,hqlp:False,rprd:True,enco:False,rmgx:True,imps:True,rpth:0,vtps:0,hqsc:True,nrmq:1,nrsp:0,vomd:0,spxs:False,tesm:0,olmd:2,culm:0,bsrc:0,bdst:1,dpts:2,wrdp:True,dith:0,atcv:False,rfrpo:True,rfrpn:Refraction,coma:15,ufog:True,aust:True,igpj:False,qofs:0,qpre:1,rntp:1,fgom:False,fgoc:False,fgod:False,fgor:False,fgmd:0,fgcr:0.5,fgcg:0.5,fgcb:0.5,fgca:1,fgde:0.01,fgrn:0,fgrf:300,stcl:False,atwp:False,stva:128,stmr:255,stmw:255,stcp:6,stps:0,stfa:0,stfz:0,ofsf:0,ofsu:0,f2p0:False,fnsp:False,fnfb:False,fsmp:False;n:type:ShaderForge.SFN_Final,id:2865,x:32982,y:32640,varname:node_2865,prsc:2|diff-9927-OUT,spec-358-OUT,gloss-1813-OUT,normal-5964-RGB,emission-8235-OUT;n:type:ShaderForge.SFN_Multiply,id:6343,x:32114,y:32712,varname:node_6343,prsc:2|A-7736-RGB,B-6665-RGB;n:type:ShaderForge.SFN_Color,id:6665,x:31921,y:32805,ptovrint:False,ptlb:Albedo Color,ptin:_AlbedoColor,varname:_Color,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0.5019608,c2:0.5019608,c3:0.5019608,c4:1;n:type:ShaderForge.SFN_Tex2d,id:7736,x:31921,y:32620,ptovrint:True,ptlb:Albedo Texture,ptin:_MainTex,varname:_MainTex,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:0,isnm:False;n:type:ShaderForge.SFN_Tex2d,id:5964,x:32352,y:33066,ptovrint:True,ptlb:Normal Map,ptin:_BumpMap,varname:_BumpMap,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:3,isnm:True;n:type:ShaderForge.SFN_Slider,id:358,x:32352,y:32866,ptovrint:False,ptlb:Metallic,ptin:_Metallic,varname:node_358,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,min:0,cur:0,max:1;n:type:ShaderForge.SFN_Slider,id:1813,x:32352,y:32969,ptovrint:False,ptlb:Gloss,ptin:_Gloss,varname:_Metallic_copy,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,min:0,cur:0.8,max:1;n:type:ShaderForge.SFN_Color,id:1923,x:31921,y:33169,ptovrint:False,ptlb:Team Color,ptin:_TeamColor,varname:node_1923,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0,c2:0,c3:0,c4:0;n:type:ShaderForge.SFN_Tex2d,id:4044,x:31921,y:32978,ptovrint:False,ptlb:Team Map,ptin:_TeamMap,varname:node_4044,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:2,isnm:False;n:type:ShaderForge.SFN_Multiply,id:1884,x:32173,y:33047,varname:node_1884,prsc:2|A-4044-RGB,B-4720-OUT;n:type:ShaderForge.SFN_Lerp,id:9927,x:32352,y:32712,varname:node_9927,prsc:2|A-6343-OUT,B-1884-OUT,T-4044-A;n:type:ShaderForge.SFN_Tex2d,id:5988,x:31921,y:33434,ptovrint:False,ptlb:Emission Map,ptin:_EmissionMap,varname:node_5988,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,ntxv:2,isnm:False;n:type:ShaderForge.SFN_Color,id:8054,x:31921,y:33627,ptovrint:False,ptlb:Emission Color,ptin:_EmissionColor,varname:node_8054,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,c1:0,c2:0,c3:0,c4:1;n:type:ShaderForge.SFN_Multiply,id:7824,x:32131,y:33424,varname:node_7824,prsc:2|A-5988-RGB,B-8054-RGB;n:type:ShaderForge.SFN_ValueProperty,id:3394,x:31921,y:33799,ptovrint:False,ptlb:Emission Power,ptin:_EmissionPower,varname:node_3394,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,v1:0;n:type:ShaderForge.SFN_Multiply,id:8235,x:32346,y:33472,varname:node_8235,prsc:2|A-7824-OUT,B-3394-OUT;n:type:ShaderForge.SFN_ValueProperty,id:3276,x:31921,y:33339,ptovrint:False,ptlb:Team Brightness,ptin:_TeamBrightness,varname:node_3276,prsc:2,glob:False,taghide:False,taghdr:False,tagprd:False,tagnsco:False,tagnrm:False,v1:0.5;n:type:ShaderForge.SFN_Multiply,id:4720,x:32131,y:33220,varname:node_4720,prsc:2|A-1923-RGB,B-3276-OUT;proporder:6665-7736-1923-3276-4044-8054-5988-5964-358-1813-3394;pass:END;sub:END;*/
 
-Shader "InvincibleEngine / Unit Shader" {
+Shader "InvincibleEngine/Unit Standard" {
     Properties {
         _AlbedoColor ("Albedo Color", Color) = (0.5019608,0.5019608,0.5019608,1)
         _MainTex ("Albedo Texture", 2D) = "white" {}
         _TeamColor ("Team Color", Color) = (0,0,0,0)
+        _TeamBrightness ("Team Brightness", Float ) = 0.5
         _TeamMap ("Team Map", 2D) = "black" {}
         _EmissionColor ("Emission Color", Color) = (0,0,0,1)
         _EmissionMap ("Emission Map", 2D) = "black" {}
@@ -54,6 +55,7 @@ Shader "InvincibleEngine / Unit Shader" {
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform float4 _EmissionColor;
             uniform float _EmissionPower;
+            uniform float _TeamBrightness;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -168,7 +170,7 @@ Shader "InvincibleEngine / Unit Shader" {
                 float specularMonochrome;
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
                 float4 _TeamMap_var = tex2D(_TeamMap,TRANSFORM_TEX(i.uv0, _TeamMap));
-                float3 diffuseColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*_TeamColor.rgb),_TeamMap_var.a); // Need this for specular when using metallic
+                float3 diffuseColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*(_TeamColor.rgb*_TeamBrightness)),_TeamMap_var.a); // Need this for specular when using metallic
                 diffuseColor = DiffuseAndSpecularFromMetallic( diffuseColor, specularColor, specularColor, specularMonochrome );
                 specularMonochrome = 1.0-specularMonochrome;
                 float NdotV = abs(dot( normalDirection, viewDirection ));
@@ -252,6 +254,7 @@ Shader "InvincibleEngine / Unit Shader" {
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform float4 _EmissionColor;
             uniform float _EmissionPower;
+            uniform float _TeamBrightness;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
@@ -314,7 +317,7 @@ Shader "InvincibleEngine / Unit Shader" {
                 float specularMonochrome;
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
                 float4 _TeamMap_var = tex2D(_TeamMap,TRANSFORM_TEX(i.uv0, _TeamMap));
-                float3 diffuseColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*_TeamColor.rgb),_TeamMap_var.a); // Need this for specular when using metallic
+                float3 diffuseColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*(_TeamColor.rgb*_TeamBrightness)),_TeamMap_var.a); // Need this for specular when using metallic
                 diffuseColor = DiffuseAndSpecularFromMetallic( diffuseColor, specularColor, specularColor, specularMonochrome );
                 specularMonochrome = 1.0-specularMonochrome;
                 float NdotV = abs(dot( normalDirection, viewDirection ));
@@ -382,6 +385,7 @@ Shader "InvincibleEngine / Unit Shader" {
             uniform sampler2D _EmissionMap; uniform float4 _EmissionMap_ST;
             uniform float4 _EmissionColor;
             uniform float _EmissionPower;
+            uniform float _TeamBrightness;
             struct VertexInput {
                 float4 vertex : POSITION;
                 float2 texcoord0 : TEXCOORD0;
@@ -414,7 +418,7 @@ Shader "InvincibleEngine / Unit Shader" {
                 
                 float4 _MainTex_var = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
                 float4 _TeamMap_var = tex2D(_TeamMap,TRANSFORM_TEX(i.uv0, _TeamMap));
-                float3 diffColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*_TeamColor.rgb),_TeamMap_var.a);
+                float3 diffColor = lerp((_MainTex_var.rgb*_AlbedoColor.rgb),(_TeamMap_var.rgb*(_TeamColor.rgb*_TeamBrightness)),_TeamMap_var.a);
                 float specularMonochrome;
                 float3 specColor;
                 diffColor = DiffuseAndSpecularFromMetallic( diffColor, _Metallic, specColor, specularMonochrome );

@@ -31,7 +31,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         [Header("Gameplay UI Elements")]
         [SerializeField] private Sprite _iconSprite;
-        [SerializeField] private Vector2Int _healthBarSize = new Vector2Int(48, 4);
+        [SerializeField] private Sprite _healthSprite;
 
         [Header("Target Acquisition")] 
         [SerializeField] protected bool AutoAcquireTargets;
@@ -42,8 +42,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected ParticleSystem DeathEffect;
         
         // Protected: Unit Icon
-        protected UnitScreenElement Icon;
-        protected UnitScreenElement HealthBar;
+        protected UnitScreenSprite Icon;
+        protected UnitScreenSprite HealthBar;
         
         // Protected: Component References
         protected MeshRenderer UnitRenderer;
@@ -64,7 +64,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         public Color UnitColor { get; protected set; }
         public float CurrentHealth { get; protected set; }
         public Sprite IconSprite => _iconSprite;
-        public UnitActions SupportedCommands { get; protected set; }
+        public UnitCommands SupportedCommands { get; protected set; }
         
         // Properties: Target Acquisition
         public UnitBehavior CurrentTarget { get; protected set; }
@@ -85,7 +85,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Initialization
         public override void OnRegister() {
             // Reference required components
-            UnitRenderer = GetComponent<MeshRenderer>();
+            UnitRenderer = GetComponentInChildren<MeshRenderer>();
             LineRenderer = GetComponent<LineRenderer>();
             SelectionIndicator = GetComponent<Outline>();
             
@@ -100,40 +100,28 @@ namespace InvincibleEngine.UnitFramework.Components {
             UnitRenderer.material.SetColor("_TeamColor", UnitColor);
             
             // Construct this unit's icon if possible
-            if (_iconSprite != null) {
-                // Declare template reference
-                UnitScreenElement template;
-                
+            if (_iconSprite != null) {            
                 // Load the appropriate template for the unit type
-                switch (_unitType) {
-                    case UnitType.Structure:
-                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Structure");
-                        break;
-                    case UnitType.Special:
-                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Special");
-                        break;
-                    default:
-                        template = Resources.Load<UnitScreenElement>("Objects/Templates/Icon_Unit");
-                        break;
-                }
+                var template = Resources.Load<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
                 
                 // Instantiate and initialize the unit icon
                 Icon = Instantiate(template);
                 Icon.Initialize(_iconSprite, UnitColor);
-                InvincibleCamera.AppendElement(Icon);
+                ScreenSpriteManager.AppendSprite(Icon);
                 Icon.SetSelected(false);
             }
             
             // Construct this unit's health bar
-            var healthBar = Resources.Load<UnitScreenElement>("Objects/Templates/UI_HealthBar");
+            if (_healthSprite != null) {
+                var healthBar = Resources.Load<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
 
-            // Instantiate and initialize the health bar
-            HealthBar = Instantiate(healthBar);
-            HealthBar.Initialize(_healthBarSize, UnitColor);
-            InvincibleCamera.AppendElement(HealthBar);
-            HealthBar.SetSelected(false);
-            
-            
+                // Instantiate and initialize the health bar
+                HealthBar = Instantiate(healthBar);
+                HealthBar.Initialize(_healthSprite, UnitColor);
+                ScreenSpriteManager.AppendSprite(HealthBar);
+                HealthBar.SetSelected(false);
+            }
+
             // Deactivate the indicator object if not null
             if (SelectionIndicator != null)
                 SelectionIndicator.enabled = false;
@@ -183,8 +171,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Update healthbar screen position and fill
             if (HealthBar != null) {
                 HealthBar.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position) + (Vector2.up * 32f));
-                HealthBar.SetFill(CurrentHealth / Health);
-                HealthBar.SetRender(!InvincibleCamera.IconsRendered);
+                HealthBar.SetScale(new Vector2(CurrentHealth / Health, 1f));
+                HealthBar.SetRender(InvincibleCamera.HealthBarsRendered);
             }
 
             // Determine if this object is on screen or not

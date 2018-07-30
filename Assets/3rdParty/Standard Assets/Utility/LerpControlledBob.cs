@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace _3rdParty.Standard_Assets.Utility
+namespace UnityStandardAssets.Utility
 {
     [Serializable]
     public class LerpControlledBob

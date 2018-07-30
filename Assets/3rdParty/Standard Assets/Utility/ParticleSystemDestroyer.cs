@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace _3rdParty.Standard_Assets.Utility
+namespace UnityStandardAssets.Utility
 {
     public class ParticleSystemDestroyer : MonoBehaviour
     {

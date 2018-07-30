@@ -1,6 +1,8 @@
+using System;
 using UnityEngine;
 
-namespace _3rdParty.Standard_Assets.Utility
+
+namespace UnityStandardAssets.Utility
 {
     public class FollowTarget : MonoBehaviour
     {

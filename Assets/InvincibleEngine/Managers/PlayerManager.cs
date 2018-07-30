@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.DataTypes;
@@ -22,17 +23,21 @@ namespace InvincibleEngine.Managers {
         // Singleton Instance Accessor
         public static PlayerManager Instance { get; private set; }
 
-        // Selection Variables
-        private const int SELECTION_BORDER_WIDTH = 2;
-        private bool _selecting;
+        // Private: Unit Selection
+        private List<UnitBehavior> _selectedUnits;
+        private int _selectionBorderWidth = 2;
         private Texture2D _selectionTexture;
-        private Rect _selectionBox = new Rect(0, 0, 0, 0);
+        private Rect _selectionBox;
+        private bool _selecting;
+        
+        // Private: Command Processing
+        private UnitCommands _desiredCommand;
+        private bool _readyToIssue;
 
         // Location of mouse on screen
         public Vector2 MousePosition;
 
         // List of selected Entities
-        private readonly List<UnitBehavior> _selectedUnits = new List<UnitBehavior>();
 
         // Building variables
         public bool BuildMode { get; set; }
@@ -58,54 +63,31 @@ namespace InvincibleEngine.Managers {
         /// Set variables
         /// </summary>
         private void Awake() {
+            // Initialize the selected units list
+            _selectedUnits = new List<UnitBehavior>();
+            
             // Set selection texture color
             _selectionTexture = new Texture2D(1, 1);
             _selectionTexture.SetPixel(1, 1, Color.white);
             _selectionTexture.wrapMode = TextureWrapMode.Repeat;
             _selectionTexture.Apply();
+            
+            // Initialize the selection rect
+            _selectionBox = new Rect(0f, 0f, 0f, 0f);
 
-            // instantiate preview object
+            // Instantiate build preview object
             _buildPreview = Instantiate(new GameObject());
         }
         
-        // Building state of the manager
-        private void BuildingState(float deltaTime) {
-            // Set build preview to mouse point
-            //:: REMOVED WHILE GRID SYSTEM IS MOVED:: _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(MousePoint);
-
-            // Attempt build when released
-            if (!Input.GetMouseButtonDown(0)) return;
-            
-            // Destroy Preview 
-            Destroy(_buildPreview);
-
-            // Cancel build mode
-            BuildMode = false;
-        }
-
+        // Unity Update
         private void Update() {
             // Set mouse position
             MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);         
             
-            // Handle commands ()
-            if (_selectedUnits.Count > 0) {
-                // Movement Command ([Q] or [Mouse1])
-                if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.Mouse1)) {
-                    foreach (var unit in _selectedUnits) {
-                        unit.ProcessCommand(new UnitCommand(UnitActions.Move, InvincibleCamera.MouseData.WorldPosition));
-                    }
-                }
-                
-                // Stop Command ([S])
-                if (Input.GetKeyDown(KeyCode.End)) {
-                    foreach (var unit in _selectedUnits) {
-                        unit.ProcessCommand(new UnitCommand(UnitActions.Stop, null));
-                    }
-                }
-            }
+            
 
-            //if in build mode, display preview options for player
-            if(BuildMode) {
+            // if in build mode, display preview options for player
+            if (BuildMode) {
 
                 //Show the build preview at nearby grid points
                 _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).WorldPosition;
@@ -123,14 +105,99 @@ namespace InvincibleEngine.Managers {
 
                 }
             }
+            
+            // Execute command routine
+            CommandRoutine();
+            
+            // Execute selection routine
+            SelectionRoutine();
+        }
+        
+        // Unit commanding routine
+        private void CommandRoutine() {
+            // Exit if there are no units selected
+            if (_selectedUnits.Count == 0) return;
+            
+            // Handle commands issued from an external call (Gameplay UI, etc...)
+            if (_readyToIssue) {
+                if (Input.GetKeyDown(KeyCode.Mouse0)) {
+                    // Construct a UnitCommand object based on the desired command
+                    var command = new UnitCommand();
+                    switch (_desiredCommand) {
+                        case UnitCommands.Move:
+                            command.Command = UnitCommands.Move;
+                            command.Data = InvincibleCamera.MouseData.WorldPosition;
+                            break;
+                        case UnitCommands.AMove:
+                            command.Command = UnitCommands.AMove;
+                            command.Data = InvincibleCamera.MouseData.WorldPosition;
+                            break;
+                        case UnitCommands.Engage:
+                            // TODO: Implement logic for this command, for now just have it act like Move
+                            command.Command = UnitCommands.Move;
+                            command.Data = InvincibleCamera.MouseData.WorldPosition;
+                            break;
+                        case UnitCommands.Assist:
+                            // TODO: Not yet implemented
+                            break;
+                        case UnitCommands.Patrol:
+                            // TODO: Not yet implemented
+                            break;
+                        case UnitCommands.Hold:
+                            // TODO: Not yet implemented
+                            break;
+                        case UnitCommands.Stop:
+                            command.Command = UnitCommands.Stop;
+                            break;
+                        default:
+                            return;
+                    }
+                    
+                    // Dispatch the command to all selected units
+                    foreach (var unit in _selectedUnits) {
+                        unit.ProcessCommand(command);
+                    }
+                    
+                    // Reset the ready to issue flag
+                    _readyToIssue = false;
+                }
+            }
+            
+            // Handle commands bound to keys
+            if (!_readyToIssue) {
+                // Movement Command ([M] or [Mouse1])
+                if (Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Mouse1)) {
+                    foreach (var unit in _selectedUnits) {
+                        unit.ProcessCommand(new UnitCommand(UnitCommands.Move, InvincibleCamera.MouseData.WorldPosition));
+                    }
+                }
 
-            //Do not run selection tasks if in build mode or cursor is over a UI object
-            if (BuildMode || EventSystem.current.IsPointerOverGameObject()) return;
+                // Stop Command ([S])
+                if (Input.GetKeyDown(KeyCode.End)) {
+                    foreach (var unit in _selectedUnits) {
+                        unit.ProcessCommand(new UnitCommand(UnitCommands.Stop, null));
+                    }
+                }
+            }
+        }
+        
+        // Unit selection routine
+        private void SelectionRoutine() {
+            // Cancel and/or avoid selecting if the cursor is over a UI element
+            if (EventSystem.current.IsPointerOverGameObject()) {
+                // Reset selecting flag
+                _selecting = false;
+                
+                // Reset selection rect
+                _selectionBox = new Rect(0f, 0f, 0f, 0f);
+                
+                // Exit this routine
+                return;
+            }
             
             // Check and see if the player is trying to make a selection
-            if (Input.GetMouseButtonDown(0)) {
-
-                // Set selecting to true
+            if (Input.GetKeyDown(KeyCode.Mouse0)) {
+                // Set selecting flag to true
                 _selecting = true;
 
                 // Set initial values of box
@@ -138,67 +205,97 @@ namespace InvincibleEngine.Managers {
             }
 
             // As long as it's held make the rectangle 
-            if (Input.GetMouseButton(0) && _selecting) {
+            if (Input.GetKey(KeyCode.Mouse0) && _selecting) {
                 _selectionBox.width = MousePosition.x - _selectionBox.x;
                 _selectionBox.height = MousePosition.y - _selectionBox.y;
             }
 
-            // On mouse up stop selecting
-            if (Input.GetMouseButtonUp(0) && _selecting) {
+            // Exit if still the player has not finished selecting
+            if (!Input.GetMouseButtonUp(0) || !_selecting) return;
+            
+            // Reset selecting flag
+            _selecting = false;
 
-                // Toggle selecting bool
-                _selecting = false;
+            // Invoke the OnDeselected callback on all selected entities
+            foreach (var behavior in _selectedUnits) {
+                behavior.OnDeselected();
+            }
 
-                // Invoke the OnDeselected callback on all entities
-                foreach (var behavior in _selectedUnits) {
-                    behavior.OnDeselected();
+            // Clear the list of selected entities
+            _selectedUnits.Clear();
+
+            // Check the mouse delta to determine if this was a single click or drag selection
+            var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
+
+            // Assume single click if delta is small and select the hovered object if possible
+            if (mouseDelta.magnitude < 4f) {
+                // Check if the cursor is hovering over an object and determine if it can be selected
+                var hoveredObject = InvincibleCamera.MouseData.HoveredObject;
+                var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
+
+                // Select the hovered object if possible
+                if (selectable != null) {
+                    _selectedUnits.Add(selectable);
+                    selectable.OnSelected();
                 }
+            }
 
-                // Clear the list of selected entities
-                _selectedUnits.Clear();
-
-                // Check the mouse delta to determine if this was a single click or drag selection
-                var mouseDelta = new Vector2(_selectionBox.width, _selectionBox.height);
-
-                // Assume single click if delta is small and select the hovered object if possible
-                if (mouseDelta.magnitude < 4f) {
-                    // Check if the cursor is hovering over an object and determine if it can be selected
-                    var hoveredObject = InvincibleCamera.MouseData.HoveredObject;
-                    var selectable = hoveredObject != null ? hoveredObject.GetComponent<UnitBehavior>() : null;
-
-                    // Select the hovered object if possible
-                    if (selectable != null) {
-                        _selectedUnits.Add(selectable);
-                        selectable.OnSelected();
-                    }
-                }
-
-                // Optimized selection using on-screen objects
-                foreach (var entity in InvincibleCamera.VisibleObjects) {
-                    // Skip null entries
-                    if (entity == null) continue;
+            // Select on-screen units within the selection box
+            foreach (var entity in InvincibleCamera.VisibleObjects) {
+                // Skip null entries
+                if (entity == null) continue;
                     
-                    // Cache screen position of object
-                    var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
+                // Cache screen position of object
+                var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
 
-                    // Account for odd screen mapping
-                    objectPosition.y = Screen.height - objectPosition.y;
+                // Account for odd screen mapping
+                objectPosition.y = Screen.height - objectPosition.y;
 
-                    // If the object is within the rect, select it, else continue
-                    if (!_selectionBox.Contains(objectPosition, true)) continue;
+                // If the object is within the rect, select it, else continue
+                if (!_selectionBox.Contains(objectPosition, true)) continue;
 
-                    // Add the object to the list of selected entities
-                    _selectedUnits.Add(entity);
+                // Add the object to the list of selected entities
+                _selectedUnits.Add(entity);
 
-                    // Invoke the OnSelected callback
-                    entity.OnSelected();
-                }
+                // Invoke the OnSelected callback
+                entity.OnSelected();
+            }
 
-                // Reset the selection rect
-                _selectionBox = new Rect(0, 0, 0, 0);
+            // Reset the selection rect
+            _selectionBox = new Rect(0, 0, 0, 0);
+        }
+        
+        // Called to set the desired command to be executed on next mouse click
+        public static void SetDesiredCommand(UnitCommands command) {
+            // Exit if we have nothing selected
+            if (SelectedUnits.Count == 0) return;
+            
+            // Set the desired command and ready flag
+            Instance._desiredCommand = command;
+            Instance._readyToIssue = true;
+        }
+        
+        // Called to try and directly issue a command to selected units
+        public static void IssueCommandDirect(UnitCommands command) {
+            // Exit if we have nothing selected
+            if (SelectedUnits.Count == 0) return;
+
+            // Construct command object based on issued command
+            var commandObject = new UnitCommand();
+            switch (command) {
+                case UnitCommands.Stop:
+                    commandObject.Command = UnitCommands.Stop;
+                    break;
+                default:
+                    return;
+            }
+            
+            // Dispatch the command to all selected units
+            foreach (var unit in SelectedUnits) {
+                unit.ProcessCommand(commandObject);
             }
         }
-
+        
         // Called when the player wants to start building something, IE. generate preview object
         public void OnBuildRequest(EntityBehavior building) {
 
@@ -232,10 +329,10 @@ namespace InvincibleEngine.Managers {
 
             //If player is selecting draw rectangle
             if (_selecting) {
-                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y, _selectionBox.width, SELECTION_BORDER_WIDTH), _selectionTexture); //TL-TR
-                GUI.DrawTexture(new Rect(_selectionBox.x + _selectionBox.width, _selectionBox.y, SELECTION_BORDER_WIDTH, _selectionBox.height), _selectionTexture); //TR-BR
-                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y + _selectionBox.height, _selectionBox.width, SELECTION_BORDER_WIDTH), _selectionTexture); //BL-BR
-                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y, SELECTION_BORDER_WIDTH, _selectionBox.height), _selectionTexture); //TL-BL
+                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y, _selectionBox.width, _selectionBorderWidth), _selectionTexture); //TL-TR
+                GUI.DrawTexture(new Rect(_selectionBox.x + _selectionBox.width, _selectionBox.y, _selectionBorderWidth, _selectionBox.height), _selectionTexture); //TR-BR
+                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y + _selectionBox.height, _selectionBox.width, _selectionBorderWidth), _selectionTexture); //BL-BR
+                GUI.DrawTexture(new Rect(_selectionBox.x, _selectionBox.y, _selectionBorderWidth, _selectionBox.height), _selectionTexture); //TL-BL
             }
         }
     }

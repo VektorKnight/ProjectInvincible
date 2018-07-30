@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-namespace _3rdParty.Standard_Assets.Utility
+namespace UnityStandardAssets.Utility
 {
     public class TimedObjectDestructor : MonoBehaviour
     {
@@ -10,7 +11,7 @@ namespace _3rdParty.Standard_Assets.Utility
 
         private void Awake()
         {
-            Invoke(nameof(DestroyNow), m_TimeOut);
+            Invoke("DestroyNow", m_TimeOut);
         }
 
 

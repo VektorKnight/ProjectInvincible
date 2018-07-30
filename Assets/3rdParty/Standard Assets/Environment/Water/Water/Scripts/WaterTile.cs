@@ -1,6 +1,7 @@
+using System;
 using UnityEngine;
 
-namespace _3rdParty.Standard_Assets.Environment.Water.Water.Scripts
+namespace UnityStandardAssets.Water
 {
     [ExecuteInEditMode]
     public class WaterTile : MonoBehaviour

@@ -2,11 +2,11 @@
 
 namespace InvincibleEngine.UnitFramework.DataTypes {
     public struct UnitCommand {
-        public UnitActions Action;
+        public UnitCommands Command;
         public object Data;
         
-        public UnitCommand(UnitActions action, object data) {
-            Action = action;
+        public UnitCommand(UnitCommands command, object data) {
+            Command = command;
             Data = data;
         }
     }

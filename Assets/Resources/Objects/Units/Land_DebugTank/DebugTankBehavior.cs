@@ -14,17 +14,17 @@ namespace GameAssets.Resources.Objects.Units.Land_DebugTank {
 		// Use this for initialization
 		public override void OnRegister () {
 			// Declare supported commands
-			SupportedCommands = UnitActions.Move |
-			                    UnitActions.AMove |
-			                    UnitActions.Patrol |
-			                    UnitActions.Stop |
-			                    UnitActions.Hold |
-			                    UnitActions.Engage;
+			SupportedCommands = UnitCommands.Move |
+			                    UnitCommands.AMove |
+			                    UnitCommands.Patrol |
+			                    UnitCommands.Stop |
+			                    UnitCommands.Hold |
+			                    UnitCommands.Engage;
 			
 			// Register command handlers
-			CommandParser.RegisterHandler(UnitActions.Move, MoveCommandHandler);
-			CommandParser.RegisterHandler(UnitActions.AMove, MoveCommandHandler);
-			CommandParser.RegisterHandler(UnitActions.Stop, StopCommandHandler);
+			CommandParser.RegisterHandler(UnitCommands.Move, MoveCommandHandler);
+			CommandParser.RegisterHandler(UnitCommands.AMove, MoveCommandHandler);
+			CommandParser.RegisterHandler(UnitCommands.Stop, StopCommandHandler);
 			
 			// Reference required components
 			_navAgent = GetComponent<NavMeshAgent>();			
