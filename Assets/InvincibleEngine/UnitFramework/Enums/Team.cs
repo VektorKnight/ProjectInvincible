@@ -49,11 +49,6 @@ namespace InvincibleEngine.UnitFramework.Enums{
             }
         }
 
-        //EXAMPLE
-        static ETeam n = ETeam.Red;
-
-        Color X = n.EColor();
-      
     }
 
 }

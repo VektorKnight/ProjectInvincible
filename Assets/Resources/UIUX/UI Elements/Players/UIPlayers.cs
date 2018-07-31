@@ -24,7 +24,7 @@ public class UIPlayers : MonoBehaviour {
 
 
         //if a player exists that doesnt have a card, add one
-        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers.OrderBy(o=>o.Value.team)) {
+        foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers.OrderBy(o=>o.Value.Team)) {
 
             //Player has no card, create one
             if(!DisplayedPlayers.ContainsKey(n.Key)) {

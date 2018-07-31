@@ -6,6 +6,7 @@ using SteamNet;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET;
+using InvincibleEngine.UnitFramework.Enums;
 
 public class UIPlayerSlot : MonoBehaviour {
     [SerializeField]
@@ -32,7 +33,7 @@ public class UIPlayerSlot : MonoBehaviour {
 
     private void Update() {
         //Make sure the color of this slot matches it's player
-        Color32 color = SteamNetManager.CurrentLobbyData.LobbyMembers[CardID].Team;
+        Color32 color = SteamNetManager.CurrentLobbyData.LobbyMembers[CardID].Team.EColor();
         _ColoredBackground.color = color;
         _TeamPickBlocker.color = color;
            
