@@ -3,30 +3,30 @@ using UnityEngine;
 
 namespace InvincibleEngine.UnitFramework.Enums {
     public static class TeamColor {
-        public static Color GetTeamColor(Team team) {
+        public static Color GetTeamColor(ETeam team) {
             switch (team) {
-                case Team.Red:
+                case ETeam.Red:
                     return new Color(1f, 0.25f, 0.21f);
                     break;
-                case Team.Green:
+                case ETeam.Green:
                     return Color.green;
                     break;
-                case Team.Blue:
+                case ETeam.Blue:
                     return new Color(0f, 0.64f, 1f);
                     break;
-                case Team.Yellow:
+                case ETeam.Yellow:
                     return Color.yellow;
                     break;
-                case Team.Purple:
+                case ETeam.Purple:
                     return new Color(0.58f, 0.38f, 1f);
                     break;
-                case Team.Orange:
+                case ETeam.Orange:
                     return new Color(1f, 0.49f, 0f);
                     break;
-                case Team.Pink:
+                case ETeam.Pink:
                     return Color.magenta;
                     break;
-                case Team.Teal:
+                case ETeam.Teal:
                     return Color.cyan;
                     break;
                 default:

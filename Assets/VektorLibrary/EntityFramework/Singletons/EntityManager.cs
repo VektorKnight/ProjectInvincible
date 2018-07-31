@@ -90,13 +90,19 @@ namespace InvincibleEngine {
                 // Step the simulation by delta time
                 Physics.Simulate(deltaTime);
 
-                
+               //Run economy before any behavior on this tick
+                for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
+                    var behavior = _entityBehaviors[i];
+                    if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                    behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
+                }
+
                 // Invoke the callback on all registered objects
                 // No touchy, leave as a for-loop for optimization
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
                     if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
-                    behavior.OnSimUpdate(FIXED_TIMESTEP, true);
+                    behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                 }
                 
                 // Subtract delta time from the accumulator

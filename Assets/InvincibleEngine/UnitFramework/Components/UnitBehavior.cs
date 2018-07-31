@@ -8,8 +8,10 @@ using InvincibleEngine.UnitFramework.Utility;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
 using VektorLibrary.Utility;
+using SteamNet;
 using Outline = cakeslice.Outline;
 using Random = UnityEngine.Random;
+using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 
 namespace InvincibleEngine.UnitFramework.Components {
     /// <summary>
@@ -27,8 +29,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         [Header("General Settings")]
         [SerializeField] private UnitType _unitType;
         [SerializeField] protected float Health = 100f;
-        [SerializeField] public BuildOption[] BuildOptions;
-        
+        [SerializeField] protected int _cost = 100;
+       
         [Header("Gameplay UI Elements")]
         [SerializeField] private Sprite _iconSprite;
         [SerializeField] private Sprite _healthSprite;
@@ -40,7 +42,11 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         [Header("Destruction Aesthetics")] 
         [SerializeField] protected ParticleSystem DeathEffect;
-        
+
+        //Construction
+        [SerializeField] public BuildOption[] ConstructionOptions;
+        [SerializeField] public UnitBehavior[] BuildOptions;
+
         // Protected: Unit Icon
         protected UnitScreenSprite Icon;
         protected UnitScreenSprite HealthBar;
@@ -60,11 +66,12 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Properties: Unit Metadata
         public UnitType UnitType => _unitType;
-        public Team UnitTeam { get; protected set; }
+        public ETeam UnitTeam { get; protected set; }
         public Color UnitColor { get; protected set; }
         public float CurrentHealth { get; protected set; }
         public Sprite IconSprite => _iconSprite;
         public UnitCommands SupportedCommands { get; protected set; }
+        public int Cost => _cost;
         
         // Properties: Target Acquisition
         public UnitBehavior CurrentTarget { get; protected set; }
@@ -79,8 +86,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Denotes whether this unit can be built from somewhere, eventually this should be changed 
         // to a proper flag system that tells exactly where this unit can be made from
         public bool CanBeProduced;  
-        
-        public virtual void GenerateResource() {}       
         
         // Initialization
         public override void OnRegister() {
@@ -189,7 +194,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
         
         // Set this unit's team and update related objects
-        public virtual void SetTeam(Team team) {
+        public virtual void SetTeam(ETeam team) {
             // Exit if this object is dying
             if (Dying) return;
             
@@ -211,9 +216,9 @@ namespace InvincibleEngine.UnitFramework.Components {
             ScanLayers = new LayerMask();
             
             // Calculate the scan layers for target acquisition
-            foreach (var team in Enum.GetValues(typeof(Team))) {
+            foreach (var team in Enum.GetValues(typeof(ETeam))) {
                 // Skip this unit's team
-                if ((Team) team == UnitTeam) continue;
+                if ((ETeam) team == UnitTeam) continue;
                 
                 // Set the appropriate bit flags
                 ScanLayers = ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int) team);

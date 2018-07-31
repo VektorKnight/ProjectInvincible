@@ -32,7 +32,7 @@ public class UIPlayerSlot : MonoBehaviour {
 
     private void Update() {
         //Make sure the color of this slot matches it's player
-        Color32 color= SteamNetManager.Instance.TeamColors?[SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[CardID].team] ?? new Color32(0, 255, 0, 255);
+        Color32 color = SteamNetManager.CurrentLobbyData.LobbyMembers[CardID].Team;
         _ColoredBackground.color = color;
         _TeamPickBlocker.color = color;
            

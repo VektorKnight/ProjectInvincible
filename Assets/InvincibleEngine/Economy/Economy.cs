@@ -11,7 +11,7 @@ public class Economy {
 
     //Economy 
     [SerializeField] protected float _resources = 0;
-    [SerializeField] protected float _energyCreated = 0;
+    [SerializeField] protected float _energyGenerated = 0;
     [SerializeField] protected float _energyUsed = 0;
     [SerializeField] public float MinimumEfficiency = 0.2f;
 
@@ -22,25 +22,25 @@ public class Economy {
     }
 
     //Total energy generated
-    public float EnergySum {
-        get { return 0; }
-        private set { }
+    public float Energy {
+        get { return _energyGenerated; }
+        private set { _energyGenerated = value; }
     }
     
     //Energy gained to used ratio
     public float EnergyRatio {
-        get { return Mathf.Clamp(_energyCreated / _energyUsed, MinimumEfficiency, 1); }
+        get { return Mathf.Clamp(_energyGenerated / _energyUsed, MinimumEfficiency, 1); }
     }
 
 
     //Call to generate resouces on this frame
     public void OnGenerateResouces(float total) {
-
+        Resources += total;
     }
 
     //Call to generate energy on this frame
     public void OnGenerateEnergy(float total) {
-
+        Energy += total;
     }
 
     //Call to use energy on this frame

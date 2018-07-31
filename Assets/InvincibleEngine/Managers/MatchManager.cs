@@ -40,12 +40,17 @@ public class MatchManager : MonoBehaviour {
 
     //Match specific variables
     public bool MatchStarted;
-    
+
     //List of players in the game
     public Dictionary<CSteamID, Player> Players = new Dictionary<CSteamID, Player>();
 
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
+
+    //Easy access to the local lobby data
+    public LobbyData CurrentLobbyData {
+        get { return SteamNetManager.Instance.CurrentlyJoinedLobby; }
+    }
 
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -67,8 +72,17 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+    /// <summary>
+    /// On start:
+    /// 
+    /// Generate the grid to be used in the game, clients and hosts do this and it should be identical 
+    /// 
+    /// </summary>
     private void Start() {
+
+        //Generate Grid
         GridSystem.GenerateGrid();
+
     }
 
     //----------------------------------------------------
@@ -95,17 +109,37 @@ public class MatchManager : MonoBehaviour {
     /// <param name="command"></param>
     public void OnCommand(UnitCommand command, CSteamID playerSource) {
 
+
     }
 
 
     /// <summary>
-    /// Spawns a dropship that will take the structure to the destination and deploy it
+    /// Constructs a building, consuming resources to do so
     /// </summary>
     /// <param name="BuildingID">Building asset ID</param>
     /// <param name="Location">cooresponding grid coordinates</param>
     /// <param name="Orientation">rotation in degrees between 0 and 360</param>
-    public void ConstructBuilding(EntityBehavior BuildingID, Vector2 Location, int Orientation) {
+    public void ConstructBuilding(StructureBehavior Building, GridPoint point, Quaternion Orientation, CSteamID playerSource) {
 
+        //if we are connected to a server, send a build request
+        if (SteamNetManager.Instance.Connected) {
+
+        }
+
+        //if we are hosting, attempt to construct building
+        if (SteamNetManager.Instance.Hosting) {
+
+            //if the player can afford it, construct it
+            if (CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+
+                //Instantiate object
+                GameObject n = Instantiate(Building.gameObject, point.WorldPosition, Orientation);
+
+                //Set ownership to the player that built it
+                n.GetComponent<StructureBehavior>().PlayerOwner = playerSource;
+
+            }
+        }
     }
 
 

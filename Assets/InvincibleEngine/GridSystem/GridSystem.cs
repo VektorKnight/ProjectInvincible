@@ -13,7 +13,32 @@ namespace InvincibleEngine {
         Open = 1,
         Occupied = 2
     }
+    //grid point data
+    public class GridPoint {
 
+        //Occupying Object
+        public GameObject ObjectOccupied;
+
+        //Enabled flags
+        public bool Buildable;
+
+        //Height of terrain at given grid point
+        public float Height;
+
+        //World position
+        public Vector3 WorldPosition;
+
+        //get open status, if the node is marked as buildable and no object exists there, it is open
+        public bool IsOpen() {
+            if (Buildable & ObjectOccupied == null) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
+    }
     /// <summary>
     ///Generates a grid of points around the map that can be used to determine leagal building locations
     /// </summary>
@@ -27,32 +52,7 @@ namespace InvincibleEngine {
         //Holds all grid points
         private Dictionary<UInt32, GridPoint> GridPoints = new Dictionary<uint, GridPoint>();
 
-        //grid point data
-        public class GridPoint {
 
-            //Occupying Object
-            public GameObject ObjectOccupied;
-
-            //Enabled flags
-            public bool Buildable;
-
-            //Height of terrain at given grid point
-            public float Height;
-
-            //World position
-            public Vector3 WorldPosition;
-
-            //get open status, if the node is marked as buildable and no object exists there, it is open
-            public bool IsOpen() {
-                if(Buildable & ObjectOccupied == null) {
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-
-        }
 
         /// <summary>
         /// Generates a grid with current terrain and NavMesh data
@@ -96,7 +96,7 @@ namespace InvincibleEngine {
                     n.WorldPosition = new Vector3(u * GridScale, n.Height, v * GridScale);
 
                     //Sample Navmesh, set flags
-                    allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, n.Height, v * GridScale), out hit, GridScale/2, NavMesh.AllAreas);
+                    allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, n.Height, v * GridScale), out hit, GridScale / 2, NavMesh.AllAreas);
                     n.Buildable = allowed ? true : false;
                     if (allowed) {
                         a++;
@@ -128,8 +128,8 @@ namespace InvincibleEngine {
         public GridPoint WorldToGridPoint(Vector3 point) {
             int x, z;
             x = (int)Math.Round(point.x / GridScale) * GridScale;
-            z = (int)Math.Round(point.z / GridScale) * GridScale;            
-            return GridPoints[MergeInt(x,z)];
+            z = (int)Math.Round(point.z / GridScale) * GridScale;
+            return GridPoints[MergeInt(x, z)];
         }
     }
 }

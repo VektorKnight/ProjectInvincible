@@ -23,6 +23,7 @@ using HexSerializer;
 using System.Globalization;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
+using InvincibleEngine.UnitFramework.Enums;
 
 
 namespace SteamNet {
@@ -85,10 +86,21 @@ namespace SteamNet {
     /// </summary>
     [Serializable]
     public class SteamnetPlayer {
+
+        //Player Econ
+        public Economy Economy = new Economy();
+
+        //Constructor
+        public SteamnetPlayer(CSteamID steamID) {
+            SteamID = steamID;
+        }
+
+        //Player properties
         public bool IsReady = false;
         public CSteamID SteamID;
-        public int team = 0;
+        public ETeam Team = 0;
 
+        //Player useful information
         public bool IsHost {
             get {
                 return SteamMatchmaking.GetLobbyOwner(SteamNetManager.Instance.CurrentLobbyID) == SteamID;
@@ -100,10 +112,6 @@ namespace SteamNet {
             }
         }
 
-        public SteamnetPlayer(bool isReady, CSteamID steamID) {
-            IsReady = isReady;
-            SteamID = steamID;
-        }
     }
 
     /// <summary>
@@ -114,7 +122,8 @@ namespace SteamNet {
     /// </summary>
     [Serializable]
     public class LobbyData {
-        //ID
+
+        //Lobby ID
         public CSteamID LobbyID;
 
         //Host of game
@@ -124,7 +133,7 @@ namespace SteamNet {
         public EGameState LobbyState = EGameState.InLobby;
 
         //Server Name
-        public string Name = "";
+        public string Name = "New Lobby";
 
         //List of all players
         public Dictionary<CSteamID, SteamnetPlayer> LobbyMembers = new Dictionary<CSteamID, SteamnetPlayer>();
@@ -138,9 +147,6 @@ namespace SteamNet {
 
         //Indicated if this match has started 
         public bool MatchStarted = false;
-
-        //Player Econ
-        public Economy Economy = new Economy();
 
         //Chat log
         public void PostChat(string message, string source) {

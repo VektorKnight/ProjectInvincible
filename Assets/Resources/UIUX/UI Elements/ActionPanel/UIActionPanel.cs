@@ -45,7 +45,7 @@ public class UIActionPanel : MonoBehaviour {
             }
 
             //generate actions for object
-            foreach (BuildOption n in _CurrentlySelectedObject.BuildOptions) {
+            foreach (BuildOption n in _CurrentlySelectedObject.ConstructionOptions) {
 
                 //instantiate object
                 UIAction u = Instantiate(ActionPrefab, transform);

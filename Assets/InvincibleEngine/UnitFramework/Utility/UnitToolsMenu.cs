@@ -14,7 +14,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         [SerializeField] private Dropdown _teamDropdown;
         
         // Private: Current Settings
-        private Team _selectedTeam;
+        private ETeam _selectedTeam;
         
         // Private: State
         private bool _readyToTeleport;
@@ -22,7 +22,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         // Initialization
         private void Awake() {        
             // Initialize the team dropdown
-            foreach (var team in Enum.GetNames(typeof(Team))) {
+            foreach (var team in Enum.GetNames(typeof(ETeam))) {
                 _teamDropdown.options.Add(new Dropdown.OptionData(team));
             }
         }
@@ -39,7 +39,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
         
         // Handler for the team dropdown
         public void OnTeamChanged(int value) {
-            _selectedTeam = (Team) value;
+            _selectedTeam = (ETeam) value;
         }
         
         // Handler for the change team button

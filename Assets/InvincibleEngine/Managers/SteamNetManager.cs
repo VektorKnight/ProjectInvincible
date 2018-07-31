@@ -22,6 +22,7 @@ using HexSerializer;
 using System.Globalization;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
+using InvincibleEngine.UnitFramework.Enums;
 
 namespace SteamNet {
 
@@ -39,10 +40,10 @@ namespace SteamNet {
 
         //Network Variables
         [Header("Flow Control")]
-        public ENetworkState NetworkState = ENetworkState.Stopped;
+        [SerializeField] public ENetworkState NetworkState = ENetworkState.Stopped;
         [SerializeField] private float _NetUpdatesPerSecond = 5;
         [SerializeField] private bool _TrackingEntities = false;
-        public bool DebugLogs = false;
+        [SerializeField] public bool DebugLogs = false;
 
         //Lobby information Variables
         public LobbyData CurrentlyJoinedLobby = new LobbyData();
@@ -53,15 +54,29 @@ namespace SteamNet {
         //Steam Data
         [Header("Steam Data")]
         public CSteamID CurrentLobbyID = new CSteamID();
-        public List<CSteamID> LobbysFoundOnServer = new List<CSteamID>();
-
-        //Instance Variables
-        public static SteamNetManager Instance;
-
+        
         //Entity Tracking
         public List<NetworkEntity> EntityList = new List<NetworkEntity>();
+        
+        //-----------------------------------
+        //Ease of use static properties
+        //-----------------------------------
 
-        //Property Accessors
+        //Steamnet Instance
+        public static SteamNetManager Instance;
+
+        //Local player
+        public static SteamnetPlayer LocalPlayer {
+            get { return Instance.CurrentlyJoinedLobby.LobbyMembers[SteamUser.GetSteamID()]; }
+        }
+
+        //Currently joined lobby data
+        public static LobbyData CurrentLobbyData {
+            get { return Instance.CurrentlyJoinedLobby; }
+        }
+
+        //------------------------------------
+
         public float NetUpdatesPerSecond {
             get { return 1 / _NetUpdatesPerSecond; }
             set { _NetUpdatesPerSecond = value; }
@@ -73,7 +88,6 @@ namespace SteamNet {
 
         public bool Connected {
             get { if (NetworkState == ENetworkState.Connected) { return true; } else { return false; } }
-
         }
 
         public bool TrackingEntities {
@@ -96,19 +110,6 @@ namespace SteamNet {
         protected Callback<LobbyChatMsg_t> m_LobbyChatMsg;
         protected Callback<LobbyChatUpdate_t> m_LobbyChatUpdate;
         protected Callback<P2PSessionRequest_t> m_P2PSessionRequest;
-
-       
-        //Team Color Identity
-        public List<Color> TeamColors = new List<Color>(){
-           new Color32(255,99,71,255),
-            new Color32(30,144,255,255),
-            new Color32(255,215,0,255),
-            new Color32(144,238,144,255),
-            new Color32(255,255,255,255),
-            new Color32(238,130,238,255),
-            new Color32(255,140,0,255),
-            new Color32(105,105,105,255),
-        };
 
         //Serialization allocation
         string jdata = "";
@@ -140,13 +141,11 @@ namespace SteamNet {
                 m_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
                 m_LobbyJoinRequest = Callback<GameLobbyJoinRequested_t>.Create(OnJoinLobbyRequest);
                 m_LobbyChatMsg = Callback<LobbyChatMsg_t>.Create(OnLobbyChatMsg);
-                //  m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+              //  m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
                 m_P2PSessionRequest = Callback<P2PSessionRequest_t>.Create(OnP2PRequest);
             }
             return wasInit;
         }
-
-        GridSystem GridSystem = new GridSystem();
 
         /// <summary>
         /// Start relative coroutines
@@ -154,7 +153,7 @@ namespace SteamNet {
         public void Start() {
             InitializeSteam();
             StartCoroutine(NetworkUpdate());
-            GridSystem.GenerateGrid();
+          
         }
 
         public void Update() {
@@ -168,7 +167,7 @@ namespace SteamNet {
                 UIMessage.GlobalMessage.DisplayMessage("Message Test");
             }
 
-            //Check for packets all the time
+            //Check for packets, like, all the time, bro
             ReadPackets();
         }
 
@@ -252,7 +251,7 @@ namespace SteamNet {
 
                             //if the user does not exists, make a profile for him
                             else {
-                                CurrentlyJoinedLobby.LobbyMembers.Add(userId, new SteamnetPlayer(false, userId));
+                                CurrentlyJoinedLobby.LobbyMembers.Add(userId, new SteamnetPlayer(userId));
                             }
 
                             //if a user joined then left, they will have a lobby member but no returned id to go with it
@@ -609,7 +608,7 @@ namespace SteamNet {
                 CurrentlyJoinedLobby.LobbyID = (CSteamID)param.m_ulSteamIDLobby;
 
                 //create lobby member for the current user
-                CurrentlyJoinedLobby.LobbyMembers.Add(SteamUser.GetSteamID(), new SteamnetPlayer(false, SteamUser.GetSteamID()));
+                CurrentlyJoinedLobby.LobbyMembers.Add(SteamUser.GetSteamID(), new SteamnetPlayer(SteamUser.GetSteamID()));
             }
 
             else {
@@ -729,7 +728,7 @@ namespace SteamNet {
                     N_TMC m = (N_TMC)n.obj;
 
                     if (Hosting) {
-                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].team = m.team;
+                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].Team = (ETeam)m.team;
                     }
                 }
 

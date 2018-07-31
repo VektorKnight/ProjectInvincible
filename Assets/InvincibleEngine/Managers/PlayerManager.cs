@@ -19,7 +19,7 @@ namespace InvincibleEngine.Managers {
     /// Only active during match, disabled in lobbies
     /// </summary>
     public class PlayerManager : MonoBehaviour {
-        
+
         // Singleton Instance Accessor
         public static PlayerManager Instance { get; private set; }
 
@@ -29,7 +29,7 @@ namespace InvincibleEngine.Managers {
         private Texture2D _selectionTexture;
         private Rect _selectionBox;
         private bool _selecting;
-        
+
         // Private: Command Processing
         private UnitCommands _desiredCommand;
         private bool _readyToIssue;
@@ -42,7 +42,7 @@ namespace InvincibleEngine.Managers {
         // Building variables
         public bool BuildMode { get; set; }
         private GameObject _buildPreview;
-        
+
         // Public Static: Selection
         public static List<UnitBehavior> SelectedUnits => Instance._selectedUnits;
 
@@ -65,26 +65,48 @@ namespace InvincibleEngine.Managers {
         private void Awake() {
             // Initialize the selected units list
             _selectedUnits = new List<UnitBehavior>();
-            
+
             // Set selection texture color
             _selectionTexture = new Texture2D(1, 1);
             _selectionTexture.SetPixel(1, 1, Color.white);
             _selectionTexture.wrapMode = TextureWrapMode.Repeat;
             _selectionTexture.Apply();
-            
+
             // Initialize the selection rect
             _selectionBox = new Rect(0f, 0f, 0f, 0f);
 
             // Instantiate build preview object
             _buildPreview = Instantiate(new GameObject());
         }
-        
+
         // Unity Update
         private void Update() {
             // Set mouse position
-            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);         
-            
-            
+            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+            // Execute command routine
+            CommandRoutine();
+            SelectionRoutine();
+            BuildRoutine();
+        }
+
+
+        // Called when the player wants to start building something, IE. generate preview object
+        public void OnBuildRequest(EntityBehavior building) {
+
+            //Set build preview
+            _buildPreview = GenerateEmptyObject(building.gameObject);
+
+            //Activate Build Mode
+            BuildMode = true;
+        }
+
+        //----------------------------------------------------
+        #region  Constructing buildings
+        //---------------------------------------------------- 
+
+        //Build behavior
+        private void BuildRoutine() {
 
             // if in build mode, display preview options for player
             if (BuildMode) {
@@ -93,31 +115,31 @@ namespace InvincibleEngine.Managers {
                 _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).WorldPosition;
 
                 //Change the render color based on if the node we are hovering over is occupied
-                if(!MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
+                if (!MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
                 }
                 else {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
                 }
-                
+
                 //On left click, try and construct the building
                 if (Input.GetMouseButtonDown(0)) {
 
                 }
             }
-            
-            // Execute command routine
-            CommandRoutine();
-            
-            // Execute selection routine
-            SelectionRoutine();
         }
-        
+
+        #endregion
+
+        //----------------------------------------------------
+        #region  Command dispatch  
+        //----------------------------------------------------
+
         // Unit commanding routine
         private void CommandRoutine() {
             // Exit if there are no units selected
             if (_selectedUnits.Count == 0) return;
-            
+
             // Handle commands issued from an external call (Gameplay UI, etc...)
             if (_readyToIssue) {
                 if (Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -152,17 +174,17 @@ namespace InvincibleEngine.Managers {
                         default:
                             return;
                     }
-                    
+
                     // Dispatch the command to all selected units
                     foreach (var unit in _selectedUnits) {
                         unit.ProcessCommand(command);
                     }
-                    
+
                     // Reset the ready to issue flag
                     _readyToIssue = false;
                 }
             }
-            
+
             // Handle commands bound to keys
             if (!_readyToIssue) {
                 // Movement Command ([M] or [Mouse1])
@@ -180,21 +202,58 @@ namespace InvincibleEngine.Managers {
                 }
             }
         }
-        
+
+        // Called to set the desired command to be executed on next mouse click
+        public static void SetDesiredCommand(UnitCommands command) {
+            // Exit if we have nothing selected
+            if (SelectedUnits.Count == 0) return;
+
+            // Set the desired command and ready flag
+            Instance._desiredCommand = command;
+            Instance._readyToIssue = true;
+        }
+
+        // Called to try and directly issue a command to selected units
+        public static void IssueCommandDirect(UnitCommands command) {
+            // Exit if we have nothing selected
+            if (SelectedUnits.Count == 0) return;
+
+            // Construct command object based on issued command
+            var commandObject = new UnitCommand();
+            switch (command) {
+                case UnitCommands.Stop:
+                    commandObject.Command = UnitCommands.Stop;
+                    break;
+                default:
+                    return;
+            }
+
+            // Dispatch the command to all selected units
+            foreach (var unit in SelectedUnits) {
+                unit.ProcessCommand(commandObject);
+            }
+        }
+
+        #endregion
+
+        //----------------------------------------------------
+        #region  Selection managment
+        //----------------------------------------------------
+
         // Unit selection routine
         private void SelectionRoutine() {
             // Cancel and/or avoid selecting if the cursor is over a UI element
             if (EventSystem.current.IsPointerOverGameObject()) {
                 // Reset selecting flag
                 _selecting = false;
-                
+
                 // Reset selection rect
                 _selectionBox = new Rect(0f, 0f, 0f, 0f);
-                
+
                 // Exit this routine
                 return;
             }
-            
+
             // Check and see if the player is trying to make a selection
             if (Input.GetKeyDown(KeyCode.Mouse0)) {
                 // Set selecting flag to true
@@ -212,7 +271,7 @@ namespace InvincibleEngine.Managers {
 
             // Exit if still the player has not finished selecting
             if (!Input.GetMouseButtonUp(0) || !_selecting) return;
-            
+
             // Reset selecting flag
             _selecting = false;
 
@@ -244,7 +303,7 @@ namespace InvincibleEngine.Managers {
             foreach (var entity in InvincibleCamera.VisibleObjects) {
                 // Skip null entries
                 if (entity == null) continue;
-                    
+
                 // Cache screen position of object
                 var objectPosition = InvincibleCamera.PlayerCamera.WorldToScreenPoint(entity.transform.position);
 
@@ -264,47 +323,8 @@ namespace InvincibleEngine.Managers {
             // Reset the selection rect
             _selectionBox = new Rect(0, 0, 0, 0);
         }
-        
-        // Called to set the desired command to be executed on next mouse click
-        public static void SetDesiredCommand(UnitCommands command) {
-            // Exit if we have nothing selected
-            if (SelectedUnits.Count == 0) return;
-            
-            // Set the desired command and ready flag
-            Instance._desiredCommand = command;
-            Instance._readyToIssue = true;
-        }
-        
-        // Called to try and directly issue a command to selected units
-        public static void IssueCommandDirect(UnitCommands command) {
-            // Exit if we have nothing selected
-            if (SelectedUnits.Count == 0) return;
 
-            // Construct command object based on issued command
-            var commandObject = new UnitCommand();
-            switch (command) {
-                case UnitCommands.Stop:
-                    commandObject.Command = UnitCommands.Stop;
-                    break;
-                default:
-                    return;
-            }
-            
-            // Dispatch the command to all selected units
-            foreach (var unit in SelectedUnits) {
-                unit.ProcessCommand(commandObject);
-            }
-        }
-        
-        // Called when the player wants to start building something, IE. generate preview object
-        public void OnBuildRequest(EntityBehavior building) {
-
-            //Set build preview
-            _buildPreview = GenerateEmptyObject(building.gameObject);
-
-            //Activate Build Mode
-            BuildMode = true;
-        }
+        #endregion
 
         //Creates an empty object with no monobehaviors for preview
         public GameObject GenerateEmptyObject(GameObject source) {
@@ -313,10 +333,10 @@ namespace InvincibleEngine.Managers {
             GameObject g = Instantiate(source);
 
             //Remove all behavior
-            foreach(MonoBehaviour n in g.GetComponentsInChildren<MonoBehaviour>()) {
+            foreach (MonoBehaviour n in g.GetComponentsInChildren<MonoBehaviour>()) {
                 Destroy(n);
             }
-        
+
             //Activate and return
             g.SetActive(true);
             return g;
