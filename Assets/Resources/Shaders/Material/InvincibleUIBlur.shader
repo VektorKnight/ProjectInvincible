@@ -51,24 +51,26 @@ Shader "InvincibleEngine/UI Background Blur" {
             };
 
             // Alex-inspired function thing for blur stuff
-            float3 TrigBlur(float2 uv, float2 pxD, float radius, int increments) {
+            float3 TrigBlur(sampler2D tex, float2 uv, float2 pxD, float radius, int increments) {
                 // Initialize blur result with source sample
-                float4 sum = tex2D(_GrabTexture, uv);
+                float4 sum = tex2D(tex, uv);
 
                 // Initialize blur coef for division
                 float coef = 1;
 
                 // Loop from 0-360
                 for (float i = 0.0; i < 360; i += (360.0 / increments)) {
-                    // Calculate offsets
-                    float offsetX = (cos(i) * radius) / pxD.x;
-                    float offsetY = (sin(i) * radius) / pxD.y;
+                    for (float n = 0.0; n < radius; n++) {
+                        // Calculate offsets
+                        float offsetX = (cos(i)*n) / pxD.x;
+                        float offsetY = (sin(i)*n) / pxD.y;
 
-                    // Sample the screen texture at the given UV + Offset
-                    sum += tex2D(_GrabTexture, uv + float2(offsetX, offsetY));
+                        // Sample the screen texture at the given UV + Offset
+                        sum += tex2D(tex, uv + float2(offsetX, offsetY));
 
-                    // Increment coef
-                    coef++;
+                        // Increment coef
+                        coef++;
+                    }
                 }
 
                 // Return the sample / coef
@@ -99,7 +101,7 @@ Shader "InvincibleEngine/UI Background Blur" {
                 float4 mainTexSample = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 
                 // Apply blur to the screen sample and mask it by the main texture alpha
-                float3 blurSample = TrigBlur(screenPos, _ScreenParams.xy, _BlurRadius, _BlurIterations);
+                float3 blurSample = TrigBlur(_GrabTexture, screenPos, _ScreenParams.xy, _BlurRadius, _BlurIterations);
                 blurSample = saturate(blurSample * mainTexSample.a);
 
                 // Mask the screen sample by the inverse of the main texture alpha and combine with blur sample
@@ -118,5 +120,4 @@ Shader "InvincibleEngine/UI Background Blur" {
         }
     }
     FallBack "Diffuse"
-    CustomEditor "ShaderForgeMaterialInspector"
 }
