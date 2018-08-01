@@ -3,11 +3,12 @@ Shader "InvincibleEngine/Sprites/Advanced"
 	Properties
 	{
 		[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
-		_Color ("Tint", Color) = (1,1,1,1)
+		_TintColor ("_TintColor", Color) = (1,1,1,1)
+		_Multiplier ("_Multiplier", Range(1, 100)) = 1
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		_ShadowColor ("Shadow", Color) = (0,0,0,1)
-		_ShadowRadius ("ShadowRadius", Float) = 0
-		_ShadowOffset ("ShadowOffset", Vector) = (0,-0.1,0,0)
+		_ShadowColor ("Shadow Color", Color) = (0,0,0,1)
+		_ShadowRadius ("Shadow Radius", Int) = 0
+		_ShadowOffset ("Shadow Offset", Vector) = (0,-0.1,0,0)
 	}
 
 	SubShader
@@ -49,7 +50,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 				float2 texcoord  : TEXCOORD0;
 			};
 			
-			fixed4 _Color;
+			fixed4 _TintColor;
 			fixed4 _ShadowColor;
 			int _ShadowRadius;
 			float4 _ShadowOffset;
@@ -81,7 +82,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 				v2f OUT;
 				OUT.vertex = UnityObjectToClipPos((vertex+_ShadowOffset));
 				OUT.texcoord = IN.texcoord;
-				OUT.color = _Color *_ShadowColor;
+				OUT.color = IN.color * _TintColor;
 
 				// Snap to pixels if enabled
 				#ifdef PIXELSNAP_ON
@@ -108,7 +109,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 			// Fragment shader (shadow)
 			fixed4 frag(v2f IN) : SV_Target
 			{
-				fixed4 c = SampleSpriteTexture(IN.texcoord) * IN.color;
+				fixed4 c = SampleSpriteTexture(IN.texcoord);
 				if (c.a < 0.5) c.a = 0.0;
 				c.rgb *= c.a;
 				return c;
@@ -139,14 +140,14 @@ Shader "InvincibleEngine/Sprites/Advanced"
 				float2 texcoord  : TEXCOORD0;
 			};
 			
-			fixed4 _Color;
+			fixed4 _TintColor;
 
 			v2f vert(appdata_t IN)
 			{
 				v2f OUT;
 				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				OUT.texcoord = IN.texcoord;
-				OUT.color = IN.color * _Color;
+				OUT.color = IN.color * _TintColor;
 				#ifdef PIXELSNAP_ON
 				OUT.vertex = UnityPixelSnap (OUT.vertex);
 				#endif
@@ -157,6 +158,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 			sampler2D _MainTex;
 			sampler2D _AlphaTex;
 			float _AlphaSplitEnabled;
+			float _Multiplier;
 
 			fixed4 SampleSpriteTexture (float2 uv)
 			{
@@ -174,6 +176,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 			{
 				fixed4 c = SampleSpriteTexture (IN.texcoord) * IN.color;
 				c.rgb *= c.a;
+				c.rgb *= _Multiplier;
 				return c;
 			}
 		ENDCG

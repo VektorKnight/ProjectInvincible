@@ -3,18 +3,33 @@ using UnityEngine.UI;
 
 namespace InvincibleEngine.UnitFramework.Components {
     [RequireComponent(typeof(SpriteRenderer))]
-    public class UnitScreenSprite : MonoBehaviour {      
+    public class UnitScreenSprite : MonoBehaviour {   
+        // Unity Inspector
+        [SerializeField] private int _outlineRadius;
+        
         // Private: Required References
         private SpriteRenderer _renderer;
+        private Material _spriteMaterial;
+        
+        // Private: State
+        private bool _selected;
         
         // Initialization
         public void Initialize(Sprite sprite, Color color) {
             // Reference required components
             _renderer = GetComponent<SpriteRenderer>();
+            _spriteMaterial = _renderer.material;
             
             // Set default sprite and color
             SetSprite(sprite);
             SetColor(color);
+        }
+        
+        // Unity Update
+        private void Update() {
+            if (_spriteMaterial == null || !_selected) return;
+                var sin = Mathf.Sin(2f * Time.time);
+                _spriteMaterial.SetFloat("_Multiplier", 0.5f + Mathf.Abs(sin));
         }
         
         // Set the primary sprite of the icon
@@ -24,7 +39,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Set selection state of the icon
         public void SetSelected(bool selected) {
-            // TODO: Implement selection behavior
+            _spriteMaterial.SetInt("_ShadowRadius", selected ? _outlineRadius : 0);
+            if (!selected)
+                _spriteMaterial.SetFloat("_Multiplier", 1);
+            _selected = selected;
         }
         
         // Set the color of the icon
