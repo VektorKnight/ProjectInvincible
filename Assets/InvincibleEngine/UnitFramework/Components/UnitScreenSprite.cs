@@ -28,8 +28,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Unity Update
         private void Update() {
             if (_spriteMaterial == null || !_selected) return;
-                var sin = Mathf.Sin(2f * Time.time);
-                _spriteMaterial.SetFloat("_Multiplier", 0.5f + Mathf.Abs(sin));
+                var sin = 0.5f * Mathf.Sin(2f * Time.time);
+                _spriteMaterial.SetFloat("_Multiplier", 1.5f + sin);
         }
         
         // Set the primary sprite of the icon
