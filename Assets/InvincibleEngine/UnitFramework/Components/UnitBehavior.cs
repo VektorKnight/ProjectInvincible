@@ -259,7 +259,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         protected virtual void GetTimeSlice() {
             // Populate and shuffle the stack of slices if it's empty
             if (SliceIntervals.Count == 0) {
-                Debug.Log("Refreshing time slice intervals");
                 // Generate an array of intervals
                 for (var i = 0; i < TimeSlicingWindow; i++)
                     IntervalBuffer[i] = i;
