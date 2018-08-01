@@ -437,7 +437,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dc2d2cbb9ad3ef44b79b2ac5b73b030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerOwner: -1
+  PlayerOwner:
+    m_SteamID: 0
   FireInterval: 1.5
   PitchRange: {x: 0, y: 0}
   AimSpeed: 90
@@ -460,10 +461,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e57f09556aa70214d9a0e31d70c7fd26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerOwner: -1
+  PlayerOwner:
+    m_SteamID: 0
   _unitType: 1
   Health: 100
-  BuildOptions: []
+  _cost: 100
   _iconSprite: {fileID: 21300000, guid: 8f31d89c4688da14abc379a8cf5c8d5a, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
   AutoAcquireTargets: 1
@@ -471,6 +473,8 @@ MonoBehaviour:
   ScanIntervalRange: {x: 0.2, y: 0.6}
   DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
     type: 2}
+  ConstructionOptions: []
+  BuildOptions: []
   CanBeProduced: 0
 --- !u!120 &120603556774537382
 LineRenderer:

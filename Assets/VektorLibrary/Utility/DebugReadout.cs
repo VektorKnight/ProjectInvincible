@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using InvincibleEngine;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -54,6 +55,9 @@ namespace VektorLibrary.Utility {
             UpdateField("Display", $"{Screen.width}x{Screen.height}");
             
             AddField("FPS");
+            
+            UpdateField("Sim Rate", $"{1f/EntityManager.FIXED_TIMESTEP}Hz");
+            AddField("Sim Ticks");
             
             AddField("Show Targeting");
             _fpsCounter = new FpsCounter();
@@ -123,6 +127,9 @@ namespace VektorLibrary.Utility {
             
             // Update FPS Counter
             UpdateField("FPS", $"{Instance._fpsCounter.UpdateValues()} (Δ{Time.deltaTime * 1000f:n1}ms)");
+            
+            // Update Sim Ticks
+            UpdateField("Sim Ticks", EntityManager.SimTickCount.ToString());
             
             // Update show targeting
             UpdateField("Show Targeting", _showTargeting.ToString());

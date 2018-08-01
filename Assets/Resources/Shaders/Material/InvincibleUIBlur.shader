@@ -1,6 +1,6 @@
 // Background blur for UI elements with texture mask
 // Author: VektorKnight
-Shader "InvincibleEngine/UI Background Blur" {
+Shader "InvincibleEngine/UI/BackgroundBlur" {
     Properties {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("MainTex", 2D) = "white" {}

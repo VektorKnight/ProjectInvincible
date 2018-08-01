@@ -16,6 +16,9 @@ namespace InvincibleEngine {
         // Constants: Timestep
         public const float FIXED_TIMESTEP = 0.02f;     // Time interval for the fixed timestep update
         public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
+        
+        // Properties: Total number of sim ticks
+        public static int SimTickCount { get; private set; }
 
         // Private: Entity Behaviors
         private HashedArray<EntityBehavior> _entityBehaviors;
@@ -107,6 +110,9 @@ namespace InvincibleEngine {
                 
                 // Subtract delta time from the accumulator
                 _stepAccumulator -= deltaTime;
+                
+                // Increment sim frame count
+                SimTickCount++;
             }
             
             // Invoke the render update callback

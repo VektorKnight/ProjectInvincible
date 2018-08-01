@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
@@ -21,9 +22,13 @@ namespace InvincibleEngine.UnitFramework.Components {
     [RequireComponent(typeof(Outline))]
     [RequireComponent(typeof(LineRenderer))]
     public class UnitBehavior : EntityBehavior, IUnit {
-
         // Constant: Team Layers Start/End
         public static readonly int[] TeamLayerBounds = {11, 18};
+        
+        // Time Slicing
+        protected static readonly int TimeSlicingWindow = (int)(1f / EntityManager.FIXED_TIMESTEP);
+        protected static int[] IntervalBuffer = new int[TimeSlicingWindow];
+        protected static Stack<int> SliceIntervals = new Stack<int>();
 
         // Unity Inspector        
         [Header("General Settings")]
@@ -46,6 +51,9 @@ namespace InvincibleEngine.UnitFramework.Components {
         //Construction
         [SerializeField] public BuildOption[] ConstructionOptions;
         [SerializeField] public UnitBehavior[] BuildOptions;
+        
+        // Protected: Time Slicing
+        protected int SliceIndex;
 
         // Protected: Unit Icon
         protected UnitScreenSprite Icon;
@@ -89,6 +97,9 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Initialization
         public override void OnRegister() {
+            // Calculate time slicing index
+            GetTimeSlice();
+            
             // Reference required components
             UnitRenderer = GetComponentInChildren<MeshRenderer>();
             LineRenderer = GetComponent<LineRenderer>();
@@ -138,10 +149,6 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Calculate the scan layers based on the unit team
             CalculateLayers();
             
-            // Start the scanning routine if necessary
-            if (AutoAcquireTargets)
-                StartCoroutine(nameof(ScanForTargets));
-            
             // Set current health = health
             CurrentHealth = Health;
             
@@ -151,6 +158,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
+            // Run interval update as needed
+            if (EntityManager.SimTickCount % TimeSlicingWindow == SliceIndex)
+                OnIntervalUpdate();
+            
             // Exit if this object is dying
             if (Dying) return;
             
@@ -193,6 +204,79 @@ namespace InvincibleEngine.UnitFramework.Components {
             }
         }
         
+        // Time Slicing Update
+        protected virtual void OnIntervalUpdate() {
+            // Exit if we don't want automatic scanning
+            if (AutoAcquireTargets)
+                ScanForTargets(); 
+        }
+        
+        // Target scanning routine
+        protected virtual void ScanForTargets() {
+            // If we are waiting for a target, initiate a scan
+            if (WaitingForTarget) {
+                // Scan for targets in range
+                CurrentTarget = TargetScanner.ScanForNearestTarget(transform.position, ScanRadius, ScanLayers);
+					
+                // Set waiting flag to true if target found
+                WaitingForTarget = CurrentTarget == null;
+            }
+
+            LineRenderer.enabled = DebugReadout.ShowTargeting;
+				
+            // Make sure the current target is alive
+            if (CurrentTarget != null) {
+                // Update line renderers if necessary
+                if (DebugReadout.ShowTargeting) {
+                    LineRenderer.SetPosition(0, transform.position);
+                    LineRenderer.SetPosition(1, CurrentTarget.transform.position);
+                }
+
+                // Calculate sqr distance to target
+                var sqrTargetDistance = Vector3.SqrMagnitude(transform.position - CurrentTarget.transform.position);
+                    
+                // Check that the target is within range
+                if (sqrTargetDistance > SqrScanRadius) {
+                    // Discard the current target if it's out of range
+                    CurrentTarget = null;
+						
+                    // Set waiting flag to true
+                    WaitingForTarget = true;
+                }
+            }
+            else {
+                if (DebugReadout.ShowTargeting) {
+                    LineRenderer.SetPosition(0, Vector3.zero);
+                    LineRenderer.SetPosition(1, Vector3.zero);
+                }
+
+                if (!WaitingForTarget) 
+                    WaitingForTarget = true;
+            }
+        }
+        
+        // Calculate and set this unit's time slice index
+        protected virtual void GetTimeSlice() {
+            // Populate and shuffle the stack of slices if it's empty
+            if (SliceIntervals.Count == 0) {
+                Debug.Log("Refreshing time slice intervals");
+                // Generate an array of intervals
+                for (var i = 0; i < TimeSlicingWindow; i++)
+                    IntervalBuffer[i] = i;
+                
+                // Shuffle the intervals
+                IntervalBuffer.Shuffle();
+                
+                // Add the shuffled intervals to the stack
+                for (var i = 0; i < IntervalBuffer.Length; i++) {
+                    SliceIntervals.Push(IntervalBuffer[i]);
+                }
+            }
+            
+            // Grab an interval from the stack
+            SliceIndex = SliceIntervals.Pop();
+        }
+        
         // Set this unit's team and update related objects
         public virtual void SetTeam(ETeam team) {
             // Exit if this object is dying
@@ -222,54 +306,6 @@ namespace InvincibleEngine.UnitFramework.Components {
                 
                 // Set the appropriate bit flags
                 ScanLayers = ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int) team);
-            }
-        }
-        
-        // Time slicing coroutine
-        protected virtual IEnumerator ScanForTargets() {
-            while (true) {
-                // If we are waiting for a target, initiate a scan
-                if (WaitingForTarget) {
-                    // Scan for targets in range
-                    CurrentTarget = TargetScanner.ScanForNearestTarget(transform.position, ScanRadius, ScanLayers);
-					
-                    // Set waiting flag to true if target found
-                    WaitingForTarget = CurrentTarget == null;
-                }
-
-                LineRenderer.enabled = DebugReadout.ShowTargeting;
-				
-                // Make sure the current target is alive
-                if (CurrentTarget != null) {
-                    // Update line renderers if necessary
-                    if (DebugReadout.ShowTargeting) {
-                        LineRenderer.SetPosition(0, transform.position);
-                        LineRenderer.SetPosition(1, CurrentTarget.transform.position);
-                    }
-
-                    // Calculate sqr distance to target
-                    var sqrTargetDistance = Vector3.SqrMagnitude(transform.position - CurrentTarget.transform.position);
-                    
-                    // Check that the target is within range
-                    if (sqrTargetDistance > SqrScanRadius) {
-                        // Discard the current target if it's out of range
-                        CurrentTarget = null;
-						
-                        // Set waiting flag to true
-                        WaitingForTarget = true;
-                    }
-                }
-                else {
-                    if (DebugReadout.ShowTargeting) {
-                        LineRenderer.SetPosition(0, Vector3.zero);
-                        LineRenderer.SetPosition(1, Vector3.zero);
-                    }
-
-                    if (!WaitingForTarget) 
-                        WaitingForTarget = true;
-                }
-				
-                yield return ScanInterval;
             }
         }
         

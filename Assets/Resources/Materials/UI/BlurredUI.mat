@@ -66,8 +66,8 @@ Material:
     - PixelSnap: 1
     - _Blur: 0.0087
     - _BlurAmount: 16
-    - _BlurIterations: 6.85
-    - _BlurRadius: 6.5
+    - _BlurIterations: 32
+    - _BlurRadius: 32
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
