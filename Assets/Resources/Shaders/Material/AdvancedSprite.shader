@@ -110,7 +110,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 			fixed4 frag(v2f IN) : SV_Target
 			{
 				fixed4 c = SampleSpriteTexture(IN.texcoord);
-				if (c.a < 0.5) c.a = 0.0;
+				if (c.a < 0.75) c.a = 0.0;
 				c.rgb *= c.a;
 				return c;
 			}

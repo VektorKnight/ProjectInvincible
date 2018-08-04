@@ -90,23 +90,23 @@ namespace InvincibleEngine {
             
             // Step the physics simulation and callback as needed
             while (_stepAccumulator >= FIXED_TIMESTEP) {
-                // Step the simulation by delta time
-                Physics.Simulate(deltaTime);
-
-               //Run economy before any behavior on this tick
+                // Run economy before any behavior on this tick
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
-                    if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
                     behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                 }
 
-                // Invoke the callback on all registered objects
+                // Invoke SIM update callback on all objects
                 // No touchy, leave as a for-loop for optimization
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
-                    if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
                     behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                 }
+                
+                // Simulate physics once callbacks have run
+                Physics.Simulate(deltaTime);
                 
                 // Subtract delta time from the accumulator
                 _stepAccumulator -= deltaTime;
@@ -119,7 +119,7 @@ namespace InvincibleEngine {
             // No touchy, leave as a for-loop for optimization
             for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                 var behavior = _entityBehaviors[i];
-                if (behavior == null || !behavior.Registered || behavior.Terminating) continue;
+                if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
                 behavior.OnRenderUpdate(Time.deltaTime);
             }
         }

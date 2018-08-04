@@ -16,11 +16,23 @@ Shader "InvincibleEngine/Standard/Unit Standard" {
         _Metallic ("Metallic", Range(0, 1)) = 0
         _Gloss ("Gloss", Range(0, 1)) = 0.8
         _EmissionPower ("Emission Power", Float ) = 0
+        _SelectionColor("Selection Color", Color) = (0,0,0,0)
     }
     SubShader {
         Tags {
+            "Queue" = "Geometry-1"
             "RenderType"="Opaque"
+            "Selection" = "ColoredOutline"
         }
+
+        Stencil
+		{
+			Ref 1
+			Comp Always
+			Pass Replace
+			ZFail Keep
+		}
+
         Pass {
             Name "FORWARD"
             Tags {

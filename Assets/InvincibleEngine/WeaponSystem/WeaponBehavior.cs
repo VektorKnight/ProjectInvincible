@@ -31,23 +31,37 @@ namespace InvincibleEngine.WeaponSystem {
 		[SerializeField] protected Transform Muzzle;
 		
 		// Protected: Required References
-		protected UnitBehavior ParentUnit;
+		protected Renderer WeaponRenderer;
+		protected UnitBehavior Parent;
 		
 		// Protected: State
 		protected bool CanFire = true;
 		protected bool ContinuousFire;
 		protected float FireTimer;
 		
-		// OnRegister Callback
-		public override void OnRegister() {
-			// Reference required components
-			ParentUnit = GetComponentInParent<UnitBehavior>();
+		// Protected: Range Checking
+		protected float SqrWeaponRange;
+		
+		// Called by parent UnitBehavior to initialize this weapon
+		public virtual void Initialize(UnitBehavior parent) {
+			// Ensure this object has been registered
+			if (!Registered) Start();
 			
-			// Call base method
-			base.OnRegister();
+			// Reference mesh renderer
+			WeaponRenderer = GetComponentInChildren<MeshRenderer>();
+			
+			// Assign parent reference
+			Parent = parent;
+			
+			// Assign team and glow material properties
+			WeaponRenderer.material.SetColor("_TeamColor", Parent.UnitColor);
+			WeaponRenderer.material.SetColor("_EmissionColor", Parent.UnitColor);
+			
+			// Calculate optimized range check value
+			SqrWeaponRange = ProjectileRange * ProjectileRange;
 		}
 		
-		// OnSimUpdate callback
+		// Sim update callback
 		public override void OnSimUpdate(float fixedDelta, bool isHost) {
 			// Update the fire timer if necessary
 			if (!CanFire) {
@@ -58,24 +72,25 @@ namespace InvincibleEngine.WeaponSystem {
 			}
 			
 			// Control the aiming of the weapon
-			if (ParentUnit.CurrentTarget != null) {
+			if (Parent.CurrentTarget != null) {
 				// Calculate vector and rotation to target
-				var targetVector = (ParentUnit.CurrentTarget.transform.position - Muzzle.position).normalized;
+				var targetVector = (Parent.CurrentTarget.transform.position - Muzzle.position).normalized;
 				var targetRotation = Quaternion.LookRotation(targetVector, transform.up);
 
 				// Rotate weapon towards target
 				transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, AimSpeed * fixedDelta);
 
-				// Fire weapon if we are aimed at the target
-				if (Vector3.Dot(targetVector, Muzzle.forward) > 0.999f)
-					FireOnce();
+				// Fire weapon if we are aimed at the target and the target is within range
+				var sqrTargetDistance = Vector3.SqrMagnitude(Parent.CurrentTarget.transform.position - Muzzle.position);
+				var aimDotP = Vector3.Dot(targetVector, Muzzle.forward);
+				if ( aimDotP > 0.999f && sqrTargetDistance <= SqrWeaponRange) TryFire();
 			}
 			else {
 				// Calculate aim rotation aligned with unit forward vector
-				//var targetRotation = Quaternion.LookRotation(ParentUnit.transform.forward, transform.up);
+				var targetRotation = Quaternion.LookRotation(Parent.transform.forward, transform.up);
 				
 				// Slerp weapon rotation towards target vector
-				//transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, AimSpeed * fixedDelta);
+				transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, (AimSpeed / 4f) * fixedDelta);
 			}
 			
 			// Call base method
@@ -83,23 +98,15 @@ namespace InvincibleEngine.WeaponSystem {
 		}
 		
 		// Called to enable/disable the weapon
-		public void SetEnabled(bool state) {
-			
+		public virtual void SetEnabled(bool state) {
+			// TODO: Not yet implemented
 		}
 		
 		// Fires a projectile from this weapon's muzzle
 		protected virtual void FireProjectile() {
-			
-		}
-
-		// Called to try and fire the weapon immediately
-		public bool FireOnce() {
-			// Exit if we cannot fire
-			if (!CanFire) return false;
-			
 			// Instantiate and initialize the projectile at the muzzle position
 			var projectile = ObjectManager.GetObject(Projectile.gameObject, Muzzle.position, Muzzle.rotation);
-			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileDamage, ProjectileRange, ParentUnit.ScanLayers);
+			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileDamage, ProjectileRange, Parent.ScanLayers);
 			
 			// Try to play the fire sound effect
 			if (FireSound != null)
@@ -108,6 +115,15 @@ namespace InvincibleEngine.WeaponSystem {
 			// Play the muzzle flash particle system
 			if (MuzzleFlash != null)
 				MuzzleFlash.Play();
+		}
+
+		// Called to try and fire the weapon immediately
+		public virtual bool TryFire() {
+			// Exit if we cannot fire
+			if (!CanFire) return false;
+			
+			// Fire a projectile
+			FireProjectile();
 			
 			// Reset the timer
 			FireTimer = FireInterval;
@@ -118,8 +134,8 @@ namespace InvincibleEngine.WeaponSystem {
 		}
 		
 		// Called to start/end continuous fire
-		public void SetContinuousFire(bool state) {
-			
+		public virtual void SetContinuousFire(bool state) {
+			// TODO: Not yet implemented, fight me
 		}
 	}
 }

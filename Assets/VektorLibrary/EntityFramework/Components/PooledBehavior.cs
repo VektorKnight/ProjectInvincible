@@ -4,7 +4,7 @@ using VektorLibrary.EntityFramework.Interfaces;
 using VektorLibrary.EntityFramework.Singletons;
 
 namespace VektorLibrary.EntityFramework.Components {
-    public abstract class PooledBehavior : EntityBehavior, IPoolable {
+    public class PooledBehavior : EntityBehavior, IPoolable {
         // Unity Inspector
         [Header("Pooled Object Settings")] 
         [SerializeField] protected bool AutoDespawn;

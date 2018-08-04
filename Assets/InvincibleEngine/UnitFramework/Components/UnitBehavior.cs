@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using InvincibleEngine.CameraSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
 using InvincibleEngine.UnitFramework.Utility;
+using InvincibleEngine.WeaponSystem;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
 using VektorLibrary.Utility;
-using SteamNet;
-using Outline = cakeslice.Outline;
+using VektorLibrary.EntityFramework.Singletons;
 using Random = UnityEngine.Random;
-using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 
 namespace InvincibleEngine.UnitFramework.Components {
     /// <summary>
     /// Base class for all unit behaviors.
     /// Base methods for this class should be called first in any overrides.
     /// </summary>
-    [RequireComponent(typeof(Outline))]
-    [RequireComponent(typeof(LineRenderer))]
     public class UnitBehavior : EntityBehavior, IUnit {
         // Constant: Team Layers Start/End
         public static readonly int[] TeamLayerBounds = {11, 18};
@@ -40,10 +36,13 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private Sprite _iconSprite;
         [SerializeField] private Sprite _healthSprite;
 
-        [Header("Target Acquisition")] 
+        [Header("Weapon & Combat")] 
+        [SerializeField] protected bool AutoSpawnWeapon;
+        [SerializeField] protected WeaponBehavior WeaponPrefab;
+        [SerializeField] protected Transform WeaponAnchor;
         [SerializeField] protected bool AutoAcquireTargets;
+        [SerializeField] protected TargetingMode TargetingMode = UnitFramework.TargetingMode.Random;
         [SerializeField] protected float ScanRadius = 50f;
-        [SerializeField] protected Vector2 ScanIntervalRange = new Vector2(0.2f, 0.4f);
 
         [Header("Destruction Aesthetics")] 
         [SerializeField] protected ParticleSystem DeathEffect;
@@ -61,13 +60,12 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Protected: Component References
         protected MeshRenderer UnitRenderer;
-        protected LineRenderer LineRenderer;
-        protected Outline SelectionIndicator;
         
         // Protected: Command Processing
         protected CommandParser CommandParser = new CommandParser();
         
-        // Protected: Target Acquisition
+        // Protected: Weapons & Combat
+        protected WeaponBehavior WeaponReference;
         protected WaitForSeconds ScanInterval;
         protected bool WaitingForTarget = true;
         protected float SqrScanRadius;
@@ -102,18 +100,11 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Reference required components
             UnitRenderer = GetComponentInChildren<MeshRenderer>();
-            LineRenderer = GetComponent<LineRenderer>();
-            SelectionIndicator = GetComponent<Outline>();
-            
-            // Initialize line renderer
-            LineRenderer.useWorldSpace = true;
-            LineRenderer.positionCount = 2;
-            LineRenderer.startColor = TeamColor.GetTeamColor(UnitTeam);
-            LineRenderer.endColor = TeamColor.GetTeamColor(UnitTeam);
             
             // Fetch team color from team
             UnitColor = TeamColor.GetTeamColor(UnitTeam);
             UnitRenderer.material.SetColor("_TeamColor", UnitColor);
+            UnitRenderer.material.SetColor("_EmissionColor", UnitColor);
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {            
@@ -137,17 +128,26 @@ namespace InvincibleEngine.UnitFramework.Components {
                 ScreenSpriteManager.AppendSprite(HealthBar);
                 HealthBar.SetSelected(false);
             }
-
-            // Deactivate the indicator object if not null
-            if (SelectionIndicator != null)
-                SelectionIndicator.enabled = false;
             
             // Initialize the target scanner and supporting objects
-            ScanInterval = new WaitForSeconds(Random.Range(ScanIntervalRange.x, ScanIntervalRange.y));
             SqrScanRadius = ScanRadius * ScanRadius;
             
             // Calculate the scan layers based on the unit team
             CalculateLayers();
+            
+            // Spawn in and initialize the weapon prefab if enabled
+            if (AutoSpawnWeapon) {
+                // Check for improper config
+                if (WeaponAnchor == null) {
+                    Debug.LogWarning("The weapon anchor on this unit has not been set!\n" +
+                                     "Will use object origin instead.");
+                    WeaponAnchor = transform;
+                }
+                
+                // Instantiate and initialize the weapon
+                WeaponReference = Instantiate(WeaponPrefab, WeaponAnchor.position, Quaternion.identity);
+                WeaponReference.Initialize(this);
+            }
             
             // Set current health = health
             CurrentHealth = Health;
@@ -177,6 +177,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         public override void OnRenderUpdate(float deltaTime) {
             // Exit if this object is dying
             if (Dying) return;
+            
+            // Update weapon position if necessary
+            if (WeaponReference != null)
+                WeaponReference.transform.position = WeaponAnchor.transform.position;
             
             // Update icon screen position
             if (Icon != null) {
@@ -216,22 +220,14 @@ namespace InvincibleEngine.UnitFramework.Components {
             // If we are waiting for a target, initiate a scan
             if (WaitingForTarget) {
                 // Scan for targets in range
-                CurrentTarget = TargetScanner.ScanForNearestTarget(transform.position, ScanRadius, ScanLayers);
+                CurrentTarget = TargetScanner.ScanForTarget(transform.position, ScanRadius, ScanLayers, TargetingMode);
 					
                 // Set waiting flag to true if target found
                 WaitingForTarget = CurrentTarget == null;
             }
 
-            LineRenderer.enabled = DebugReadout.ShowTargeting;
-				
             // Make sure the current target is alive
             if (CurrentTarget != null) {
-                // Update line renderers if necessary
-                if (DebugReadout.ShowTargeting) {
-                    LineRenderer.SetPosition(0, transform.position);
-                    LineRenderer.SetPosition(1, CurrentTarget.transform.position);
-                }
-
                 // Calculate sqr distance to target
                 var sqrTargetDistance = Vector3.SqrMagnitude(transform.position - CurrentTarget.transform.position);
                     
@@ -245,11 +241,6 @@ namespace InvincibleEngine.UnitFramework.Components {
                 }
             }
             else {
-                if (DebugReadout.ShowTargeting) {
-                    LineRenderer.SetPosition(0, Vector3.zero);
-                    LineRenderer.SetPosition(1, Vector3.zero);
-                }
-
                 if (!WaitingForTarget) 
                     WaitingForTarget = true;
             }
@@ -313,12 +304,9 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Exit if this object is dying
             if (Dying) return;
             
-            // Show selection indicator if icons are not rendered
-            SelectionIndicator.enabled = true;
-            
             // Set icon state to selected
             Icon.SetSelected(true);
-            
+            UnitRenderer.material.SetColor("_SelectionColor", Color.white);
             // Set selected flag
             Selected = true;
         }
@@ -328,13 +316,9 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Exit if this object is dying
             if (Dying) return;
             
-            // Hide selection indicator
-            if (SelectionIndicator != null)
-                SelectionIndicator.enabled = false;
-            
             // Set icon state to unselected
             Icon?.SetSelected(false);
-            
+            UnitRenderer.material.SetColor("_SelectionColor", Color.black);
             // Set selected flag
             Selected = false;
         }
@@ -370,9 +354,12 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Instantiate the death particle effect
             if (DeathEffect != null) {
-                var deathEffect = Instantiate(DeathEffect, transform.position, Quaternion.identity);
-                deathEffect.Play();
+                var deathEffect = ObjectManager.GetObject(DeathEffect.gameObject, transform.position, Quaternion.identity);
             }
+            
+            // Destroy this unit's weapon if necessary
+            if (WeaponReference != null)
+                Destroy(WeaponReference.gameObject);
             
             // Destroy this unit's icon object if necessary
             if (Icon != null)

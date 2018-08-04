@@ -32,12 +32,23 @@ namespace InvincibleEngine.WeaponSystem {
             base.OnRegister();
         }
         
-        // Sets this projectile's config
+        // Cancel the base behavior of this method
+        // The despawn time must be calculated for projectiles
+        public override void OnRetrieved() { }
+
+        // Called by a weapon to set the config values for this projectile
         public virtual void Initialize(float velocity, float damage, float range, LayerMask collisionMask) {
             CollisionMask = collisionMask;
             Velocity = velocity;
             Damage = damage;
             Range = range;
+            
+            // Calculate despawn time based on range
+            DespawnTime = Range / Velocity;
+            
+            // Invoke return to pool function
+            if (AutoDespawn) 
+                Invoke(nameof(ReturnToPool), DespawnTime);
         }
     }
 }

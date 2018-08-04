@@ -19,7 +19,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4874692807865004}
-  - component: {fileID: 114383365388920480}
   - component: {fileID: 120815015143815700}
   - component: {fileID: 114692333684541016}
   m_Layer: 0
@@ -248,19 +247,6 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1290587417636508}
   m_Mesh: {fileID: 4300002, guid: 502d0bfa3a7115c458378ce14800aa06, type: 3}
---- !u!114 &114383365388920480
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1151602042146494}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbf3575480402db40813e763382412fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  color: 0
-  eraseRenderer: 0
 --- !u!114 &114692333684541016
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -272,9 +258,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff203a0b605c6e749bf8777d5a60a19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerOwner: -1
+  PlayerOwner:
+    m_SteamID: 0
   _unitType: 0
   Health: 100
+  _cost: 100
   _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
   AutoAcquireTargets: 0

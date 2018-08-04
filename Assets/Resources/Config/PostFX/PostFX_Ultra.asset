@@ -35,7 +35,7 @@ MonoBehaviour:
     value: 1.5
   threshold:
     overrideState: 1
-    value: 1
+    value: 0.75
   softKnee:
     overrideState: 1
     value: 0.5
@@ -47,7 +47,7 @@ MonoBehaviour:
     value: 6
   anamorphicRatio:
     overrideState: 1
-    value: 0
+    value: 1
   color:
     overrideState: 0
     value: {r: 1, g: 1, b: 1, a: 1}
@@ -157,7 +157,7 @@ MonoBehaviour:
     value: {fileID: 0}
     defaultState: 4
   ldrLutContribution:
-    overrideState: 1
+    overrideState: 0
     value: 1
   temperature:
     overrideState: 1

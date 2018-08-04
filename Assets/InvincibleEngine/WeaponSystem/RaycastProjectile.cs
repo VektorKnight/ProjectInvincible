@@ -1,9 +1,10 @@
 ﻿using InvincibleEngine.UnitFramework.Components;
 using UnityEngine;
+using VektorLibrary.EntityFramework.Singletons;
 
 namespace InvincibleEngine.WeaponSystem {
     /// <summary>
-    /// Projectile type which uses a linecast to a target;
+    /// Base class for fake projectiles using raycasts.
     /// </summary>
     [RequireComponent(typeof(LineRenderer))]
     public class RaycastProjectile : ProjectileBehavior {
@@ -74,7 +75,7 @@ namespace InvincibleEngine.WeaponSystem {
                 // Calculate where to instantiate the impact effect
                 var pos = rayHit.point - (transform.forward * 0.125f);
                 var rot = Quaternion.FromToRotation(Vector3.forward, -transform.forward);
-                Instantiate(ImpactEffect,pos, rot);
+                ObjectManager.GetObject(ImpactEffect.gameObject, pos, rot);
             }
             else {
                 // Set up projectile aesthetics

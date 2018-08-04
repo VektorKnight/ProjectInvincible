@@ -158,6 +158,13 @@ namespace InvincibleEngine.AudioSystem {
             if (!Instance._uniqueClips.ContainsKey(clip)) Instance._uniqueClips.Add(clip, 0);
             if (!(Instance._uniqueClips[clip] < MAX_INSTANCES_PER_CLIP)) return false;
             
+            // Randomly choose who gets a source if we're close to the limit
+            var utilization = Instance._uniqueClips[clip] / MAX_INSTANCES_PER_CLIP;
+            if (utilization >= 0.5f) {
+                var random = Random.Range(0, 1);
+                if (random == 0) return false;
+            }
+            
             // Pop a source ID from the stack
             var sourceID = Instance._spatialSources.Pop();
             var audioSource = Instance._audioSources[sourceID];

@@ -55,8 +55,8 @@ GameObject:
   - component: {fileID: 4000010212820824}
   - component: {fileID: 198000012777718758}
   - component: {fileID: 199000010553669322}
-  - component: {fileID: 114758129915458440}
   - component: {fileID: 114988482720686124}
+  - component: {fileID: 114588438517315106}
   m_Layer: 0
   m_Name: Pfx_UnitDeath_Medium
   m_TagString: Untagged
@@ -167,7 +167,7 @@ Transform:
   m_Father: {fileID: 4000010212820824}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114758129915458440
+--- !u!114 &114588438517315106
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -175,11 +175,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000011797152326}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 37fac21d1f093d344816942d1abce94e, type: 3}
+  m_Script: {fileID: 11500000, guid: ce4f20a7acdb4a51a6aa94d863d6db4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_TimeOut: 4
-  m_DetachChildren: 0
+  PlayerOwner:
+    m_SteamID: 0
+  AutoDespawn: 1
+  DespawnTime: 4
 --- !u!114 &114988482720686124
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -191,7 +193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba1c79da60ef45b8b2958ca148f579b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerOwner: -1
+  PlayerOwner:
+    m_SteamID: 0
   _clip: {fileID: 8300000, guid: a8557c81454064c4689238dd2f059337, type: 3}
   _volume: 0.75
   _pitch: 0
@@ -4661,7 +4664,7 @@ ParticleSystem:
   lengthInSec: 4
   simulationSpeed: 1
   stopAction: 0
-  looping: 1
+  looping: 0
   prewarm: 0
   playOnAwake: 1
   useUnscaledTime: 0
@@ -5390,7 +5393,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 12
+        scalar: 4
         minScalar: 100
         maxCurve:
           serializedVersion: 2
