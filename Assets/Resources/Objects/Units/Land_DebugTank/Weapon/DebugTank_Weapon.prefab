@@ -162,7 +162,7 @@ MonoBehaviour:
   AimSpeed: 90
   Projectile: {fileID: 114282919331511734, guid: 1d4bec13696fbab48bae018b084f8104,
     type: 2}
-  ProjectileVelocity: 100
+  ProjectileVelocity: 75
   ProjectileGravity: -19.62
   ProjectileDamage: 20
   ProjectileRange: 100

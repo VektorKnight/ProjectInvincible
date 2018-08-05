@@ -190,7 +190,7 @@ namespace InvincibleEngine.UnitFramework.Components {
 
             // Update healthbar screen position and fill
             if (HealthBar != null) {
-                HealthBar.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position) + (Vector2.up * 32f));
+                HealthBar.SetScreenPosition(InvincibleCamera.GetScreenPosition(transform.position) + (Vector2.down * 32f));
                 HealthBar.SetScale(new Vector2(CurrentHealth / Health, 1f));
                 HealthBar.SetRender(InvincibleCamera.HealthBarsRendered);
             }

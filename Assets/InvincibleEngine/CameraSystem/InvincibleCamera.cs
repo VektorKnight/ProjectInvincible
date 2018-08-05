@@ -58,7 +58,8 @@ namespace InvincibleEngine.CameraSystem {
         private Plane[] _frustrumPlanes;
         
         // Private: Input
-        private Vector4 _inputValues;
+        private Vector3 _mouseInput;
+        private Vector3 _controlValues;
         private float _zoomValue, _refV;
         private Vector2 _mousePrevious;
         private MouseData _mouseData;
@@ -159,10 +160,15 @@ namespace InvincibleEngine.CameraSystem {
             
             // Update current mouse position
             _mouseData.ScreenPosition = Input.mousePosition;
+            
+            // Update mouse input values
+            _mouseInput.x = Input.GetAxis("Mouse X");
+            _mouseInput.y = Input.GetAxis("Mouse Y");
+            _mouseInput.z = Input.GetAxis("Mouse ScrollWheel");
            
             // Update icon canvas rendering
-            _iconsRendered = _zoomValue <= _iconThreshold;
-            _healthBarsRendered = _zoomValue >= _healthBarThreshold;
+            _iconsRendered = _zoomValue <= _iconThreshold && !_orbitMode;
+            _healthBarsRendered = _zoomValue >= _healthBarThreshold && !_orbitMode;
             
             // Check for orbit mode start
             if (Input.GetKeyDown(KeyCode.Space)) {
@@ -190,10 +196,10 @@ namespace InvincibleEngine.CameraSystem {
             }
             
             // Check for continuing orbit mode input
-            if (_orbitMode && Input.GetKey(KeyCode.Space)) {
+            if (_orbitMode && Input.GetKey(KeyCode.Space) && !Input.GetKey(KeyCode.Mouse2)) {
                 // Calculate rotation angles
-                _orbitInput.x += -Input.GetAxis("Mouse Y") * _panSpeed * Time.deltaTime;
-                _orbitInput.y += Input.GetAxis("Mouse X") * _panSpeed * Time.deltaTime;
+                _orbitInput.x += -_mouseInput.y * _panSpeedRange.x * Time.deltaTime;
+                _orbitInput.y += _mouseInput.x * _panSpeedRange.x * Time.deltaTime;
                 
                 // Clamp pitch value (x) to specified boundaries
                 _orbitInput.x = Mathf.Clamp(_orbitInput.x, _pitchRangeOrbit.x, _pitchRangeOrbit.y);
@@ -218,21 +224,19 @@ namespace InvincibleEngine.CameraSystem {
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
                 // Apply low-pass filtering to mouse deltas
-                //_smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x) * (_panSpeed / 8f) * Time.deltaTime);
-                //_smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y) * (_panSpeed / 8f) * Time.deltaTime);
-                _smoothX.AddSample((_mousePrevious.x - _mouseData.ScreenPosition.x));
-                _smoothY.AddSample((_mousePrevious.y - _mouseData.ScreenPosition.y));
+                _smoothX.AddSample(-_mouseInput.x);
+                _smoothY.AddSample(-_mouseInput.y);
                 
                 // Create delta value from low-pass values
                 var mouseDelta = new Vector3(_smoothX, 0f, _smoothY);
                 
                 // Apply delta to rig transform
-                transform.position += mouseDelta;
+                transform.position += Quaternion.Euler(0f, transform.eulerAngles.y, 0f) * mouseDelta;
             }
             else {
                 // Get pan input values from keyboard
-                _inputValues.x = Input.GetAxis("Horizontal") * _panSpeed * Time.deltaTime;
-                _inputValues.z = Input.GetAxis("Vertical") * _panSpeed * Time.deltaTime;
+                _controlValues.x = Input.GetAxis("Horizontal") * _panSpeed * Time.deltaTime;
+                _controlValues.z = Input.GetAxis("Vertical") * _panSpeed * Time.deltaTime;
                 
                 // Check for edge scroll if enabled
                 if (_enableEdgeScroll) {
@@ -255,7 +259,7 @@ namespace InvincibleEngine.CameraSystem {
             _mousePrevious = _mouseData.ScreenPosition;
             
             // Get zoom input values
-            _inputValues.w = Mathf.SmoothDamp(_inputValues.w, Input.GetAxis("Mouse ScrollWheel"), ref _refV, _zoomSmoothing);
+            _controlValues.y = Mathf.SmoothDamp(_controlValues.y, _mouseInput.z, ref _refV, _zoomSmoothing);
             _zoomValue = Mathf.Clamp01(1f - (transform.position.y - _heightRange.x) / (_heightRange.y - _heightRange.x));
             
             // Interpolate control values
@@ -263,13 +267,13 @@ namespace InvincibleEngine.CameraSystem {
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
             // Zoom to cursor if enabled, input is valid, and we are not in orbit mode
-            if (_zoomToCursor && (int)Mathf.Sign(_inputValues.w) != 0 && !_orbitMode) {
+            if (_zoomToCursor && (int)Mathf.Sign(_controlValues.y) != 0 && !_orbitMode) {
 
                 // Calculate direction to cursor world position
                 var mouseDirection = MouseData.WorldPosition - transform.position;
 
                 // Calculate movement vector
-                var movementVector = mouseDirection.normalized * _inputValues.w * _zoomSpeed;
+                var movementVector = mouseDirection.normalized * _controlValues.y * _zoomSpeed;
                 
                 // Cancel X/Z deltas if we are fully zoomed in or out
                 if (Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon || Math.Abs(transform.position.y - _heightRange.y) < float.Epsilon)
@@ -280,9 +284,9 @@ namespace InvincibleEngine.CameraSystem {
             }
 
             // Apply input values to rig transform and clamp height
-            transform.position = new Vector3(transform.position.x + _inputValues.x, 
+            transform.position = new Vector3(transform.position.x + _controlValues.x, 
                                              Mathf.Clamp(transform.position.y, _heightRange.x, _heightRange.y), 
-                                             transform.position.z + _inputValues.z);
+                                             transform.position.z + _controlValues.z);
             
             // Calculate camera z-offset with trig to correct for parallax error (black magic)
             _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * transform.position.y;

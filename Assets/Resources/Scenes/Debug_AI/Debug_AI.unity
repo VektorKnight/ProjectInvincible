@@ -3755,7 +3755,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerOwner:
     m_SteamID: 0
-  _heightRange: {x: 20, y: 500}
+  _heightRange: {x: 10, y: 500}
   _pitchRange: {x: 60, y: 90}
   _pitchRangeOrbit: {x: 0, y: 90}
   _orbitModeMaximum: 0.25
