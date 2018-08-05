@@ -20,6 +20,10 @@ namespace VektorLibrary.Utility {
             return angles;
         }
         
+        public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles) {
+            return Quaternion.Euler(angles) * (point - pivot) + pivot;
+        }
+        
         // Shuffles a list
         public static void Shuffle<T>(this IList<T> list) {
             var n = list.Count;

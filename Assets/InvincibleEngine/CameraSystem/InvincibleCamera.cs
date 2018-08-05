@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using InvincibleEngine.DataTypes;
 using InvincibleEngine.UnitFramework.Components;
@@ -68,6 +67,14 @@ namespace InvincibleEngine.CameraSystem {
         private LowPassFloat _smoothX;
         private LowPassFloat _smoothY;
         
+        // Private: Orbit Mode
+        private bool _orbitMode;
+        private Vector3 _orbitPivot;
+        private Vector2 _orbitInput;
+        private Vector3 _originalPosition;
+        private Vector3 _originalCameraPosition;
+        private Quaternion _originalRotation;
+        
         // Private: Icon Rendering
         private Canvas _iconCanvas;
         private bool _iconsRendered;
@@ -135,7 +142,7 @@ namespace InvincibleEngine.CameraSystem {
 
             // Perform a raycast from the mouse position to the game world
             RaycastHit rayHit;
-            var hasHit = Physics.Raycast(mouseRay, out rayHit, 1024, _geometryMask);
+            var hasHit = Physics.Raycast(mouseRay, out rayHit, 2048, _geometryMask);
 
             // Update the mouse world position if the raycast hit something
             _mouseData.WorldPosition = hasHit ? rayHit.point : transform.position;
@@ -156,6 +163,57 @@ namespace InvincibleEngine.CameraSystem {
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold;
             _healthBarsRendered = _zoomValue >= _healthBarThreshold;
+            
+            // Check for orbit mode start
+            if (Input.GetKeyDown(KeyCode.Space)) {
+                // Lock the cursor
+                Cursor.lockState = CursorLockMode.Locked;
+                
+                // Set initial orbit mode control values
+                _orbitInput.x = _pitchValue;
+                _orbitInput.y = 0f;
+                
+                // Cache current transform values and world position at center of view
+                _originalCameraPosition = _camera.transform.position;
+                _originalPosition = transform.position;
+                _originalRotation = transform.rotation;
+                _orbitPivot = _mouseData.WorldPosition;
+                
+                // Convert the camera setup to a 3rd person configuration
+                transform.position = _orbitPivot;
+                transform.rotation = Quaternion.Euler(_orbitInput.x, _orbitInput.y, 0f);
+                _camera.transform.localPosition = transform.InverseTransformPoint(_originalCameraPosition);
+                _camera.transform.localRotation = Quaternion.identity;
+                
+                // Set orbit mode flag
+                _orbitMode = true;
+            }
+            
+            // Check for continuing orbit mode input
+            if (_orbitMode && Input.GetKey(KeyCode.Space)) {
+                // Calculate rotation angles
+                _orbitInput.x += -Input.GetAxis("Mouse Y") * _panSpeed * Time.deltaTime;
+                _orbitInput.y += Input.GetAxis("Mouse X") * _panSpeed * Time.deltaTime;
+                
+                // Clamp pitch value (x) to specified boundaries
+                _orbitInput.x = Mathf.Clamp(_orbitInput.x, _pitchRangeOrbit.x, _pitchRangeOrbit.y);
+                
+                // Generate quaternion rotation from orbit rotation angles and apply it
+                transform.rotation = Quaternion.Euler(_orbitInput.x, _orbitInput.y, 0f);
+            }
+            
+            // Check for orbit mode end
+            if (_orbitMode && Input.GetKeyUp(KeyCode.Space)) {
+                // Lock the cursor
+                Cursor.lockState = CursorLockMode.None;
+                
+                // Assign original transform values
+                transform.position = _originalPosition;
+                transform.rotation = _originalRotation;
+                
+                // Set orbit mode flag
+                _orbitMode = false;
+            }
 
             // Branch for pan controls (mouse vs keyboard)
             if (Input.GetMouseButton(2)) {
@@ -204,8 +262,8 @@ namespace InvincibleEngine.CameraSystem {
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
-            // Zoom to cursor if enabled and input is valid
-            if (_zoomToCursor && (int)Mathf.Sign(_inputValues.w) != 0) {
+            // Zoom to cursor if enabled, input is valid, and we are not in orbit mode
+            if (_zoomToCursor && (int)Mathf.Sign(_inputValues.w) != 0 && !_orbitMode) {
 
                 // Calculate direction to cursor world position
                 var mouseDirection = MouseData.WorldPosition - transform.position;
@@ -230,6 +288,7 @@ namespace InvincibleEngine.CameraSystem {
             _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * transform.position.y;
             
             // Apply desired rotation based on height to camera transform
+            if (_orbitMode) return;
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
             _camera.transform.localPosition = Vector3.forward * _zOffset;
         }

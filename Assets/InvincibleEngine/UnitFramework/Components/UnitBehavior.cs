@@ -220,7 +220,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             // If we are waiting for a target, initiate a scan
             if (WaitingForTarget) {
                 // Scan for targets in range
-                CurrentTarget = TargetScanner.ScanForTarget(transform.position, ScanRadius, ScanLayers, TargetingMode);
+                CurrentTarget = ObjectScanner.ScanForObject<UnitBehavior>(transform.position, ScanRadius, ScanLayers, TargetingMode);
 					
                 // Set waiting flag to true if target found
                 WaitingForTarget = CurrentTarget == null;

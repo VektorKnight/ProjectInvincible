@@ -32,9 +32,9 @@ namespace InvincibleEngine.WeaponSystem {
         }
         
         // Initialize the projectile
-        public override void Initialize(float velocity, float damage, float range, LayerMask collisionMask) {
+        public override void Initialize(float velocity, float gravity, float damage, float range, LayerMask collisionMask) {
             // Call base method
-            base.Initialize(velocity, damage, range, collisionMask);
+            base.Initialize(velocity, gravity, damage, range, collisionMask);
             
             // Create raycast
             CreateRaycast();

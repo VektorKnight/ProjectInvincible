@@ -163,6 +163,7 @@ MonoBehaviour:
   Projectile: {fileID: 114282919331511734, guid: 1d4bec13696fbab48bae018b084f8104,
     type: 2}
   ProjectileVelocity: 100
+  ProjectileGravity: -19.62
   ProjectileDamage: 20
   ProjectileRange: 100
   FireSound: {fileID: 8300000, guid: b98329077222e984d9471c7bac63eea3, type: 3}

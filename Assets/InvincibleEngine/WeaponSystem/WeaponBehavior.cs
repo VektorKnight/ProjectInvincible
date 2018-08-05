@@ -19,7 +19,8 @@ namespace InvincibleEngine.WeaponSystem {
 
 		[Header("Projectile Settings")] 
 		[SerializeField] protected ProjectileBehavior Projectile;
-		[SerializeField] protected float ProjectileVelocity;	// Ignored for linecast and raycast projectiles
+		[SerializeField] protected float ProjectileVelocity;	// Ignored for raycast projectiles
+		[SerializeField] protected float ProjectileGravity;		// Ignored for raycast and propelled projectiles
 		[SerializeField] protected float ProjectileDamage;
 		[SerializeField] protected float ProjectileRange;		// Ignored for physical projectiles
 
@@ -74,7 +75,8 @@ namespace InvincibleEngine.WeaponSystem {
 			// Control the aiming of the weapon
 			if (Parent.CurrentTarget != null) {
 				// Calculate vector and rotation to target
-				var targetVector = (Parent.CurrentTarget.transform.position - Muzzle.position).normalized;
+				//var targetVector = (Parent.CurrentTarget.transform.position - Muzzle.position).normalized;
+				var targetVector = Ballistics.AimVectorArc(Muzzle.position, Parent.CurrentTarget.transform.position, ProjectileVelocity, ProjectileGravity);
 				var targetRotation = Quaternion.LookRotation(targetVector, transform.up);
 
 				// Rotate weapon towards target
@@ -106,7 +108,7 @@ namespace InvincibleEngine.WeaponSystem {
 		protected virtual void FireProjectile() {
 			// Instantiate and initialize the projectile at the muzzle position
 			var projectile = ObjectManager.GetObject(Projectile.gameObject, Muzzle.position, Muzzle.rotation);
-			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileDamage, ProjectileRange, Parent.ScanLayers);
+			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileGravity, ProjectileDamage, ProjectileRange, Parent.ScanLayers);
 			
 			// Try to play the fire sound effect
 			if (FireSound != null)

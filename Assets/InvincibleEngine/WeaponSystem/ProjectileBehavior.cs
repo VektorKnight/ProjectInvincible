@@ -20,6 +20,7 @@ namespace InvincibleEngine.WeaponSystem {
         // Protected: Config
         protected LayerMask CollisionMask;
         protected float Velocity;
+        protected float Gravity;
         protected float Damage; 
         protected float Range;
         
@@ -37,9 +38,10 @@ namespace InvincibleEngine.WeaponSystem {
         public override void OnRetrieved() { }
 
         // Called by a weapon to set the config values for this projectile
-        public virtual void Initialize(float velocity, float damage, float range, LayerMask collisionMask) {
+        public virtual void Initialize(float velocity, float gravity, float damage, float range, LayerMask collisionMask) {
             CollisionMask = collisionMask;
             Velocity = velocity;
+            Gravity = gravity;
             Damage = damage;
             Range = range;
             

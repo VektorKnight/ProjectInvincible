@@ -14,7 +14,6 @@ namespace InvincibleEngine.WeaponSystem {
         // Unity Inspector
         [Header("Physical Traits")]
         [SerializeField] protected float Radius = 0.25f;
-        [SerializeField] protected float Gravity = 0f;
         
         // Protected: Required Components
         protected TrailRenderer ProjectileTrail;
@@ -32,6 +31,9 @@ namespace InvincibleEngine.WeaponSystem {
         
         // Sim Update
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
+            // Apply acceleration due to gravity
+            CurrentVelocity += Vector3.up * Gravity * fixedDelta;
+            
             // Apply current velocity to position
             transform.position += CurrentVelocity * fixedDelta;
             
@@ -74,9 +76,9 @@ namespace InvincibleEngine.WeaponSystem {
         }
         
         // Projectile initialization
-        public override void Initialize (float velocity, float damage, float range, LayerMask collisionMask) {
+        public override void Initialize (float velocity, float gravity, float damage, float range, LayerMask collisionMask) {
             // Call base method
-            base.Initialize(velocity, damage, range, collisionMask);
+            base.Initialize(velocity, gravity, damage, range, collisionMask);
             
             // Reset the trail renderer state
             ProjectileTrail.Clear();
