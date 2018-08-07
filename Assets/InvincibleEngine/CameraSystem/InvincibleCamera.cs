@@ -23,6 +23,7 @@ namespace InvincibleEngine.CameraSystem {
         [SerializeField] private Vector2 _pitchRange = new Vector2(60f, 90f);
 
         [Header("Camera View (Orbital)")] 
+        [SerializeField] private Vector2 _heightRangeOrbit = new Vector2(1f, 200f);
         [SerializeField] private Vector2 _pitchRangeOrbit = new Vector2(0f, 90f);
         [SerializeField] private float _orbitModeMaximum = 0.25f;
 
@@ -61,7 +62,6 @@ namespace InvincibleEngine.CameraSystem {
         private Vector3 _mouseInput;
         private Vector3 _controlValues;
         private float _zoomValue, _refV;
-        private Vector2 _mousePrevious;
         private MouseData _mouseData;
         
         // Private: Mouse Smoothing
@@ -75,6 +75,8 @@ namespace InvincibleEngine.CameraSystem {
         private Vector3 _originalPosition;
         private Vector3 _originalCameraPosition;
         private Quaternion _originalRotation;
+        private Vector3 _orbitMinPoint;
+        private Vector3 _orbitMaxPoint;
         
         // Private: Icon Rendering
         private Canvas _iconCanvas;
@@ -110,6 +112,10 @@ namespace InvincibleEngine.CameraSystem {
             _camera.transform.localPosition = Vector3.zero;
             _camera.transform.localRotation = Quaternion.identity;
             
+            // Calculate orbit mode min/max camera bounds
+            _orbitMinPoint = Vector3.back * _heightRangeOrbit.x;
+            _orbitMaxPoint = Vector3.back * _heightRangeOrbit.y;
+            
             // Initialize frustrum planes array
             _frustrumPlanes = new Plane[6];
             
@@ -119,8 +125,6 @@ namespace InvincibleEngine.CameraSystem {
             
             // Initialize on-screen objects set
             _visibleObjects = new HashSet<UnitBehavior>();
-            
-            DebugReadout.AddField("Visible Units");
             
             // Call base method
             base.OnRegister();
@@ -153,7 +157,9 @@ namespace InvincibleEngine.CameraSystem {
         // Render Update Callback
         public override void OnRenderUpdate(float deltaTime) {
             // Update debug readout
-            DebugReadout.UpdateField("Visible Units", VisibleObjects.Count.ToString());
+            DebugReadout.UpdateField("[Cam] Visible Units", VisibleObjects.Count.ToString());
+            DebugReadout.UpdateField("[Cam] Zoom level", $"{ZoomLevel:n1}");
+            DebugReadout.UpdateField("[Cam] View Angle", $"{_pitchValue:n0}");
             
             // Update frustrum planes
             GeometryUtility.CalculateFrustumPlanes(_camera, FrustrumPlanes);
@@ -165,6 +171,10 @@ namespace InvincibleEngine.CameraSystem {
             _mouseInput.x = Input.GetAxis("Mouse X");
             _mouseInput.y = Input.GetAxis("Mouse Y");
             _mouseInput.z = Input.GetAxis("Mouse ScrollWheel");
+            
+            // Update keyboard input values
+            _controlValues.x = Input.GetAxis("Horizontal");
+            _controlValues.z = Input.GetAxis("Vertical");
            
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold && !_orbitMode;
@@ -175,6 +185,16 @@ namespace InvincibleEngine.CameraSystem {
                 // Lock the cursor
                 Cursor.lockState = CursorLockMode.Locked;
                 
+                // Find world point at center of screen
+                var screenRay = _camera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f, 0f));
+                
+                // Perform a raycast from screen center to the game world
+                RaycastHit rayHit;
+                var hasHit = Physics.Raycast(screenRay, out rayHit, 2048, _geometryMask);
+                
+                // Exit if there's nothing to pivot around
+                if (!hasHit) return;
+                
                 // Set initial orbit mode control values
                 _orbitInput.x = _pitchValue;
                 _orbitInput.y = 0f;
@@ -183,7 +203,7 @@ namespace InvincibleEngine.CameraSystem {
                 _originalCameraPosition = _camera.transform.position;
                 _originalPosition = transform.position;
                 _originalRotation = transform.rotation;
-                _orbitPivot = _mouseData.WorldPosition;
+                _orbitPivot = rayHit.point + Vector3.up;
                 
                 // Convert the camera setup to a 3rd person configuration
                 transform.position = _orbitPivot;
@@ -210,6 +230,19 @@ namespace InvincibleEngine.CameraSystem {
             
             // Check for orbit mode end
             if (_orbitMode && Input.GetKeyUp(KeyCode.Space)) {
+                // Unlock the cursor
+                Cursor.lockState = CursorLockMode.None;
+                
+                // Assign original transform values
+                transform.position = _originalPosition;
+                transform.rotation = _originalRotation;
+                
+                // Set orbit mode flag
+                _orbitMode = false;
+            }
+            
+            // Check for missed input
+            if (_orbitMode && !Application.isFocused) {
                 // Lock the cursor
                 Cursor.lockState = CursorLockMode.None;
                 
@@ -234,9 +267,13 @@ namespace InvincibleEngine.CameraSystem {
                 transform.position += Quaternion.Euler(0f, transform.eulerAngles.y, 0f) * mouseDelta;
             }
             else {
-                // Get pan input values from keyboard
-                _controlValues.x = Input.GetAxis("Horizontal") * _panSpeed * Time.deltaTime;
-                _controlValues.z = Input.GetAxis("Vertical") * _panSpeed * Time.deltaTime;
+                // Construct movement vector using keyboard input values
+                var moveVector = new Vector3(_controlValues.x * _panSpeed * Time.deltaTime,
+                                             0f,
+                                             _controlValues.z * _panSpeed * Time.deltaTime);
+                
+                // Apply movement to transform accounting for rig rotation
+                transform.position += Quaternion.Euler(0f, transform.eulerAngles.y, 0f) * moveVector;
                 
                 // Check for edge scroll if enabled
                 if (_enableEdgeScroll) {
@@ -255,10 +292,7 @@ namespace InvincibleEngine.CameraSystem {
                 }
             }
             
-            // Update previous mouse position
-            _mousePrevious = _mouseData.ScreenPosition;
-            
-            // Get zoom input values
+            // Smooth mouse scroll input for zooming and calculate clamped zoom value
             _controlValues.y = Mathf.SmoothDamp(_controlValues.y, _mouseInput.z, ref _refV, _zoomSmoothing);
             _zoomValue = Mathf.Clamp01(1f - (transform.position.y - _heightRange.x) / (_heightRange.y - _heightRange.x));
             
@@ -266,14 +300,13 @@ namespace InvincibleEngine.CameraSystem {
             _panSpeed = Mathf.Lerp(_panSpeedRange.y, _panSpeedRange.x, _zoomValue);
             _pitchValue = Mathf.Lerp(_pitchRange.y, _pitchRange.x, _zoomValue);
             
-            // Zoom to cursor if enabled, input is valid, and we are not in orbit mode
-            if (_zoomToCursor && (int)Mathf.Sign(_controlValues.y) != 0 && !_orbitMode) {
-
-                // Calculate direction to cursor world position
-                var mouseDirection = MouseData.WorldPosition - transform.position;
+            // Handle zooming to cursor if not in orbit mode
+            if (!_orbitMode && (int)Mathf.Sign(_controlValues.y) != 0) {
+                // Calculate direction to mouse cursor world position
+                var zoomDirection = MouseData.WorldPosition - transform.position;
 
                 // Calculate movement vector
-                var movementVector = mouseDirection.normalized * _controlValues.y * _zoomSpeed;
+                var movementVector = zoomDirection.normalized * _controlValues.y * _zoomSpeed;
                 
                 // Cancel X/Z deltas if we are fully zoomed in or out
                 if (Math.Abs(transform.position.y - _heightRange.x) < float.Epsilon || Math.Abs(transform.position.y - _heightRange.y) < float.Epsilon)
@@ -282,12 +315,21 @@ namespace InvincibleEngine.CameraSystem {
                 // Apply movement vector to camera rig transform
                 transform.position += movementVector;
             }
-
-            // Apply input values to rig transform and clamp height
-            transform.position = new Vector3(transform.position.x + _controlValues.x, 
-                                             Mathf.Clamp(transform.position.y, _heightRange.x, _heightRange.y), 
-                                             transform.position.z + _controlValues.z);
             
+            // Handle zooming of camera object to pivot if in orbit mode
+            if (_orbitMode && (int) Mathf.Sign(_controlValues.y) != 0) {
+                // Move towards the min point if zooming in
+                var targetPoint = Mathf.Sign(_controlValues.y) > 0f ? _orbitMinPoint : _orbitMaxPoint; 
+                _camera.transform.localPosition = Vector3.MoveTowards(_camera.transform.localPosition, targetPoint, Mathf.Abs(_controlValues.y) * _zoomSpeed);
+            }
+
+            // Clamp camera height
+            if (!_orbitMode) {
+                transform.position = new Vector3(transform.position.x,
+                    Mathf.Clamp(transform.position.y, _heightRange.x, _heightRange.y),
+                    transform.position.z);
+            }
+
             // Calculate camera z-offset with trig to correct for parallax error (black magic)
             _zOffset = Mathf.Tan((_pitchValue + 90f) * Mathf.Deg2Rad) * transform.position.y;
             

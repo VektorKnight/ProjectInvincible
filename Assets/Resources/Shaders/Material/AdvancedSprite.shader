@@ -20,6 +20,7 @@ Shader "InvincibleEngine/Sprites/Advanced"
 			"RenderType"="Transparent" 
 			"PreviewType"="Plane"
 			"CanUseSpriteAtlas"="True"
+			"Selectable" = "True"
 		}
 
 		Cull Off

@@ -16,13 +16,12 @@ namespace InvincibleEngine.WeaponSystem {
 		[SerializeField] protected float FireInterval = 1f;
 		[SerializeField] protected Vector2 PitchRange = new Vector2();
 		[SerializeField] protected float AimSpeed = 90f;
+		[SerializeField] protected float WeaponRange;
+		[SerializeField] protected bool AutoAimWeapon = true;
+		[SerializeField] protected bool WaitForAlignment = true;
 
 		[Header("Projectile Settings")] 
 		[SerializeField] protected ProjectileBehavior Projectile;
-		[SerializeField] protected float ProjectileVelocity;	// Ignored for raycast projectiles
-		[SerializeField] protected float ProjectileGravity;		// Ignored for raycast and propelled projectiles
-		[SerializeField] protected float ProjectileDamage;
-		[SerializeField] protected float ProjectileRange;		// Ignored for physical projectiles
 
 		[Header("Weapon Aesthetics")] 
 		[SerializeField] protected AudioClip FireSound;
@@ -55,11 +54,13 @@ namespace InvincibleEngine.WeaponSystem {
 			Parent = parent;
 			
 			// Assign team and glow material properties
-			WeaponRenderer.material.SetColor("_TeamColor", Parent.UnitColor);
-			WeaponRenderer.material.SetColor("_EmissionColor", Parent.UnitColor);
-			
+			if (WeaponRenderer != null) {
+				WeaponRenderer.material.SetColor("_TeamColor", Parent.UnitColor);
+				WeaponRenderer.material.SetColor("_EmissionColor", Parent.UnitColor);
+			}
+
 			// Calculate optimized range check value
-			SqrWeaponRange = ProjectileRange * ProjectileRange;
+			SqrWeaponRange = WeaponRange * WeaponRange;
 		}
 		
 		// Sim update callback
@@ -75,17 +76,22 @@ namespace InvincibleEngine.WeaponSystem {
 			// Control the aiming of the weapon
 			if (Parent.CurrentTarget != null) {
 				// Calculate vector and rotation to target
-				//var targetVector = (Parent.CurrentTarget.transform.position - Muzzle.position).normalized;
-				var targetVector = Ballistics.AimVectorArc(Muzzle.position, Parent.CurrentTarget.transform.position, ProjectileVelocity, ProjectileGravity);
+				var targetVector = Ballistics.AimVectorArc(Muzzle.position, Parent.CurrentTarget.transform.position, Projectile.Velocity, Projectile.Gravity);
 				var targetRotation = Quaternion.LookRotation(targetVector, transform.up);
 
 				// Rotate weapon towards target
-				transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, AimSpeed * fixedDelta);
+				if (AutoAimWeapon)
+					transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, AimSpeed * fixedDelta);
 
 				// Fire weapon if we are aimed at the target and the target is within range
-				var sqrTargetDistance = Vector3.SqrMagnitude(Parent.CurrentTarget.transform.position - Muzzle.position);
-				var aimDotP = Vector3.Dot(targetVector, Muzzle.forward);
-				if ( aimDotP > 0.999f && sqrTargetDistance <= SqrWeaponRange) TryFire();
+				if (WaitForAlignment) {
+					var sqrTargetDistance = Vector3.SqrMagnitude(Parent.CurrentTarget.transform.position - Muzzle.position);
+					var aimDotP = Vector3.Dot(targetVector, Muzzle.forward);
+					if (aimDotP > 0.999f && sqrTargetDistance <= SqrWeaponRange) TryFire();
+				}
+				else {
+					TryFire();
+				}
 			}
 			else {
 				// Calculate aim rotation aligned with unit forward vector
@@ -108,7 +114,7 @@ namespace InvincibleEngine.WeaponSystem {
 		protected virtual void FireProjectile() {
 			// Instantiate and initialize the projectile at the muzzle position
 			var projectile = ObjectManager.GetObject(Projectile.gameObject, Muzzle.position, Muzzle.rotation);
-			projectile.GetComponent<ProjectileBehavior>().Initialize(ProjectileVelocity, ProjectileGravity, ProjectileDamage, ProjectileRange, Parent.ScanLayers);
+			projectile.GetComponent<ProjectileBehavior>().Initialize(Parent.ScanLayers, Parent.CurrentTarget.transform);
 			
 			// Try to play the fire sound effect
 			if (FireSound != null)

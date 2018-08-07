@@ -2,6 +2,7 @@
 using System.Collections;
 using VektorLibrary.Collections;
 using InvincibleEngine;
+using InvincibleEngine.Utility;
 using SteamNet;
 using VektorLibrary.EntityFramework.Components;
 
@@ -58,6 +59,9 @@ namespace InvincibleEngine {
             _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
             
             _entityBehaviors = new HashedArray<EntityBehavior>(1024);
+            
+            // Log to dev console
+            DevConsole.Log("EntityManager", $"Simulation started with fixed timestep of {1f / FIXED_TIMESTEP:n1}Hz and maximum margin of {MAX_STEP_MARGIN:n1}s");
 
             // We're done here
             _initialized = true;
@@ -93,7 +97,7 @@ namespace InvincibleEngine {
                 // Run economy before any behavior on this tick
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
-                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
+                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
                     behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                 }
 
@@ -101,7 +105,7 @@ namespace InvincibleEngine {
                 // No touchy, leave as a for-loop for optimization
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
-                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
+                    if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
                     behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                 }
                 
@@ -119,7 +123,7 @@ namespace InvincibleEngine {
             // No touchy, leave as a for-loop for optimization
             for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                 var behavior = _entityBehaviors[i];
-                if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating) continue;
+                if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
                 behavior.OnRenderUpdate(Time.deltaTime);
             }
         }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using InvincibleEngine.Utility;
+using UnityEngine;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Utility;
 
@@ -9,8 +10,8 @@ namespace VektorLibrary.EntityFramework.Singletons {
 	/// </summary>
 	public class ObjectManager : MonoBehaviour {		
 		// Singleton Instance
-		public static ObjectManager Instance;
-		
+		public static ObjectManager Instance { get; private set; }
+
 		// Multi-Object Pool Instance
 		public static MultiObjectPool MultiObjectPool { get; private set; }
 		
@@ -55,8 +56,8 @@ namespace VektorLibrary.EntityFramework.Singletons {
 			if (pooledObjRef != null) {
 				MultiObjectPool.NewObjectPool(obj, DEFAULT_POOL_SIZE, Instance.transform);
 				
-				Debug.Log("<b><color=Teal>GlobalObjectManager:</color></b> Created new object pool!\n" +
-				          $"<b>Object:</b> {obj.name}, <b>Size:</b> {DEFAULT_POOL_SIZE}");
+				DevConsole.Log("ObjectManager", "Created new object pool!\n" +
+				               $"<b>Object:</b> {obj.name}, <b>Size:</b> {DEFAULT_POOL_SIZE}");
 				
 				return MultiObjectPool.GetObject(obj, position, rotation);
 			}

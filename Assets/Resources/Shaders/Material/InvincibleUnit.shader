@@ -22,7 +22,7 @@ Shader "InvincibleEngine/Standard/Unit Standard" {
         Tags {
             "Queue" = "Geometry-1"
             "RenderType"="Opaque"
-            "Selection" = "ColoredOutline"
+            "Selectable" = "True"
         }
 
         Stencil

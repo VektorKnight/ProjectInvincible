@@ -8428,6 +8428,7 @@ MonoBehaviour:
     m_SteamID: 0
   _heightRange: {x: 20, y: 500}
   _pitchRange: {x: 60, y: 90}
+  _heightRangeOrbit: {x: 1, y: 200}
   _pitchRangeOrbit: {x: 0, y: 90}
   _orbitModeMaximum: 0.25
   _panSpeedRange: {x: 75, y: 175}

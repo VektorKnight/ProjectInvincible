@@ -11,6 +11,12 @@ namespace VektorLibrary.Utility {
         private void Awake() {
             // Reference required components
             _rectTransform = GetComponent<RectTransform>();
+            
+            // Clamp to screen space
+            var clampedPosition = _rectTransform.position;
+            clampedPosition.x = Mathf.Clamp(clampedPosition.x, 0f, Screen.width);
+            clampedPosition.y = Mathf.Clamp(clampedPosition.y, 0f, Screen.height);
+            _rectTransform.position = clampedPosition;
         }
         
         // Drag event handler
@@ -26,6 +32,12 @@ namespace VektorLibrary.Utility {
             position.x = (int) position.x;
             position.y = (int) position.y;
             _rectTransform.position = position;
+            
+            // Clamp to screen space
+            var clampedPosition = _rectTransform.position;
+            clampedPosition.x = Mathf.Clamp(clampedPosition.x, 0f, Screen.width);
+            clampedPosition.y = Mathf.Clamp(clampedPosition.y, 0f, Screen.height);
+            _rectTransform.position = clampedPosition;
         }
 
         public void OnPointerClick(PointerEventData eventData) {

@@ -32,9 +32,9 @@ namespace InvincibleEngine.WeaponSystem {
         }
         
         // Initialize the projectile
-        public override void Initialize(float velocity, float gravity, float damage, float range, LayerMask collisionMask) {
+        public override void Initialize(LayerMask collisionMask, Transform target = null) {
             // Call base method
-            base.Initialize(velocity, gravity, damage, range, collisionMask);
+            base.Initialize(collisionMask, target);
             
             // Create raycast
             CreateRaycast();
@@ -60,7 +60,7 @@ namespace InvincibleEngine.WeaponSystem {
 			
             // Raycast for collisions
             RaycastHit rayHit;
-            if (Physics.Raycast(projectileRay, out rayHit, Range, CollisionMask)) {
+            if (Physics.SphereCast(projectileRay, CollisionRadius, out rayHit, MaxRange, CollisionMask)) {
                 // Set up projectile aesthetics
                 ProjectileTimer = DespawnTime;
                 ProjectileMaterial.SetColor("_DiffuseColor", ProjectileGradient.Evaluate(1.0f));
@@ -82,7 +82,7 @@ namespace InvincibleEngine.WeaponSystem {
                 ProjectileTimer = DespawnTime;
                 ProjectileMaterial.SetColor("_DiffuseColor", ProjectileGradient.Evaluate(1.0f));
                 ProjectileRenderer.SetPosition(0, transform.position);
-                ProjectileRenderer.SetPosition(1, transform.position + transform.forward * Range);
+                ProjectileRenderer.SetPosition(1, transform.position + transform.forward * MaxRange);
             }
         }
     }

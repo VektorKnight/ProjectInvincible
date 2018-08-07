@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InvincibleEngine.CameraSystem;
+using InvincibleEngine.SelectionSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
@@ -17,11 +18,12 @@ namespace InvincibleEngine.UnitFramework.Components {
     /// Base class for all unit behaviors.
     /// Base methods for this class should be called first in any overrides.
     /// </summary>
+    [RequireComponent(typeof(GlowingObject))]
     public class UnitBehavior : EntityBehavior, IUnit {
         // Constant: Team Layers Start/End
         public static readonly int[] TeamLayerBounds = {11, 18};
         
-        // Time Slicing
+        // Time Slicing Stuff
         protected static readonly int TimeSlicingWindow = (int)(1f / EntityManager.FIXED_TIMESTEP);
         protected static int[] IntervalBuffer = new int[TimeSlicingWindow];
         protected static Stack<int> SliceIntervals = new Stack<int>();
@@ -57,6 +59,9 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Protected: Unit Icon
         protected UnitScreenSprite Icon;
         protected UnitScreenSprite HealthBar;
+        
+        // Protected: Selection Indicator
+        protected GlowingObject SelectionIndicator;
         
         // Protected: Component References
         protected MeshRenderer UnitRenderer;
@@ -100,6 +105,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Reference required components
             UnitRenderer = GetComponentInChildren<MeshRenderer>();
+            SelectionIndicator = GetComponentInChildren<GlowingObject>();
             
             // Fetch team color from team
             UnitColor = TeamColor.GetTeamColor(UnitTeam);
@@ -306,7 +312,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Set icon state to selected
             Icon.SetSelected(true);
-            UnitRenderer.material.SetColor("_SelectionColor", Color.white);
+            SelectionIndicator.SetTargetColor(UnitColor);
+            
             // Set selected flag
             Selected = true;
         }
@@ -318,7 +325,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Set icon state to unselected
             Icon?.SetSelected(false);
-            UnitRenderer.material.SetColor("_SelectionColor", Color.black);
+            SelectionIndicator.SetTargetColor(Color.black);
+            
             // Set selected flag
             Selected = false;
         }

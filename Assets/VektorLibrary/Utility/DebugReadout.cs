@@ -56,10 +56,9 @@ namespace VektorLibrary.Utility {
             
             AddField("FPS");
             
-            UpdateField("Sim Rate", $"{1f/EntityManager.FIXED_TIMESTEP}Hz");
-            AddField("Sim Ticks");
+            UpdateField("[Sim] Rate", $"{1f/EntityManager.FIXED_TIMESTEP}Hz");
+            AddField("[Sim] Ticks");
             
-            AddField("Show Targeting");
             _fpsCounter = new FpsCounter();
             
         }
@@ -129,10 +128,7 @@ namespace VektorLibrary.Utility {
             UpdateField("FPS", $"{Instance._fpsCounter.UpdateValues()} (Δ{Time.deltaTime * 1000f:n1}ms)");
             
             // Update Sim Ticks
-            UpdateField("Sim Ticks", EntityManager.SimTickCount.ToString());
-            
-            // Update show targeting
-            UpdateField("Show Targeting", _showTargeting.ToString());
+            UpdateField("[Sim] Ticks", EntityManager.SimTickCount.ToString());
             
             // Iterate through the debug fields and add them to the readout
             var displayText = new StringBuilder();

@@ -10,17 +10,12 @@ namespace InvincibleEngine.WeaponSystem {
     /// Best used where realistic ballistics are desirable.
     /// </summary>
     [RequireComponent(typeof(TrailRenderer))]
-    public class PhysicalProjectile : ProjectileBehavior {     
-        // Unity Inspector
-        [Header("Physical Traits")]
-        [SerializeField] protected float Radius = 0.25f;
-        
+    public class PhysicalProjectile : ProjectileBehavior {            
         // Protected: Required Components
         protected TrailRenderer ProjectileTrail;
         
         // Private: Ballistics Simulation
         protected Vector3 PreviousPosition;
-        protected Vector3 CurrentVelocity;
         protected RaycastHit HitInfo;
         
         // Initialization
@@ -32,7 +27,7 @@ namespace InvincibleEngine.WeaponSystem {
         // Sim Update
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
             // Apply acceleration due to gravity
-            CurrentVelocity += Vector3.up * Gravity * fixedDelta;
+            CurrentVelocity += Vector3.up * GravityForce * fixedDelta;
             
             // Apply current velocity to position
             transform.position += CurrentVelocity * fixedDelta;
@@ -42,7 +37,7 @@ namespace InvincibleEngine.WeaponSystem {
             var deltaMagnitude = deltaPosition.magnitude;
 
             // Check for collisions
-            if (Physics.SphereCast(PreviousPosition, Radius, deltaPosition, out HitInfo, deltaMagnitude, CollisionMask)) {
+            if (Physics.SphereCast(PreviousPosition, CollisionRadius, deltaPosition, out HitInfo, deltaMagnitude, CollisionMask)) {
                 // Exit if the collider is somehow null or we hit a trigger volume
                 if (HitInfo.collider == null || HitInfo.collider.isTrigger) return;
                 
@@ -76,27 +71,21 @@ namespace InvincibleEngine.WeaponSystem {
         }
         
         // Projectile initialization
-        public override void Initialize (float velocity, float gravity, float damage, float range, LayerMask collisionMask) {
-            // Call base method
-            base.Initialize(velocity, gravity, damage, range, collisionMask);
-            
+        public override void Initialize (LayerMask collisionMask, Transform target = null) {
             // Reset the trail renderer state
             ProjectileTrail.Clear();
 			
             // Update previous position (anti-clip)
             PreviousPosition = transform.position;
-			
-            // Set new velocity
-            CurrentVelocity = Velocity * transform.forward;
+            
+            // Call base method
+            base.Initialize(collisionMask, target);
         }
         
         // Object Pool: Returned to pool
         public override void OnReturned() {
             // Reset the trail renderer state
             ProjectileTrail.Clear();
-			
-            // Reset rigidbody
-            CurrentVelocity = Vector3.zero;
 			
             // Call base method
             base.OnReturned();
