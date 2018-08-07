@@ -7,6 +7,7 @@ using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using VektorLibrary.AI.Systems;
 using VektorLibrary.EntityFramework.Components;
 
@@ -81,13 +82,19 @@ namespace InvincibleEngine.Managers {
 
         // Unity Update
         private void Update() {
-            // Set mouse position
-            MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
 
-            // Execute command routine
-            CommandRoutine();
-            SelectionRoutine();
-            BuildRoutine();
+            //Do nothing if in lobby
+            if (SceneManager.GetActiveScene().buildIndex != 0) {
+
+                // Set mouse position
+                MousePosition = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+
+                // Execute command routine
+                CommandRoutine();
+                SelectionRoutine();
+                BuildRoutine();
+
+            }
         }
 
 

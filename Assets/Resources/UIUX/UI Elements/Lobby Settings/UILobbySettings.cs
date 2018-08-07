@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 using SteamNet;
+using InvincibleEngine.Managers;
 
 //Steam
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
@@ -11,43 +12,84 @@ using _3rdParty.Steamworks.Plugins.Steamworks.NET;
 
 public class UILobbySettings : MonoBehaviour {
 
-    public Text GameButtonText, TimerText;
+    //Timer and buttons
+    public Text GameButtonText;
     public Button GameButton;
     public Image GameButtonImage, TimerImage;
     public RectTransform TimerOverlay;
-
+    public Dropdown MapPicker;
+  
+    //Colors
     public Color32 NotReady, Ready;
 
-    public int timerDisplay = 5;
+    private void Start() {
+
+        //On start load all the maps to select from
+        List<Dropdown.OptionData> mapData = new List<Dropdown.OptionData>();
+
+        foreach (MapData n in AssetManager.LoadedMaps) {
+            mapData.Add(new Dropdown.OptionData(n.MapName, n.Splash));
+        }
+
+        MapPicker.AddOptions(mapData);
+
+    }
 
     public void Update() {
 
-        //Keep button up to date
+        //--------------------------------------------
+        #region Change Button style
+        //--------------------------------------------
+
+        try {
+           
+            if (SteamNetManager.Instance.Hosting) {
+                GameButtonText.text = "Start Game".ToUpper();
+
+                GameButton.interactable = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? true : false);
+                GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? Ready : NotReady);
+            }
+            if (SteamNetManager.Instance.Connected) {
+                GameButtonText.text = "Ready".ToUpper();
+
+                GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[SteamUser.GetSteamID()].IsReady ? Ready : NotReady);
+            }
+            if (SteamNetManager.Instance.NetworkState == ENetworkState.Stopped) {
+                GameButtonImage.color = NotReady;
+            }
+        }
+        catch {
+            Debug.Log("UI Settings error");
+        }
+
+        #endregion
+
+        //--------------------------------------------
+        #region Disable/enable map picker and change it based on lobby
+        //--------------------------------------------
+
+        //If hosting, enable lobby picker
         if (SteamNetManager.Instance.Hosting) {
-            GameButtonText.text = "Start Game".ToUpper();
-
-            GameButton.interactable = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? true : false);
-            GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.ArePlayersReady() ? Ready : NotReady);
+            MapPicker.interactable = true;
         }
-        if (SteamNetManager.Instance.Connected) {
-            GameButtonText.text = "Ready".ToUpper();
-
-            GameButtonImage.color = (SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[SteamUser.GetSteamID()].IsReady ? Ready : NotReady);
-        }
-        if(SteamNetManager.Instance.NetworkState== ENetworkState.Stopped) {
-            GameButtonImage.color = NotReady;
+        
+        //If client, disable the picker and set it's value directly from lobby data
+        if(SteamNetManager.Instance.Connected) {
+            MapPicker.interactable = false;
+            MapPicker.value = SteamNetManager.CurrentLobbyData.MapIndex;
         }
 
-        //Timer visual
-        if (SteamNetManager.Instance.CurrentlyJoinedLobby.TimerStarted) {
-            TimerText.text = SteamNetManager.Instance.CurrentlyJoinedLobby.TimerDisplay.ToString();
-            TimerOverlay.offsetMax = new Vector2((float)(-450 * SteamNetManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent), 0);
-            TimerImage.color = new Color(TimerImage.color.r, TimerImage.color.g, TimerImage.color.b, 1 - (float)SteamNetManager.Instance.CurrentlyJoinedLobby.TimerOverlayPercent);
-        }
-        else {
-            TimerText.text = "5";
-            TimerOverlay.offsetMax = new Vector2(0, 0);
-            TimerImage.color = new Color(TimerImage.color.r, TimerImage.color.g, TimerImage.color.b, 0);
+        #endregion
+    }
+
+    /// <summary>
+    /// Called when the host picks a map
+    /// </summary>
+    public void OnMapSelect() {
+
+        //Only able to do this if a host and owner of lobby
+        if (SteamNetManager.Instance.Hosting) {
+            SteamNetManager.CurrentLobbyData.MapIndex = MapPicker.value;
         }
     }
 

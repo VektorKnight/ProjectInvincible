@@ -48,7 +48,7 @@ public class UINavigation : MonoBehaviour {
     }
 
     public void Play() {
-        SteamNetManager.Instance.CreateLobby();
+       SteamNetManager.Instance.CreateLobby();
     }
 
     public void LeaveLobby() {

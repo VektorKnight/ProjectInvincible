@@ -28,7 +28,31 @@ using InvincibleEngine.UnitFramework.Enums;
 
 namespace SteamNet {
 
-    //Conversion of JSON Strings to Steam types
+    //----------------------------------------------------
+    #region  Enumerators
+    //----------------------------------------------------
+    /// <summary>
+    /// State of network
+    /// </summary>
+    public enum ENetworkState {
+        Stopped, Hosting, Connected
+    }
+
+    /// <summary>
+    /// State of the match
+    /// </summary>
+    public enum EGameState {
+        InLobby, InGame
+    }
+    #endregion
+
+    //----------------------------------------------------
+    #region  Quick network type intercom function
+    //----------------------------------------------------
+
+    /// <summary>
+    /// Converts strings to CSteamIDs
+    /// </summary>
     public class SteamConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
 
@@ -43,18 +67,19 @@ namespace SteamNet {
         }
     }
 
+    #endregion
+
+    //----------------------------------------------------
+    #region  Network packet types
+    //----------------------------------------------------
+
     /// <summary>
     /// Types of network messages that can be sent
     /// </summary>
     public class N_ENT {
-        //Position, Rotation, Velocity, Angular Velocity
-        //TODO: Add delta acceleration and other predicition factors
         public Vector3 P, R, V, A;
         public ushort NetID;
         public ushort ObjectID;
-
-        //TODO:
-        //public List<object> SyncFields;
 
     }
 
@@ -81,14 +106,17 @@ namespace SteamNet {
     /// </summary>
     public class N_RDY { }
 
+    #endregion
+
+    //----------------------------------------------------
+    #region Lobby and player data
+    //----------------------------------------------------
+
     /// <summary>
     /// Data about individual players in a lobby
     /// </summary>
     [Serializable]
     public class SteamnetPlayer {
-
-        //Player Econ
-        public Economy Economy = new Economy();
 
         //Constructor
         public SteamnetPlayer(CSteamID steamID) {
@@ -96,14 +124,19 @@ namespace SteamNet {
         }
 
         //Player properties
-        public bool IsReady = false;
-        public CSteamID SteamID;
-        public ETeam Team = 0;
+        [SerializeField] public bool IsReady = false;
+        [SerializeField] public CSteamID SteamID;
+        [SerializeField] public ETeam Team = 0;
+        [SerializeField] public Economy Economy = new Economy();
 
         //Player useful information
         public bool IsHost {
             get {
-                return SteamMatchmaking.GetLobbyOwner(SteamNetManager.Instance.CurrentLobbyID) == SteamID;
+                ulong a, b;
+                a = (ulong)SteamNetManager.Instance.CurrentlyJoinedLobby.Host;
+                b = (ulong)SteamID;
+                
+                return a==b;
             }
         }
         public string DisplayName {
@@ -123,38 +156,40 @@ namespace SteamNet {
     [Serializable]
     public class LobbyData {
 
-        //Lobby ID
-        public CSteamID LobbyID;
+        //Lobby Properties
+        [SerializeField] public CSteamID LobbyID;
+        [SerializeField] public CSteamID Host;
+        [SerializeField] public string Name = "New Lobby";
+        [SerializeField] public int MaxPlayers = 4;
+        [SerializeField] public int ConnectedPlayers;
+        [SerializeField] public EGameState LobbyState = EGameState.InLobby;
+        [SerializeField] public Dictionary<CSteamID, SteamnetPlayer> LobbyMembers = new Dictionary<CSteamID, SteamnetPlayer>();
+        [SerializeField] public string ChatLog = "";
+        [SerializeField] public int GameStartingIn = 5;
 
-        //Host of game
-        public CSteamID Host;
+        //Match Properties
+        [SerializeField] public int MapIndex = 1;
+        [SerializeField] public bool MatchStarted = false;
 
-        //State of lobby
-        public EGameState LobbyState = EGameState.InLobby;
 
-        //Server Name
-        public string Name = "New Lobby";
 
-        //List of all players
-        public Dictionary<CSteamID, SteamnetPlayer> LobbyMembers = new Dictionary<CSteamID, SteamnetPlayer>();
+        //-----------------------------------
+        #region Lobby functions
+        //-----------------------------------
 
-        //Max players allowed in the lobby
-        public int MaxPlayers = 4;
-        public int ConnectedPlayers;
-
-        //Map index, starts at 1
-        public int MapIndex = 1;
-
-        //Indicated if this match has started 
-        public bool MatchStarted = false;
-
-        //Chat log
+        /// <summary>
+        /// Post chat to lobby, do not call directly, this is used by the network manager 
+        /// </summary>
+        /// <param name="message"> Raw message</param>
+        /// <param name="source"> Player name string</param>
         public void PostChat(string message, string source) {
             if (message.Length > 0) { ChatLog += $"<b>{source}</b>: {message}\n"; }
         }
-        public string ChatLog = "";
 
-        //Check to see if everyone is ready
+        /// <summary>
+        /// Checks to see if all players are ready, only used on hosts to determine start game
+        /// </summary>
+        /// <returns></returns>
         public bool ArePlayersReady() {
             foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in LobbyMembers) {
                 if (n.Value.IsReady == false && !n.Value.IsHost) {
@@ -163,27 +198,7 @@ namespace SteamNet {
             }
             return true;
         }
-
-        //Game start and timer
-        private bool _TimerStarted = false;
-        public bool TimerStarted {
-            get { return _TimerStarted; }
-            set { TimerTime = Time.time; _TimerStarted = value; }
-        }
-
-        public float TimerTime;
-
-        public int TimerDisplay {
-            get {
-                return 6 - Mathf.Clamp(Mathf.CeilToInt((Time.time - TimerTime)), 0, 6);
-            }
-        }
-
-        public double TimerOverlayPercent {
-            get {
-                return Mathf.Clamp(Mathf.Repeat(Time.time - TimerTime, 1), 0, 5);
-            }
-        }
+        #endregion
     }
 
     /// <summary>
@@ -194,6 +209,12 @@ namespace SteamNet {
         public string name = "";
         public CSteamID Id;
     }
+
+    #endregion
+
+    //----------------------------------------------------
+    #region  Network communication types
+    //----------------------------------------------------
 
     /// <summary>
     /// Holds type information that came from a serialized data steam
@@ -215,18 +236,7 @@ namespace SteamNet {
         public byte Index;
         public object Data;
     }
-  
-    /// <summary>
-    /// State of network
-    /// </summary>
-    public enum ENetworkState {
-        Stopped, Hosting, Connected
-    }
-
-    /// <summary>
-    /// State of the match
-    /// </summary>
-    public enum EGameState {
-        InLobby, InGame
-    }
+    #endregion
 }
+
+

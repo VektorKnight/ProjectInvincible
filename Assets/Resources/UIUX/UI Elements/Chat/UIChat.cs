@@ -23,6 +23,7 @@ public class UIChat : MonoBehaviour {
         input.ActivateInputField();
     }
     private void Update() {
-        ChatBox.text = SteamNetManager.Instance.CurrentlyJoinedLobby.ChatLog;
+
+        ChatBox.text = SteamNetManager.Instance.CurrentlyJoinedLobby?.ChatLog;
     }
 }

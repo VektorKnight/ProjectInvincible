@@ -17,8 +17,7 @@ public class NetworkEntity : MonoBehaviour {
 	// Use this for initialization
 	void Awake () {
 
-        //Register self with the network manager
-        SteamNetManager.Instance.RegisterEntity(this);
+
 	}
 	
 	// Update is called once per frame

@@ -22,39 +22,37 @@ using InvincibleEngine.UnitFramework.DataTypes;
 
 using VektorLibrary.EntityFramework.Components;
 
-//Player object for game communication
-public class Player {    
-    public int Resources;
-    public int SpawnSlot;
-    public int Team;
-}
-
 
 /// <summary>
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
 /// </summary>
 public class MatchManager : MonoBehaviour {
 
-    //Match Grid
-    public GridSystem GridSystem = new GridSystem();
-
-    //Match specific variables
-    public bool MatchStarted;
-
-    //List of players in the game
-    public Dictionary<CSteamID, Player> Players = new Dictionary<CSteamID, Player>();
-
+    //Match manager properties
+    [SerializeField] public GridSystem GridSystem = new GridSystem();
+   
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
+    
 
-    //Easy access to the local lobby data
-    public LobbyData CurrentLobbyData {
-        get { return SteamNetManager.Instance.CurrentlyJoinedLobby; }
+    ///Force the game to start in the lobby scene, as we move toward an online
+    ///match based game it is simply too hard to put checks everywhere that bypass
+    ///the expected state of the game and list of players. Maps from the build settings
+    ///can be selected in the lobby to load and test
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void ForceLobbyLoad() {
+
+        //If scene index is not zero (lobby), load lobby
+        if(SceneManager.GetActiveScene().buildIndex!=0) {
+            SceneManager.LoadScene(0);
+        }        
     }
+
 
     // Preload Method
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Preload() {
+
         //Make sure the Managers object exists
         GameObject Managers = GameObject.Find("Managers") ?? new GameObject("Managers");
 
@@ -63,25 +61,11 @@ public class MatchManager : MonoBehaviour {
 
         // Ensure this singleton does not get destroyed on scene load
         DontDestroyOnLoad(Instance.gameObject);
-    }
 
-    /// <summary>
-    /// Check for win conditions and other game related states
-    /// </summary>
-    private void Update() {
-
-    }
-
-    /// <summary>
-    /// On start:
-    /// 
-    /// Generate the grid to be used in the game, clients and hosts do this and it should be identical 
-    /// 
-    /// </summary>
-    private void Start() {
-
-        //Generate Grid
-        GridSystem.GenerateGrid();
+        //If we load into a scene that is not the lobby, start the game with the current network lobby data and players
+        if (SceneManager.GetActiveScene().buildIndex != 0) {
+            MatchManager.Instance.OnMatchStart();
+        }
 
     }
 
@@ -89,8 +73,16 @@ public class MatchManager : MonoBehaviour {
     #region  Game flow control, spawning players and command centers on Game Start
     //----------------------------------------------------
 
-    //On match start, spawn in command centers
+    /// <summary>
+    /// On match start, this will fire before anything else in the game loads
+    /// This should spawn in command centers for each player
+    /// </summary>
     public void OnMatchStart() {
+
+        //Generate Grid
+        GridSystem.GenerateGrid();
+
+        //Spawn command centers for each player in the match
 
     }
 
@@ -130,7 +122,7 @@ public class MatchManager : MonoBehaviour {
         if (SteamNetManager.Instance.Hosting) {
 
             //if the player can afford it, construct it
-            if (CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
 
                 //Instantiate object
                 GameObject n = Instantiate(Building.gameObject, point.WorldPosition, Orientation);
