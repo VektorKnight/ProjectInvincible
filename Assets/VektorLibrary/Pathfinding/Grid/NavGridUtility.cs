@@ -153,7 +153,7 @@ namespace VektorLibrary.Pathfinding.Grid {
                         grid.Lock.ReleaseReaderLock();
                 }
             }); 
-            DebugReadout.UpdateField("A* Last", sW.ElapsedMilliseconds + "ms");
+            DevReadout.UpdateField("A* Last", sW.ElapsedMilliseconds + "ms");
             
             // Invoke the callback from the request
             result.Callback?.Invoke(result);

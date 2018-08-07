@@ -8,12 +8,11 @@ namespace VektorLibrary.Utility {
     /// <summary>
     /// Utility class for drawing various debug readouts to the game screen.
     /// </summary>
-    public class DebugReadout : MonoBehaviour {
+    public class DevReadout : MonoBehaviour {
         
         // Singleton Instance & Accessor
-        private static DebugReadout _singleton;
-        public static DebugReadout Instance => _singleton ?? new GameObject("DebugReadout").AddComponent<DebugReadout>();
-        
+        public static DevReadout Instance { get; private set; }
+
         // Unity Inspector
         [Header("Debug Readout Config")] 
         [SerializeField] private KeyCode _toggleKey = KeyCode.F2;
@@ -33,16 +32,28 @@ namespace VektorLibrary.Utility {
         // Property: State
         public static bool Enabled => Instance._enabled;
         public static bool ShowTargeting => Instance._showTargeting;
+        
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void Preload() {
+            // Load the prefab from the common objects folder
+            var prefab = Resources.Load<Canvas>("Objects/Common/DebugReadout");
+            
+            // Destroy any existing instances
+            if (Instance != null) Destroy(Instance.gameObject);
+            
+            // Instantiate and assign the instance
+            var instance = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+            Instance = instance.GetComponentInChildren<DevReadout>();
+
+            // Ensure this singleton does not get destroyed on scene load
+            DontDestroyOnLoad(Instance.transform.root);
+            
+            // Initialize the instance
+            Instance.Initialize();
+        }
 
         // Initialization
-        private void Awake() {
-            // Enforce Singleton Instance
-            if (_singleton == null) { _singleton = this; }
-            else if (_singleton != this) { Destroy(gameObject); }
-            
-            // Ensure this object is not destroyed on scene load
-            DontDestroyOnLoad(gameObject);
-            
+        private void Initialize() {
             // Display the readout by default if dev build or editor
             if (Debug.isDebugBuild) _enabled = true;
             

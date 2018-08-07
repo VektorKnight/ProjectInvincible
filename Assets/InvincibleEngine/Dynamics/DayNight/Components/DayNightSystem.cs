@@ -64,7 +64,7 @@ namespace InvincibleEngine.Dynamics.DayNight.Components {
             _mainLight.transform.ResetTransform();
             
             // Add a field for Time to the debug readout
-            DebugReadout.AddField("Time");
+            DevReadout.AddField("Time");
             
             // We're done here
             _currentTime = _startTime;
@@ -80,7 +80,7 @@ namespace InvincibleEngine.Dynamics.DayNight.Components {
             // Update the current time and wrap it if necessary
             _currentTime += Time.deltaTime * _timeScale;
             _currentTime = VektorMath.WrapFloat(_currentTime, TIME_MORNING, SECONDS_PER_DAY);
-            if (DebugReadout.Enabled) DebugReadout.UpdateField("Time", $"{_currentTime:n0}");
+            if (DevReadout.Enabled) DevReadout.UpdateField("Time", $"{_currentTime:n0}");
             
             // Update the skybox & ambient light
             var timeKey = _currentTime / SECONDS_PER_DAY;

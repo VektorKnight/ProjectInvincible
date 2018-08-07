@@ -157,9 +157,9 @@ namespace InvincibleEngine.CameraSystem {
         // Render Update Callback
         public override void OnRenderUpdate(float deltaTime) {
             // Update debug readout
-            DebugReadout.UpdateField("[Cam] Visible Units", VisibleObjects.Count.ToString());
-            DebugReadout.UpdateField("[Cam] Zoom level", $"{ZoomLevel:n1}");
-            DebugReadout.UpdateField("[Cam] View Angle", $"{_pitchValue:n0}");
+            DevReadout.UpdateField("[Cam] Visible Units", VisibleObjects.Count.ToString());
+            DevReadout.UpdateField("[Cam] Zoom level", $"{ZoomLevel:n1}");
+            DevReadout.UpdateField("[Cam] View Angle", $"{_pitchValue:n0}");
             
             // Update frustrum planes
             GeometryUtility.CalculateFrustumPlanes(_camera, FrustrumPlanes);

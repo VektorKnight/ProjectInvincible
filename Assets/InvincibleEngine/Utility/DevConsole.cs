@@ -33,7 +33,7 @@ namespace InvincibleEngine.Utility {
             Instance = instance.GetComponentInChildren<DevConsole>();
 
             // Ensure this singleton does not get destroyed on scene load
-            DontDestroyOnLoad(Instance.gameObject);
+            DontDestroyOnLoad(Instance.transform.root);
             
             // Initialize the instance
             Instance.Initialize();
