@@ -6202,12 +6202,12 @@ Prefab:
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: -371.32996
+      value: -371.35004
       objectReference: {fileID: 0}
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 466.91025
+      value: -0.000034332
       objectReference: {fileID: 0}
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
@@ -6217,7 +6217,7 @@ Prefab:
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 933.72
+      value: 0.000061035
       objectReference: {fileID: 0}
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
@@ -6237,7 +6237,7 @@ Prefab:
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 224551452411984986, guid: 53094888fc95e924691e79b66b5fcee1,
         type: 2}
@@ -6254,6 +6254,35 @@ Prefab:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 186920383}
+    - target: {fileID: 224587419762607896, guid: 53094888fc95e924691e79b66b5fcee1,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000019073486
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013276131865960, guid: 53094888fc95e924691e79b66b5fcee1, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224908012775588522, guid: 53094888fc95e924691e79b66b5fcee1,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: -371.34
+      objectReference: {fileID: 0}
+    - target: {fileID: 224908012775588522, guid: 53094888fc95e924691e79b66b5fcee1,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -142.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 224908012775588522, guid: 53094888fc95e924691e79b66b5fcee1,
+        type: 2}
+      propertyPath: m_SizeDelta.x
+      value: 742.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 224908012775588522, guid: 53094888fc95e924691e79b66b5fcee1,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 249.9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 53094888fc95e924691e79b66b5fcee1, type: 2}
   m_IsPrefabAsset: 0

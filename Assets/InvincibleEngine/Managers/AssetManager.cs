@@ -11,7 +11,7 @@ namespace InvincibleEngine.Managers {
         [SerializeField] public static MapData[] LoadedMaps;
 
         [Header("Globally spawnable objects")]
-        [SerializeField] public static GameObject CommandCenter;
+        [SerializeField] public static StructureBehavior CommandCenter;
 
         /// <summary>
         /// On game start generate recurrsive and non-random asset directory
@@ -45,7 +45,7 @@ namespace InvincibleEngine.Managers {
             //----------------------------------------------------
 
             //Populate globally spawnable objects
-            CommandCenter = (GameObject)Resources.Load<GameObject>("Objects/Structures/CommandCenter/CommandCenter");
+            CommandCenter = Resources.Load<StructureBehavior>("Objects/Structures/CommandCenter/CommandCenter");
             
             //Grab loadable maps
             LoadedMaps = Resources.LoadAll<MapData>("");

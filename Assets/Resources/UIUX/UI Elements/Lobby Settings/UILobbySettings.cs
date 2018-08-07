@@ -33,6 +33,9 @@ public class UILobbySettings : MonoBehaviour {
 
         MapPicker.AddOptions(mapData);
 
+        //Apply to lobby data
+        OnMapSelect();
+
     }
 
     public void Update() {

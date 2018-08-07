@@ -21,7 +21,7 @@ using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.DataTypes;
 
 using VektorLibrary.EntityFramework.Components;
-
+using InvincibleEngine.Managers;
 
 /// <summary>
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
@@ -43,7 +43,7 @@ public class MatchManager : MonoBehaviour {
     private static void ForceLobbyLoad() {
 
         //If scene index is not zero (lobby), load lobby
-        if(SceneManager.GetActiveScene().buildIndex!=0) {
+        if(SceneManager.GetActiveScene().buildIndex!=0 & !Application.isEditor) {
             SceneManager.LoadScene(0);
         }        
     }
@@ -62,9 +62,10 @@ public class MatchManager : MonoBehaviour {
         // Ensure this singleton does not get destroyed on scene load
         DontDestroyOnLoad(Instance.gameObject);
 
+      
         //If we load into a scene that is not the lobby, start the game with the current network lobby data and players
         if (SceneManager.GetActiveScene().buildIndex != 0) {
-            MatchManager.Instance.OnMatchStart();
+            MatchManager.Instance.OnMatchStart(SteamNetManager.Instance.Hosting);
         }
 
     }
@@ -77,13 +78,28 @@ public class MatchManager : MonoBehaviour {
     /// On match start, this will fire before anything else in the game loads
     /// This should spawn in command centers for each player
     /// </summary>
-    public void OnMatchStart() {
+    public void OnMatchStart(bool isHost) {
 
         //Generate Grid
         GridSystem.GenerateGrid();
 
-        //Spawn command centers for each player in the match
+        //Locate all spawn points
+        GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        int spawnIndex = 0;
 
+        //Only if host
+        if (isHost) {
+
+            //Spawn command centers for each player in the match
+            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
+
+                //For each player, spawn them (for now) into a spawn point round robin, assign the building to them
+                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Quaternion.identity, n.Key);
+
+                //Move to next spawn point
+                spawnIndex++;
+            }
+        }
     }
 
     #endregion

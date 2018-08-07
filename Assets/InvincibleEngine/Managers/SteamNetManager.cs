@@ -153,20 +153,19 @@ namespace SteamNet {
 
             InitializeSteam();
             StartCoroutine(NetworkUpdate());
-
-
-
         }
 
         public void Update() {
 
             //Disable network view
-            if (Input.GetKeyDown(KeyCode.N)) {
+            if (Input.GetKeyDown(KeyCode.BackQuote)) {
                 GUIToggle = GUIToggle ? false : true;
             }
 
-            if (Input.GetKeyDown(KeyCode.M)) {
-                UIMessage.GlobalMessage.DisplayMessage("Message Test");
+            //Always check to see if the currently joined lobby has started the game, if so be sure to load in
+            //Unless we are not in the lobby, then don't always be loading
+            if (Connected & CurrentLobbyData.MatchStarted & SceneManager.GetActiveScene().buildIndex ==0) {
+                BeginMatch();
             }
 
             //Check for packets, like, all the time, bro
@@ -183,6 +182,7 @@ namespace SteamNet {
             while (true) {
                 try {
                     {
+
                         //Grab game state from steam server if connected to server not hosting
                         if (Connected) {
 
@@ -199,7 +199,6 @@ namespace SteamNet {
                         //Run steam callbacks
                         SteamAPI.RunCallbacks();
 
-
                         //Ensure that if the host left the lobby we leave
                         if (Connected) {
 
@@ -211,7 +210,6 @@ namespace SteamNet {
                                 }
                             }
                         }
-
 
                         //Sync lobby state to steam server
                         if (Hosting) {
@@ -376,7 +374,7 @@ namespace SteamNet {
 
                     //Entity Tracking Information
                     GUILayout.BeginVertical();
-
+                    
                     GUILayout.EndVertical();
                 }
 
@@ -573,6 +571,7 @@ namespace SteamNet {
             }
         }
 
+        //Call to leave the current lobby
         public void LeaveLobby(string reason) {
 
             //display message

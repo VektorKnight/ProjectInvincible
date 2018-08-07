@@ -11,7 +11,7 @@ public class UIControlBar : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-
+        if(SteamNetManager.Instance.NetworkState!= ENetworkState.Stopped)
         EconomyText.text = SteamNetManager.LocalPlayer.Economy.Resources.ToString();
 
 	}

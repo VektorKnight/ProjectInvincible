@@ -12,6 +12,7 @@ TagManager:
   - PlayerSpawn
   - PreviewCamera
   - IconCanvas
+  - SpawnPoint
   layers:
   - Default
   - TransparentFX

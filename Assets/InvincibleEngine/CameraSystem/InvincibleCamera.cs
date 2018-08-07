@@ -33,6 +33,7 @@ namespace InvincibleEngine.CameraSystem {
         [SerializeField] private float _rotateSpeed = 10f;
         [SerializeField] private float _zoomSmoothing = 20f;
         [SerializeField] private int _edgeScrollBuffer = 6;
+        [SerializeField] Vector3 _worldBounds = new Vector3(1000,5, 1000);
 
         [Header("Camera Features")] 
         [SerializeField] private float _fadeTime = 0.25f;
@@ -337,6 +338,13 @@ namespace InvincibleEngine.CameraSystem {
             if (_orbitMode) return;
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
             _camera.transform.localPosition = Vector3.forward * _zOffset;
+
+            //Finally, if the camera is out of the bounds of the world, clamp back to world
+            Vector3 n = transform.position;
+            transform.position = new Vector3(
+                Mathf.Clamp(n.x, 0, _worldBounds.x),
+                Mathf.Clamp(n.y, 0, _worldBounds.y),
+                Mathf.Clamp(n.z, 0, _worldBounds.z));
         }
     }
 }
