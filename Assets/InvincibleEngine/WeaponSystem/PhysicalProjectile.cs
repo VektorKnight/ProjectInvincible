@@ -14,7 +14,7 @@ namespace InvincibleEngine.WeaponSystem {
     public class PhysicalProjectile : ProjectileBehavior {            
         // Protected: Required Components
         protected MeshRenderer ProjectileRenderer;
-        protected ParticleSystem ParticleTrail;
+        protected ParticleSystem[] ParticleEffects;
         
         // Private: Ballistics Simulation
         protected Vector3 PreviousPosition;
@@ -25,7 +25,7 @@ namespace InvincibleEngine.WeaponSystem {
         public override void OnRegister() {	
             // Reference required components
             ProjectileRenderer = GetComponent<MeshRenderer>();
-            ParticleTrail = GetComponent<ParticleSystem>();
+            ParticleEffects = GetComponentsInChildren<ParticleSystem>();
             base.OnRegister();
         }
         
@@ -105,10 +105,13 @@ namespace InvincibleEngine.WeaponSystem {
             // Exit if already dead
             if (IsDead) return;
             
+            // Move to world origin
+            transform.position = Vector3.zero;
+            
             // Disable mesh renderer and set despawn timer
             ProjectileRenderer.enabled = false;
             CancelInvoke();
-            Invoke(nameof(ReturnToPool), ParticleTrail.main.duration);
+            Invoke(nameof(ReturnToPool), ParticleEffects[0].main.duration);
             
             // Set dead flag
             IsDead = true;
