@@ -109,11 +109,11 @@ namespace InvincibleEngine.Utility {
             rawData = rawData.Where(x => !string.IsNullOrEmpty(x)).ToArray();
             
             // Exit if the keyword is not in the registry
-            if (!CommandRegistry.ContainsKey(rawData[0])) {
+            //if (!CommandRegistry.ContainsKey(rawData[0])) {
                 // Inform the user that the given command is malformed or invalid
-                LogWarning("Commands", $"Invalid or malformed command: <b>{rawData[0]}</b>");
+                //LogWarning("Commands", $"Invalid or malformed command: <b>{rawData[0]}</b>");
                 return;
-            }
+            //}
             
             // Try to parse the arguments within the split entry string
             
