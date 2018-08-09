@@ -37,6 +37,15 @@ namespace VektorLibrary.Utility {
             }
         }
         
+        public static Rect ScreenSpaceRect(this RectTransform transform)
+        {
+            var size = Vector2.Scale(transform.rect.size, transform.lossyScale);
+            var rect = new Rect(transform.position.x, Screen.height - transform.position.y, size.x, size.y);
+            rect.x -= (transform.pivot.x * size.x);
+            rect.y -= ((1.0f - transform.pivot.y) * size.y);
+            return rect;
+        }
+        
         // Reset the transform values
         public static void ResetTransform(this Transform transform) {
             transform.position = Vector3.zero;
