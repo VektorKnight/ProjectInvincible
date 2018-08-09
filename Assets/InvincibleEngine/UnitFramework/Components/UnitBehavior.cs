@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using InvincibleEngine.CameraSystem;
+using InvincibleEngine.Managers;
 using InvincibleEngine.SelectionSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
@@ -115,7 +116,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Construct this unit's icon if possible
             if (_iconSprite != null) {            
                 // Load the appropriate template for the unit type
-                var template = Resources.Load<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
+                var template = AssetManager.LoadAsset<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
                 
                 // Instantiate and initialize the unit icon
                 Icon = Instantiate(template);
@@ -126,7 +127,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Construct this unit's health bar
             if (_healthSprite != null) {
-                var healthBar = Resources.Load<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
+                var healthBar = AssetManager.LoadAsset<UnitScreenSprite>("Objects/Templates/UnitScreenSprite");
 
                 // Instantiate and initialize the health bar
                 HealthBar = Instantiate(healthBar);

@@ -44,7 +44,7 @@ namespace VektorLibrary.Utility {
             transform.localScale = Vector3.one;
         }
 
-        //Returns a directional vector based on the input
+        // Returns a directional vector based on the input
         public static Vector3 GetDirectionVector(Transform transform, DirectionVectors direction) {
             switch (direction) {
                 case DirectionVectors.GForward: { return Vector3.forward; }

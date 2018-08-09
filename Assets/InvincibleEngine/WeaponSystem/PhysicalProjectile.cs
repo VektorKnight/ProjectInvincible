@@ -9,23 +9,31 @@ namespace InvincibleEngine.WeaponSystem {
     /// Base class for physically simulated projectiles.
     /// Best used where realistic ballistics are desirable.
     /// </summary>
-    [RequireComponent(typeof(TrailRenderer))]
+    [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(ParticleSystem))]
     public class PhysicalProjectile : ProjectileBehavior {            
         // Protected: Required Components
-        protected TrailRenderer ProjectileTrail;
+        protected MeshRenderer ProjectileRenderer;
+        protected ParticleSystem ParticleTrail;
         
         // Private: Ballistics Simulation
         protected Vector3 PreviousPosition;
         protected RaycastHit HitInfo;
+        protected bool IsDead;
         
         // Initialization
         public override void OnRegister() {	
-            ProjectileTrail = GetComponent<TrailRenderer>();
+            // Reference required components
+            ProjectileRenderer = GetComponent<MeshRenderer>();
+            ParticleTrail = GetComponent<ParticleSystem>();
             base.OnRegister();
         }
         
         // Sim Update
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
+            // Exit if this projectile is dead (has hit something)
+            if (IsDead) return;
+            
             // Apply acceleration due to gravity
             CurrentVelocity += Vector3.up * GravityForce * fixedDelta;
             
@@ -43,25 +51,21 @@ namespace InvincibleEngine.WeaponSystem {
                 
                 // Attempt to reference UnitBehavior on collider, exit if null
                 var unit = HitInfo.collider.GetComponent<UnitBehavior>();
-                if (unit == null) {
-                    ReturnToPool();
-                    return;
-                };
                 
                 // Set the projectile to the collision point and reset velocity
                 transform.position = HitInfo.point;
                 CurrentVelocity = Vector3.zero;
                 
                 // Apply damage to the unit
-                unit.ApplyDamage(Damage);
+                unit?.ApplyDamage(Damage);
                 
                 // Calculate where to instantiate the impact effect
                 var pos = HitInfo.point - (transform.forward * 0.125f);
                 var rot = Quaternion.FromToRotation(Vector3.forward, -transform.forward);
                 ObjectManager.GetObject(ImpactEffect.gameObject, pos, rot);
                 
-                // Return to pool
-                ReturnToPool();
+                // Kill projectile on impact
+                KillProjectile();
             }
             // Set previous position
             PreviousPosition = transform.position;
@@ -72,9 +76,6 @@ namespace InvincibleEngine.WeaponSystem {
         
         // Projectile initialization
         public override void Initialize (LayerMask collisionMask, Transform target = null) {
-            // Reset the trail renderer state
-            ProjectileTrail.Clear();
-			
             // Update previous position (anti-clip)
             PreviousPosition = transform.position;
             
@@ -82,13 +83,35 @@ namespace InvincibleEngine.WeaponSystem {
             base.Initialize(collisionMask, target);
         }
         
+        // Object Pool: Retrieved from pool
+        public override void OnRetrieved() {
+            // Reset mesh renderer state and dead flag
+            ProjectileRenderer.enabled = true;
+            IsDead = false;
+        }
+
         // Object Pool: Returned to pool
-        public override void OnReturned() {
-            // Reset the trail renderer state
-            ProjectileTrail.Clear();
-			
+        public override void OnReturned() {		
+            // Reset mesh renderer state
+            ProjectileRenderer.enabled = true;
+            transform.position = Vector3.zero;
+            
             // Call base method
             base.OnReturned();
+        }
+        
+        // Kills this projectile (called on impact)
+        protected virtual void KillProjectile() {
+            // Exit if already dead
+            if (IsDead) return;
+            
+            // Disable mesh renderer and set despawn timer
+            ProjectileRenderer.enabled = false;
+            CancelInvoke();
+            Invoke(nameof(ReturnToPool), ParticleTrail.main.duration);
+            
+            // Set dead flag
+            IsDead = true;
         }
     }
 }

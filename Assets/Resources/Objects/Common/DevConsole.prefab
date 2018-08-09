@@ -298,8 +298,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _toggleKey: 96
+  _commandKey: 13
   _consoleText: {fileID: 114213700684122466}
-  _commandInput: {fileID: 0}
+  _commandInput: {fileID: 114843430800956666}
 --- !u!114 &114141072933351998
 MonoBehaviour:
   m_ObjectHideFlags: 1

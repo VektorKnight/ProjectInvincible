@@ -1205,48 +1205,6 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 1
---- !u!1001 &253178294
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 292.69
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 62.85
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 500.08
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4000011608631930, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 1d4bec13696fbab48bae018b084f8104, type: 2}
-  m_IsPrefabAsset: 0
 --- !u!1 &295622494
 GameObject:
   m_ObjectHideFlags: 0
@@ -2794,7 +2752,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &564575950
 GameObject:
@@ -3242,6 +3200,7 @@ MonoBehaviour:
   _rotateSpeed: 10
   _zoomSmoothing: 0.1
   _edgeScrollBuffer: 6
+  _worldBounds: {x: 1000, y: 500, z: 1000}
   _fadeTime: 0.25
   _geometryMask:
     serializedVersion: 2
@@ -3265,7 +3224,7 @@ Transform:
   m_Children:
   - {fileID: 319097701}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!1 &648107532
 GameObject:
@@ -6843,7 +6802,7 @@ RectTransform:
   - {fileID: 1440389555}
   - {fileID: 2128109041}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -9062,7 +9021,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 50, y: 180, z: 0}
 --- !u!1 &1761233227
 GameObject:
@@ -11023,7 +10982,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2125113153
 GameObject:
