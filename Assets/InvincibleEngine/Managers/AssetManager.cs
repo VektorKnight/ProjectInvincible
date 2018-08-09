@@ -4,6 +4,7 @@ using System.Linq;
 using InvincibleEngine.DataTypes;
 using InvincibleEngine.Utility;
 using UnityEngine;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.Managers {
     /// <summary>

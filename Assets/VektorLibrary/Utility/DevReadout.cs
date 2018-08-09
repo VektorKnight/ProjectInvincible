@@ -53,10 +53,7 @@ namespace VektorLibrary.Utility {
         }
 
         // Initialization
-        private void Initialize() {
-            // Display the readout by default if dev build or editor
-            if (Debug.isDebugBuild) _enabled = true;
-            
+        private void Initialize() {       
             // Set up some default readouts
             AddField("Vektor Games");
             var version = Debug.isDebugBuild ? "DEVELOPMENT" : "DEPLOY";

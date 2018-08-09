@@ -6,7 +6,7 @@ using InvincibleEngine.DataTypes;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InvincibleEngine.Utility {
+namespace VektorLibrary.Utility {
     /// <summary>
     /// Controller for the development console.
     /// </summary>
@@ -64,7 +64,7 @@ namespace InvincibleEngine.Utility {
             _stringBuilder = new StringBuilder();
             
             // Enable console by default in development builds
-            _canvas.enabled = Debug.isDebugBuild;
+            _canvas.enabled = false;
         }
        
         // Log a message to the console

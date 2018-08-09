@@ -5,6 +5,7 @@ using InvincibleEngine;
 using InvincibleEngine.Utility;
 using SteamNet;
 using VektorLibrary.EntityFramework.Components;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine {
     /// <summary>
