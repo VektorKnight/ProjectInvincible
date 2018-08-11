@@ -39,8 +39,16 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private Sprite _iconSprite;
         [SerializeField] private Sprite _healthSprite;
 
+        [Header("Energy Shield")] 
+        [SerializeField] protected EnergyShield ShieldPrefab;
+        [SerializeField] protected Transform ShieldAnchor;
+        [SerializeField] protected bool CalculateShieldRadius = true;
+        [SerializeField] protected float ShieldRadius;
+        [SerializeField] protected float ShieldHealth = 100f;
+        [SerializeField] protected float ShieldRechargeRate = 20f;
+        [SerializeField] protected float ShieldRechargeDelay = 5f;
+
         [Header("Weapons & Combat")] 
-        [SerializeField] protected bool AutoSpawnWeapon;
         [SerializeField] protected WeaponBehavior WeaponPrefab;
         [SerializeField] protected Transform WeaponAnchor;
         [SerializeField] protected bool AutoAcquireTargets;
@@ -70,8 +78,11 @@ namespace InvincibleEngine.UnitFramework.Components {
         // Protected: Command Processing
         protected CommandParser CommandParser = new CommandParser();
         
-        // Protected: Weapons & Combat
+        // Protected: Attached Objects
+        protected EnergyShield ShieldReference;
         protected WeaponBehavior WeaponReference;
+        
+        // Protected: Weapons & Combat
         protected WaitForSeconds ScanInterval;
         protected bool WaitingForTarget = true;
         protected float SqrScanRadius;
@@ -146,8 +157,21 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Calculate the scan layers based on the unit team
             CalculateLayers();
             
-            // Spawn in and initialize the weapon prefab if enabled
-            if (AutoSpawnWeapon) {
+            // Spawn in and initialize the energy shield prefab if set
+            if (ShieldPrefab != null) {
+                // Set shield anchor to this transform if null
+                if (ShieldAnchor == null) ShieldAnchor = transform;
+                
+                // Calculate shield radius if necessary
+                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
+                
+                // Instantiate and initialize the energy shield
+                ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
+                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
+            }
+            
+            // Spawn in and initialize the weapon prefab if set
+            if (WeaponPrefab != null) {
                 // Check for improper config
                 if (WeaponAnchor == null) {
                     Debug.LogWarning("The weapon anchor on this unit has not been set!\n" +
@@ -189,6 +213,11 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Exit if this object is dying
             if (Dying) return;
             
+            // Update shield position if necessary
+            if (ShieldReference != null) {
+                ShieldReference.transform.position = ShieldAnchor.position;
+            }
+            
             // Update weapon position if necessary
             if (WeaponReference != null)
                 WeaponReference.transform.position = WeaponAnchor.transform.position;
@@ -209,8 +238,6 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Determine if this object is on screen or not
             if (GeometryUtility.TestPlanesAABB(InvincibleCamera.FrustrumPlanes, UnitRenderer.bounds)) {
                 InvincibleCamera.VisibleObjects.Add(this);
-                //Icon?.SetRender(true);
-                //HealthBar?.SetRender(true);
             }
             else {
                 InvincibleCamera.VisibleObjects.Remove(this);
@@ -235,6 +262,9 @@ namespace InvincibleEngine.UnitFramework.Components {
 					
                 // Set waiting flag to true if target found
                 WaitingForTarget = CurrentTarget == null;
+                
+                // We're done here
+                return;
             }
 
             // Make sure the current target is alive
@@ -283,7 +313,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Exit if this object is dying
             if (Dying) return;
             
-            // Set new teama nd related values
+            // Set new team and related values
             UnitTeam = team;
             UnitColor = TeamColor.GetTeamColor(team);
             Icon?.SetColor(UnitColor);
@@ -369,6 +399,10 @@ namespace InvincibleEngine.UnitFramework.Components {
             if (DeathEffect != null) {
                 var deathEffect = ObjectManager.GetObject(DeathEffect.gameObject, transform.position, Quaternion.identity);
             }
+            
+            // Destroy this unit's shield if necessary
+            if (ShieldReference != null)
+                Destroy(ShieldReference.gameObject);
             
             // Destroy this unit's weapon if necessary
             if (WeaponReference != null)

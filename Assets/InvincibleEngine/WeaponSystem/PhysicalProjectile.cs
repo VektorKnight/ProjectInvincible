@@ -49,15 +49,15 @@ namespace InvincibleEngine.WeaponSystem {
                 // Exit if the collider is somehow null or we hit a trigger volume
                 if (HitInfo.collider == null || HitInfo.collider.isTrigger) return;
                 
-                // Attempt to reference UnitBehavior on collider, exit if null
-                var unit = HitInfo.collider.GetComponent<UnitBehavior>();
+                // Attempt to reference a behavior implementing IDamageable
+                var damageable = HitInfo.collider.GetComponent<IDamageable>();
                 
                 // Set the projectile to the collision point and reset velocity
                 transform.position = HitInfo.point;
                 CurrentVelocity = Vector3.zero;
                 
-                // Apply damage to the unit
-                unit?.ApplyDamage(Damage);
+                // Apply damage to the object
+                damageable?.ApplyDamage(Damage);
                 
                 // Calculate where to instantiate the impact effect
                 var pos = HitInfo.point - (transform.forward * 0.125f);

@@ -136,7 +136,7 @@ MonoBehaviour:
   InitialVelocity: 20
   GravityScale: 0
   MaxRange: 500
-  Damage: 75
+  Damage: 100
   ImpactEffect: {fileID: 198841956466499582, guid: 197243f31b26bf84abf621b71e77bd70,
     type: 2}
   Acceleration: 50

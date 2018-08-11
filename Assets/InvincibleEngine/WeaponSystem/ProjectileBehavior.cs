@@ -6,7 +6,7 @@ namespace InvincibleEngine.WeaponSystem {
     /// <summary>
     /// Base class for all projectiles used by unit weapons.
     /// </summary>
-    public class ProjectileBehavior : PooledBehavior {
+    public abstract class ProjectileBehavior : PooledBehavior {
         // Unity Inspector
         [Header("Projectile Physics")] 
         [SerializeField] protected float CollisionRadius = 0.25f;
