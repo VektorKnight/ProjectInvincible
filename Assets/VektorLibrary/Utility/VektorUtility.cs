@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace VektorLibrary.Utility {
@@ -23,7 +24,20 @@ namespace VektorLibrary.Utility {
         public static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles) {
             return Quaternion.Euler(angles) * (point - pivot) + pivot;
         }
-        
+
+        public static bool MouseInView() {
+            #if UNITY_EDITOR
+            if (Input.mousePosition.x <= 0 || Input.mousePosition.y <= 0 || Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1) {
+                return false;
+            }
+            #else
+            if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Screen.width - 1 || Input.mousePosition.y >= Screen.height - 1) {
+            return false;
+            }
+            #endif
+            return true;
+        }
+
         // Shuffles a list
         public static void Shuffle<T>(this IList<T> list) {
             var n = list.Count;

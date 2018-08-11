@@ -4,6 +4,7 @@
 	{
 		_TintColor ("Tint Color", Color) = (1,1,1,1)
 		_MainTex ("Texture", 2D) = "white" {}
+		_Multiplier ("Color Multiplier", Range(0,50)) = 1.0
 		_EdgeBrightness ("Edge Brightness", Range(0, 1)) = 0.25
 	}
 
@@ -109,6 +110,7 @@
 
 			fixed4 _TintColor;
 			sampler2D _MainTex;
+			half _Multiplier;
 			half _EdgeBrightness;
 			float4 _MainTex_ST;
 			sampler2D _CameraDepthNormalsTexture;
@@ -123,6 +125,8 @@
 
 				o.screenUV = ((o.vertex.xy / o.vertex.w) + 1)/2;
 				o.screenUV.y = 1 - o.screenUV.y;
+
+				o.uv += _Time;
 
 				o.objectPos = v.vertex.xyz;
 				o.depth = -UnityObjectToViewPos(v.vertex).z *_ProjectionParams.w;
@@ -151,7 +155,7 @@
 				fixed4 glowColor = fixed4(lerp(_TintColor.rgb, edgeColor, pow(glow, 4)), 1);
 
 				// Calculate combined tint and main texture color
-				fixed4 combinedColor = _TintColor * tex2D(_MainTex, i.uv);
+				fixed4 combinedColor = _TintColor * tex2D(_MainTex, i.uv) * _Multiplier;
 
 				// Calculate final color from combined color and glow
 				fixed4 finalColor = combinedColor * combinedColor.a + glowColor * glow;

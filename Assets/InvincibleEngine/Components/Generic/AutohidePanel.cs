@@ -75,7 +75,8 @@ namespace InvincibleEngine.Components.Generic {
         // Unity Update
         private void Update() {
             var panelRect = _rectTransform.ScreenSpaceRect();
-            if (!panelRect.Contains(Input.mousePosition, true))
+            var mouseOverRect = panelRect.Contains(Input.mousePosition, true) && VektorUtility.MouseInView();
+            if (!mouseOverRect)
                 OnPointerExit();
             else 
                 OnPointerEnter();
