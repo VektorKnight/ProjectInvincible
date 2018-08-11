@@ -77,9 +77,9 @@ namespace InvincibleEngine.Components.Generic {
             var panelRect = _rectTransform.ScreenSpaceRect();
             if (!panelRect.Contains(Input.mousePosition, true))
                 OnPointerExit();
-            else {
+            else 
                 OnPointerEnter();
-            }
+            
             
             // Calculate movement delta
             var sign = _hiding ? -1.0f : 1.0f;

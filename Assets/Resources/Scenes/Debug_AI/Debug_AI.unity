@@ -970,12 +970,22 @@ Prefab:
     - target: {fileID: 114808134989133028, guid: 6ea440f011379104a939ef919f59a6c4,
         type: 2}
       propertyPath: _downSample
-      value: 8
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 114808134989133028, guid: 6ea440f011379104a939ef919f59a6c4,
         type: 2}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114808134989133028, guid: 6ea440f011379104a939ef919f59a6c4,
+        type: 2}
+      propertyPath: _blurPower
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114808134989133028, guid: 6ea440f011379104a939ef919f59a6c4,
+        type: 2}
+      propertyPath: _bufferEvent
+      value: 15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6ea440f011379104a939ef919f59a6c4, type: 2}

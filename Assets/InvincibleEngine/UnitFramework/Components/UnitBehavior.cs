@@ -39,12 +39,12 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private Sprite _iconSprite;
         [SerializeField] private Sprite _healthSprite;
 
-        [Header("Weapon & Combat")] 
+        [Header("Weapons & Combat")] 
         [SerializeField] protected bool AutoSpawnWeapon;
         [SerializeField] protected WeaponBehavior WeaponPrefab;
         [SerializeField] protected Transform WeaponAnchor;
         [SerializeField] protected bool AutoAcquireTargets;
-        [SerializeField] protected TargetingMode TargetingMode = UnitFramework.TargetingMode.Random;
+        [SerializeField] protected TargetingMode TargetingMode = TargetingMode.Random;
         [SerializeField] protected float ScanRadius = 50f;
 
         [Header("Destruction Aesthetics")] 
@@ -110,8 +110,12 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Fetch team color from team
             UnitColor = TeamColor.GetTeamColor(UnitTeam);
-            UnitRenderer.material.SetColor("_TeamColor", UnitColor);
-            UnitRenderer.material.SetColor("_EmissionColor", UnitColor);
+            
+            // Set instanced material properties
+            var properties = new MaterialPropertyBlock();
+            properties.SetColor("_TeamColor", UnitColor);
+            properties.SetColor("_EmissionColor", UnitColor);
+            UnitRenderer.SetPropertyBlock(properties);
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {            
@@ -312,7 +316,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             if (Dying) return;
             
             // Set icon state to selected
-            Icon.SetSelected(true);
+            Icon?.SetSelected(true);
             SelectionIndicator.SetTargetColor(UnitColor);
             
             // Set selected flag

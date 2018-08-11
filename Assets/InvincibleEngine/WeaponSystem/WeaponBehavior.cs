@@ -55,8 +55,10 @@ namespace InvincibleEngine.WeaponSystem {
 			
 			// Assign team and glow material properties
 			if (WeaponRenderer != null) {
-				WeaponRenderer.material.SetColor("_TeamColor", Parent.UnitColor);
-				WeaponRenderer.material.SetColor("_EmissionColor", Parent.UnitColor);
+				var properties = new MaterialPropertyBlock();
+				properties.SetColor("_TeamColor", Parent.UnitColor);
+				properties.SetColor("_EmissionColor", Parent.UnitColor);
+				WeaponRenderer.SetPropertyBlock(properties);
 			}
 
 			// Calculate optimized range check value

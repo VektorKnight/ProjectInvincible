@@ -41,6 +41,7 @@ GameObject:
   - component: {fileID: 81762243503767070}
   - component: {fileID: 114743620409452700}
   - component: {fileID: 114603884207257116}
+  - component: {fileID: 114825955574165286}
   - component: {fileID: 114246198905857426}
   - component: {fileID: 114413213777720642}
   - component: {fileID: 114808134989133028}
@@ -107,7 +108,7 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 524087
-  m_RenderingPath: -1
+  m_RenderingPath: 1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
@@ -131,7 +132,7 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1487541928149596}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: b039fbe2b0744054b86fda037ba25d38, type: 3}
@@ -328,8 +329,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57eeb4e0698e7654c862733111733e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _bufferEvent: 19
+  _blurPower: 2
   _downSample: 4
-  _blurShader: {fileID: 4800000, guid: 34b2d4af780ce6e4197e3875973adbe5, type: 3}
+--- !u!114 &114825955574165286
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1693833527049762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f90e1dcdec454b78af12db32bc69433c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114951270753216720
 MonoBehaviour:
   m_ObjectHideFlags: 1

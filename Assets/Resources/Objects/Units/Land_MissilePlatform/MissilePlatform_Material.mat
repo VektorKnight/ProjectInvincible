@@ -7,10 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: MissilePlatform_Material
-  m_Shader: {fileID: 4800000, guid: f25c902aada72614a9cbf83245296717, type: 3}
+  m_Shader: {fileID: 4800000, guid: fd6d133216de0584288e8229531780bb, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -38,6 +38,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: b499a643f6190ad4eab2c48ec28dd363, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _EmissionTex:
+        m_Texture: {fileID: 2800000, guid: b499a643f6190ad4eab2c48ec28dd363, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: bb5a4c9b049d65f48b5d3781818485bb, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -55,6 +59,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TeamMap:
+        m_Texture: {fileID: 2800000, guid: 60a4d4dc0d667d447a104ef12a52091a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TeamTex:
         m_Texture: {fileID: 2800000, guid: 60a4d4dc0d667d447a104ef12a52091a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -84,3 +92,4 @@ Material:
     - _EmissionColor: {r: 1, g: 0, b: 0, a: 1}
     - _SelectionColor: {r: 0, g: 0, b: 0, a: 0}
     - _TeamColor: {r: 1, g: 0.2688679, b: 0.2688679, a: 0}
+    - _TintColor: {r: 1, g: 1, b: 1, a: 1}
