@@ -81,6 +81,7 @@ namespace VektorLibrary.Utility {
         public static void LogWarning(string caller, string message) {
             try {
                 MessageQueue.Enqueue($"<color=#f9ba1bff>[{caller}]</color> {message}\n");
+                Instance._canvas.enabled = true;
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -91,6 +92,7 @@ namespace VektorLibrary.Utility {
         public static void LogError(string caller, string message) {
             try {
                 MessageQueue.Enqueue($"<color=#ff6666ff>[{caller}]</color> {message}\n");
+                Instance._canvas.enabled = true;
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -116,9 +118,6 @@ namespace VektorLibrary.Utility {
             //}
             
             // Try to parse the arguments within the split entry string
-            
-            
-            
         }    
         
         // Unity Update

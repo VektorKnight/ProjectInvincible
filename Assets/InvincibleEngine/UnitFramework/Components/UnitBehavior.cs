@@ -347,7 +347,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Set icon state to selected
             Icon?.SetSelected(true);
-            SelectionIndicator.SetTargetColor(UnitColor);
+            SelectionIndicator?.SetTargetColor(UnitColor);
             
             // Set selected flag
             Selected = true;
@@ -360,7 +360,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Set icon state to unselected
             Icon?.SetSelected(false);
-            SelectionIndicator.SetTargetColor(Color.black);
+            SelectionIndicator?.SetTargetColor(Color.black);
             
             // Set selected flag
             Selected = false;

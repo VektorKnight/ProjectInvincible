@@ -127,7 +127,6 @@ namespace VektorLibrary.Utility {
         private void Update() {
             // Check for key presses
             if (Input.GetKeyDown(Instance._toggleKey)) ToggleReadout();
-            if (Input.GetKeyDown(Instance._showTargetingKey)) _showTargeting = !_showTargeting;
             
             // Exit if the readout is disabled
             if (!_enabled) return;

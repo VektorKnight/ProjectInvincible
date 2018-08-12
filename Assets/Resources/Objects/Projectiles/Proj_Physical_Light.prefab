@@ -133,7 +133,7 @@ MonoBehaviour:
   AutoDespawn: 1
   DespawnTime: 5
   CollisionRadius: 0.25
-  InitialVelocity: 250
+  InitialVelocity: 400
   GravityScale: 4
   MaxRange: 500
   Damage: 50

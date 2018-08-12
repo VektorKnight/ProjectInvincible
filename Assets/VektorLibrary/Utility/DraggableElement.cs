@@ -14,8 +14,9 @@ namespace VektorLibrary.Utility {
             
             // Clamp to screen space
             var clampedPosition = _rectTransform.position;
-            clampedPosition.x = Mathf.Clamp(clampedPosition.x, 0f, Screen.width);
-            clampedPosition.y = Mathf.Clamp(clampedPosition.y, 0f, Screen.height);
+            var offset = new Vector2(_rectTransform.sizeDelta.x * _rectTransform.pivot.x, _rectTransform.sizeDelta.y * _rectTransform.pivot.y);
+            clampedPosition.x = Mathf.Clamp(clampedPosition.x, offset.x, Screen.width - offset.x);
+            clampedPosition.y = Mathf.Clamp(clampedPosition.y, offset.y, Screen.height - offset.y);
             _rectTransform.position = clampedPosition;
         }
         
@@ -35,8 +36,10 @@ namespace VektorLibrary.Utility {
             
             // Clamp to screen space
             var clampedPosition = _rectTransform.position;
-            clampedPosition.x = Mathf.Clamp(clampedPosition.x, 0f, Screen.width);
-            clampedPosition.y = Mathf.Clamp(clampedPosition.y, 0f, Screen.height);
+            var minimum = new Vector2(_rectTransform.sizeDelta.x * _rectTransform.pivot.x, _rectTransform.sizeDelta.y * _rectTransform.pivot.y);
+            var maximum = new Vector2(_rectTransform.sizeDelta.x - minimum.x, _rectTransform.sizeDelta.y - minimum.y);
+            clampedPosition.x = Mathf.Clamp(clampedPosition.x, minimum.x, Screen.width - maximum.x);
+            clampedPosition.y = Mathf.Clamp(clampedPosition.y, minimum.y, Screen.height - maximum.y);
             _rectTransform.position = clampedPosition;
         }
 

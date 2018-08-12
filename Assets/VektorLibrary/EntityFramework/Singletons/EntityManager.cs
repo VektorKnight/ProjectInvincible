@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using VektorLibrary.Collections;
 using InvincibleEngine;
@@ -99,7 +100,15 @@ namespace InvincibleEngine {
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
                     if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
-                    behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
+                    try {
+                        behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
+                    }
+                    catch (Exception e) {
+                        DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnEconomyUpdate</b>!\n" +
+                                                             "Entity will be removed from the collection!\n" +
+                                                             e.Message);
+                        _entityBehaviors.Remove(_entityBehaviors[i]);
+                    }
                 }
 
                 // Invoke SIM update callback on all objects
@@ -107,7 +116,15 @@ namespace InvincibleEngine {
                 for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                     var behavior = _entityBehaviors[i];
                     if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
-                    behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
+                    try {
+                        behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
+                    }
+                    catch (Exception e) {
+                        DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnSimUpdate</b>!\n" +
+                                                             "Entity will be removed from the collection!\n" +
+                                                             e.Message);
+                        _entityBehaviors.Remove(_entityBehaviors[i]);
+                    }
                 }
                 
                 // Simulate physics once callbacks have run
@@ -125,7 +142,15 @@ namespace InvincibleEngine {
             for (var i = 0; i < _entityBehaviors.TailIndex; i++) {
                 var behavior = _entityBehaviors[i];
                 if (behavior == null || !behavior.Registered || !behavior.enabled || behavior.Terminating || !behavior.gameObject.activeSelf) continue;
-                behavior.OnRenderUpdate(Time.deltaTime);
+                try {
+                    behavior.OnRenderUpdate(Time.deltaTime);
+                }
+                catch (Exception e) {
+                    DevConsole.LogError("EntityManager", $"Exception ticking entity {i} <b>OnRenderUpdate</b>!\n" +
+                                                         "Entity will be removed from the collection!\n" +
+                                                         e.Message);
+                    _entityBehaviors.Remove(_entityBehaviors[i]);
+                }
             }
         }
     }
