@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: BlurredUI
-  m_Shader: {fileID: 4800000, guid: e278b4c93806fe3428cc3948692e8ccf, type: 3}
+  m_Name: BackgroundBlurFancy
+  m_Shader: {fileID: 4800000, guid: aebc16bc8f12d20449a30fa069cd2847, type: 3}
   m_ShaderKeywords: ETC1_EXTERNAL_ALPHA PIXELSNAP_ON _EMISSION
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 1

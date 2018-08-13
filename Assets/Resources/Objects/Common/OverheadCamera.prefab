@@ -329,8 +329,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57eeb4e0698e7654c862733111733e9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _bufferEvent: 19
-  _blurPower: 2
+  _bufferEvent: 15
+  _blurPower: 4
   _downSample: 4
 --- !u!114 &114825955574165286
 MonoBehaviour:

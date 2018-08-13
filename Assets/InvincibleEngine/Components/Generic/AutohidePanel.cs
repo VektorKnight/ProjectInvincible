@@ -33,13 +33,13 @@ namespace InvincibleEngine.Components.Generic {
         private float _currentOffset;
         
         // Set lock state of the panel
-        public void SetLockState(bool locked) {
+        public void SetLockState(bool locked , bool hidden = false) {
             _locked = locked;
-            _hiding = false;
+            _hiding = hidden;
         }
         
-        // Set hide state of the panel
-        public void HidePanel() {
+        // Internal: Set panel hidden
+        private void HidePanel() {
             _hiding = true;
         }
         

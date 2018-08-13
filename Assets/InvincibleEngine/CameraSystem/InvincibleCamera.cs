@@ -80,9 +80,12 @@ namespace InvincibleEngine.CameraSystem {
         private Vector3 _orbitMaxPoint;
         
         // Private: Icon Rendering
-        private Canvas _iconCanvas;
         private bool _iconsRendered;
         private bool _healthBarsRendered;
+        
+        // Private: Canvas Objects
+        private Canvas _gameplayCanvas;
+        private Canvas _debugCanvas;
         
         // Public Static: Useful Properties
         public static HashSet<UnitBehavior> VisibleObjects => Instance._visibleObjects;
@@ -105,10 +108,6 @@ namespace InvincibleEngine.CameraSystem {
                 return;
             }
             
-            // Load and instantiate the icon canvas
-            var iconCanvasPrefab = Resources.Load<GameObject>("Objects/Common/UnitIconCanvas");
-            _iconCanvas = Instantiate(iconCanvasPrefab, Vector3.zero, Quaternion.identity).GetComponent<Canvas>();
-            
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
             _camera.transform.localRotation = Quaternion.identity;
@@ -127,19 +126,73 @@ namespace InvincibleEngine.CameraSystem {
             // Initialize on-screen objects set
             _visibleObjects = new HashSet<UnitBehavior>();
             
+            // Try to load and instantiate gameplay canvas object
+            var gameCanvas = Resources.Load<Canvas>("Objects/Common/GameplayCanvas");
+            if (gameCanvas != null) {
+                _gameplayCanvas = Instantiate(gameCanvas, Vector3.zero, Quaternion.identity);
+                DevConsole.Log("CameraSystem", "Successfully loaded and instantiated GameplayCanvas!");
+            }
+            else {
+                DevConsole.LogError("CameraSystem", "Error loading GameplayCanvas!\n" +
+                                                    "Please ensure the prefab is present in <b>Objects/Common</b>");
+            }
+            
+            // Try to load and instantiate debug canvas if in development mode or editor
+            #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var debugCanvas = Resources.Load<Canvas>("Objects/Common/DebugCanvas");
+            if (gameCanvas != null) {
+                _debugCanvas = Instantiate(debugCanvas, Vector3.zero, Quaternion.identity);
+                DevConsole.Log("CameraSystem", "Successfully loaded and instantiated DebugCanvas!");
+            }
+            else {
+                DevConsole.LogError("CameraSystem", "Error loading DebugCanvas!\n" +
+                                                    "Please ensure the prefab is present in <b>Objects/Common</b>");
+            }
+            #endif
+            
             // Call base method
             base.OnRegister();
         }
         
-        // Appends a unit icon to the canvas
-        public static void AppendElement(UnitScreenSprite icon) {
-            if (icon == null || Instance == null) return;
-            icon.SetParent(Instance._iconCanvas.transform);
+        /// <summary>
+        /// Returns the screen position of the specified point.
+        /// </summary>
+        /// <param name="position">The point to be transformed to screen space.</param>
+        /// <returns>The screen space position of the specified point.</returns>
+        public static Vector2 GetScreenPosition(Vector3 position) {
+            try {
+                return Instance._camera.WorldToScreenPoint(position);
+            }
+            catch (Exception ex) {
+                DevConsole.LogError("CameraSystem", "An exception occured in method <b>GetScreenPosition(Vector3)</b>!\n" +
+                                                    ex.Message);
+                return Vector2.zero;
+            }
         }
         
-        // Returns the screen position of a given transform
-        public static Vector2 GetScreenPosition(Vector3 position) {
-            return Instance._camera.WorldToScreenPoint(position);
+        /// <summary>
+        /// Determines whether a given unit is in view and updates the VisibleObjects collection.
+        /// </summary>
+        /// <param name="unit">The unit requesting the update.</param>
+        /// <param name="renderer">The primary renderer attatched to the given unit.</param>
+        /// <returns>True if in view and false otherwise.</returns>
+        public static bool UpdateVisibility(UnitBehavior unit, MeshRenderer renderer) {
+            try {
+                // Add this object to the VisibleObjects collection and return true if visible
+                if (GeometryUtility.TestPlanesAABB(FrustrumPlanes, renderer.bounds)) {
+                    VisibleObjects.Add(unit);
+                    return true;
+                }
+
+                // Otherwise remove this object from the collection and return false
+                VisibleObjects.Remove(unit);
+                return false;
+            }
+            catch (Exception ex) {
+                DevConsole.LogError("CameraSystem", "An exception occured in method <b>UpdateVisibility(UnitBehavior, MeshRenderer)</b>!\n" +
+                                                    ex.Message);
+                return false;
+            }
         }
         
         // Sim Update Callback
