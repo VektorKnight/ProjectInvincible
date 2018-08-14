@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Collections;
+using System.Windows.Input;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -22,6 +23,7 @@ using InvincibleEngine.UnitFramework.DataTypes;
 
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.Managers;
+using InvincibleEngine.CameraSystem;
 
 /// <summary>
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
@@ -41,10 +43,10 @@ public class MatchManager : MonoBehaviour {
     ///can be selected in the lobby to load and test
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void ForceLobbyLoad() {
-
-        //If scene index is not zero (lobby), load lobby
-        if(SceneManager.GetActiveScene().buildIndex!=0 & !Application.isEditor) {
-            SceneManager.LoadScene(0);
+       
+        //If scene index is not zero (lobby)           and  not in edtior       or    nothing I can't get input before scene loads
+        if(SceneManager.GetActiveScene().buildIndex!=0 & (Application.isEditor)) {
+            SceneManager.LoadScene(0);            
         }        
     }
 
@@ -62,12 +64,6 @@ public class MatchManager : MonoBehaviour {
         // Ensure this singleton does not get destroyed on scene load
         DontDestroyOnLoad(Instance.gameObject);
 
-      
-        //If we load into a scene that is not the lobby, start the game with the current network lobby data and players
-        if (SceneManager.GetActiveScene().buildIndex != 0) {
-            MatchManager.Instance.OnMatchStart(SteamNetManager.Instance.Hosting);
-        }
-
     }
 
     //----------------------------------------------------
@@ -75,32 +71,20 @@ public class MatchManager : MonoBehaviour {
     //----------------------------------------------------
 
     /// <summary>
-    /// On match start, this will fire before anything else in the game loads
-    /// This should spawn in command centers for each player
+    /// Called by unity when the level loads
     /// </summary>
-    public void OnMatchStart(bool isHost) {
+    /// <param name="level"></param>
+    private void OnLevelWasLoaded(int level) {
 
-        //Generate Grid
-        GridSystem.GenerateGrid();
+        //Signal the match to start if we're not in the lobby
+        if(SceneManager.GetActiveScene().buildIndex !=0) {
 
-        //Locate all spawn points
-        GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
-        int spawnIndex = 0;
-
-        //Only if host
-        if (isHost) {
-
-            //Spawn command centers for each player in the match
-            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
-
-                //For each player, spawn them (for now) into a spawn point round robin, assign the building to them
-                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Quaternion.identity, n.Key);
-
-                //Move to next spawn point
-                spawnIndex++;
-            }
+            //Signal OnMatchStart to the match manager
+            MatchManager.Instance.OnMatchStart(SteamNetManager.Instance.Hosting);
         }
     }
+
+  
 
     #endregion
 
@@ -120,6 +104,16 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+    /// <summary>
+    /// Returns true if we have the money/room to construct something, locally determined
+    /// </summary>
+    /// <returns></returns>
+    public bool CanConstructBuilding(StructureBehavior Building, GridPoint point, CSteamID player) {
+        if (SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.Cost) && Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
+            return true;
+        }
+        else return false;
+    }
 
     /// <summary>
     /// Constructs a building, consuming resources to do so
@@ -127,7 +121,7 @@ public class MatchManager : MonoBehaviour {
     /// <param name="BuildingID">Building asset ID</param>
     /// <param name="Location">cooresponding grid coordinates</param>
     /// <param name="Orientation">rotation in degrees between 0 and 360</param>
-    public void ConstructBuilding(StructureBehavior Building, GridPoint point, Quaternion Orientation, CSteamID playerSource) {
+    public bool ConstructBuilding(StructureBehavior Building, GridPoint point, Quaternion Orientation, CSteamID playerSource, bool bypassRequirements) {
 
         //if we are connected to a server, send a build request
         if (SteamNetManager.Instance.Connected) {
@@ -135,10 +129,12 @@ public class MatchManager : MonoBehaviour {
         }
 
         //if we are hosting, attempt to construct building
-        if (SteamNetManager.Instance.Hosting) {
+        if (SteamNetManager.Instance.Hosting && (bypassRequirements||CanConstructBuilding(Building, point, playerSource))) {
 
+            Debug.Log("Spawning building, checking to see if player has enough econ for it");
             //if the player can afford it, construct it
-            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+            if ( SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+                Debug.Log("Player can afford building, spawning it");
 
                 //Instantiate object
                 GameObject n = Instantiate(Building.gameObject, point.WorldPosition, Orientation);
@@ -146,8 +142,14 @@ public class MatchManager : MonoBehaviour {
                 //Set ownership to the player that built it
                 n.GetComponent<StructureBehavior>().PlayerOwner = playerSource;
 
+                return true;
+
             }
         }
+
+        //return false if nothing worked
+        return false;
+       
     }
 
 
@@ -157,12 +159,37 @@ public class MatchManager : MonoBehaviour {
     #region  Starting/Stopping match
     //----------------------------------------------------
 
-    //Start match if everyone is ready, load into map and set lobby data.
-    //Spawns player objects for each player joining
-    public void StartMatch(LobbyData data) {
+    /// <summary>
+    /// On match start, this will fire before anything else in the game loads
+    /// This should spawn in command centers for each player, give economy, etc.
+    /// </summary>
+    public void OnMatchStart(bool isHost) {
+
+        //Generate Grid
+        GridSystem.GenerateGrid();
+
+        //Locate all spawn points
+        GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        int spawnIndex = 0;
+
+        //If hosting, Spawn command centers for each player in the match and assign them their starting resources
+        if (isHost) {
+
+            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
+                Debug.Log($"Setting econ for {n.Value.DisplayName} and spawning command center");
+                //Give each player starting resources
+                n.Value.Economy.Resources = SteamNetManager.CurrentLobbyData.StartingResources;
+
+                //For each player, spawn them (for now) a command center into a spawn point round robin, assign the building to them
+                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Quaternion.identity, n.Key, true);
+
+                //Move to next spawn point
+                spawnIndex++;
+            }
+        }
+
 
     }
-
     //End match, return to lobby and dump game data
     public void EndMatch() {
 

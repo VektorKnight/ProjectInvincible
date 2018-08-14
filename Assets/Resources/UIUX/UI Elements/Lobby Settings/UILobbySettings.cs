@@ -9,6 +9,7 @@ using InvincibleEngine.Managers;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.types.SteamClientPublic;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET.autogen;
 using _3rdParty.Steamworks.Plugins.Steamworks.NET;
+using UnityEngine.SceneManagement;
 
 public class UILobbySettings : MonoBehaviour {
 
@@ -28,7 +29,8 @@ public class UILobbySettings : MonoBehaviour {
         List<Dropdown.OptionData> mapData = new List<Dropdown.OptionData>();
 
         foreach (MapData n in AssetManager.LoadedMaps) {
-            mapData.Add(new Dropdown.OptionData(n.MapName, n.Splash));
+            Debug.Log(n.BuildIndex-1);
+            mapData.Insert(n.BuildIndex-1, new Dropdown.OptionData(n.MapName, n.Splash));
         }
 
         MapPicker.AddOptions(mapData);
@@ -82,6 +84,10 @@ public class UILobbySettings : MonoBehaviour {
             MapPicker.value = SteamNetManager.CurrentLobbyData.MapIndex;
         }
 
+        //Only able to do this if a host and owner of lobby
+        if (SteamNetManager.Instance.Hosting) {
+            SteamNetManager.CurrentLobbyData.MapIndex = MapPicker.value;
+        }
         #endregion
     }
 
@@ -90,10 +96,7 @@ public class UILobbySettings : MonoBehaviour {
     /// </summary>
     public void OnMapSelect() {
 
-        //Only able to do this if a host and owner of lobby
-        if (SteamNetManager.Instance.Hosting) {
-            SteamNetManager.CurrentLobbyData.MapIndex = MapPicker.value;
-        }
+       
     }
 
     //Sends a message to the lobby data to start the game

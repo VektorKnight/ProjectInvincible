@@ -52,6 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Splash: {fileID: 21300000, guid: b3f3b1562bf5a9e4fb70a70a8075266f, type: 3}
-  SpawnPoints: []
-  MapName: Debug AI
+  MapName: Debug_AI
+  BuildIndex: 2
   InDev: 0
+  MaxPlayers: 0

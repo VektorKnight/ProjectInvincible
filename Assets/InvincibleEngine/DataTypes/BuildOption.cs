@@ -7,5 +7,5 @@ using InvincibleEngine.UnitFramework.Components;
 
 [System.Serializable]
 public class BuildOption {
-    public UnitBehavior PrefabBuild;
+    public StructureBehavior PrefabBuild;
 }

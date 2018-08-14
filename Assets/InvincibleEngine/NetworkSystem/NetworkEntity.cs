@@ -9,10 +9,7 @@ using SteamNet;
 /// </summary>
 public class NetworkEntity : MonoBehaviour {
 
-    //Unique ID  for tracking
-    public ushort NetID;
-    public ushort AssetID;
-
+   
     
 	// Use this for initialization
 	void Awake () {

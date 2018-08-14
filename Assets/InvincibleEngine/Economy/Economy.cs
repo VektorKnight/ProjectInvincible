@@ -18,7 +18,7 @@ public class Economy {
     //Total resources in economy
     public float Resources {
         get { return _resources; }
-        private set { _resources = value; }
+        set { _resources = value; }
     }
 
     //Total energy generated
@@ -46,6 +46,11 @@ public class Economy {
     //Call to use energy on this frame
     public void OnUseEnergy(float total) {
 
+    }
+
+    //Call to see if we have enough resources for a construction
+    public bool SuffucientResources(float cost) {
+        return (cost < Resources) ? true : false;
     }
 
     //Call to use resouces to do something

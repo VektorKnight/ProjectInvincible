@@ -7,12 +7,11 @@ public class MapData : MonoBehaviour {
 
     [Header("Asset Links")]
     [SerializeField] public Sprite Splash;
-    [SerializeField] public Scene Scene;
-    [SerializeField] public GameObject[] SpawnPoints;
-
+   
     [Header("Map Properties")]
     [SerializeField] public string MapName = "";
+    [SerializeField] public int BuildIndex;
     [SerializeField] public bool InDev = false;
-    [SerializeField] public int MaxPlayers { get { return SpawnPoints.Length; } }
+    [SerializeField] public int MaxPlayers;
     
 }

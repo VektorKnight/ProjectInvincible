@@ -13,7 +13,7 @@ namespace InvincibleEngine.Managers {
     public static class AssetManager {
 
         [Header("Manifest of all entities")]
-        [SerializeField] private static List<NetworkEntity> _manifest = new List<NetworkEntity>();
+        [SerializeField] private static List<UnitBehavior> _manifest = new List<UnitBehavior>();
         [SerializeField] public static MapData[] LoadedMaps;
 
         [Header("Globally spawnable objects")]
@@ -35,10 +35,18 @@ namespace InvincibleEngine.Managers {
             //----------------------------------------------------
 
             // Load all Gameobjects (prefabs) into an array
-            var loadedResources = Resources.LoadAll<NetworkEntity>("");
+            var loadedResources = Resources.LoadAll<UnitBehavior>("");
 
             // Convert to a list for data manipulation if necessary
-            _manifest = loadedResources.ToList<NetworkEntity>();
+            _manifest = loadedResources.ToList<UnitBehavior>();
+
+
+            //Assign asset values to each object
+            for(int i=0; i<_manifest.Count; i++) {
+                _manifest[i].AssetID = (ushort)i;
+                
+                Debug.Log($"Loaded resource {_manifest[i].name}");
+            }
 
             #endregion
 
@@ -52,8 +60,11 @@ namespace InvincibleEngine.Managers {
             //Grab loadable maps
             LoadedMaps = Resources.LoadAll<MapData>("");
 
+            //Sort them
+            LoadedMaps.OrderBy(o => o.BuildIndex);
+
             #endregion
-            
+
             // Initialize the asset cache
             _cachedAssets = new Dictionary<string, CachedAsset>();
         }
@@ -63,8 +74,8 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         /// <param name="ID">Asset ID</param>
         /// <returns></returns>
-        public static GameObject LoadAssetByID(ushort ID) {
-            return _manifest[ID].gameObject;
+        public static UnitBehavior LoadAssetByID(ushort ID) {
+            return _manifest[ID].gameObject.GetComponent<UnitBehavior>();
         }
 
         /// <summary>
@@ -73,7 +84,7 @@ namespace InvincibleEngine.Managers {
         /// <param name="asset"></param>
         /// <returns></returns>
         public static ushort GetIDByAsset(GameObject asset) {
-            return asset.GetComponent<NetworkEntity>().AssetID;
+            return asset.GetComponent<UnitBehavior>().AssetID;
         }
         
         /// <summary>

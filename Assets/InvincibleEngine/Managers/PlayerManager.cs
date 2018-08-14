@@ -10,6 +10,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using VektorLibrary.AI.Systems;
 using VektorLibrary.EntityFramework.Components;
+using SteamNet;
 
 namespace InvincibleEngine.Managers {
     /// <summary>
@@ -42,7 +43,7 @@ namespace InvincibleEngine.Managers {
 
         // Building variables
         public bool BuildMode { get; set; }
-        private GameObject _buildPreview;
+        private StructureBehavior _buildPreview;
 
         // Public Static: Selection
         public static List<UnitBehavior> SelectedUnits => Instance._selectedUnits;
@@ -76,8 +77,6 @@ namespace InvincibleEngine.Managers {
             // Initialize the selection rect
             _selectionBox = new Rect(0f, 0f, 0f, 0f);
 
-            // Instantiate build preview object
-            _buildPreview = Instantiate(new GameObject());
         }
 
         // Unity Update
@@ -97,20 +96,27 @@ namespace InvincibleEngine.Managers {
             }
         }
 
+        //----------------------------------------------------
+        #region  Constructing buildings
+        //---------------------------------------------------- 
+
 
         // Called when the player wants to start building something, IE. generate preview object
-        public void OnBuildRequest(EntityBehavior building) {
+        public void OnBuildRequest(StructureBehavior building) {
 
+           
             //Set build preview
-            _buildPreview = GenerateEmptyObject(building.gameObject);
+            _buildPreview = Instantiate(GenerateEmptyObject(building.gameObject)).GetComponent<StructureBehavior>();
 
             //Activate Build Mode
             BuildMode = true;
         }
 
-        //----------------------------------------------------
-        #region  Constructing buildings
-        //---------------------------------------------------- 
+        //Call to stop construction of a building preview
+        public void OnStopBuilding() {
+            BuildMode = false;
+            Destroy(_buildPreview);
+        }
 
         //Build behavior
         private void BuildRoutine() {
@@ -118,20 +124,39 @@ namespace InvincibleEngine.Managers {
             // if in build mode, display preview options for player
             if (BuildMode) {
 
-                //Show the build preview at nearby grid points
-                _buildPreview.transform.position = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).WorldPosition;
+                //Grid point the mouse is over
+                GridPoint point = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
 
-                //Change the render color based on if the node we are hovering over is occupied
-                if (!MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
-                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
+                //Show the build preview at nearby grid points
+                _buildPreview.transform.position = point.WorldPosition;
+
+                //Change the render color based on if construction is possible 
+                if (MatchManager.Instance.CanConstructBuilding(AssetManager.LoadAssetByID(_buildPreview.AssetID).GetComponent<StructureBehavior>(), point, SteamNetManager.LocalPlayer.SteamID)) {
+                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
                 }
                 else {
-                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
+                    _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
                 }
 
                 //On left click, try and construct the building
                 if (Input.GetMouseButtonDown(0)) {
 
+                    //Attempt construction
+                    if( MatchManager.Instance.ConstructBuilding(
+                        AssetManager.LoadAssetByID(_buildPreview.AssetID).GetComponent<StructureBehavior>(),
+                        point,
+                        Quaternion.identity,
+                        SteamNetManager.MySteamID,
+                        false))
+                    {
+                        //If successful, stop building
+                        OnStopBuilding();
+                    }
+                }
+
+                //Cancel build mode
+                if(Input.GetMouseButtonDown(1)) {
+                    OnStopBuilding();
                 }
             }
         }
@@ -341,7 +366,7 @@ namespace InvincibleEngine.Managers {
 
             //Remove all behavior
             foreach (MonoBehaviour n in g.GetComponentsInChildren<MonoBehaviour>()) {
-                Destroy(n);
+                n.enabled = false;
             }
 
             //Activate and return

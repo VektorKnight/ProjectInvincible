@@ -109,6 +109,40 @@ namespace SteamNet {
     #endregion
 
     //----------------------------------------------------
+    #region  General Game Command Types
+    //----------------------------------------------------
+
+    //Construct Building request
+    public class CBuildStructure {
+
+        //Constructor
+        public CBuildStructure(ushort assetID, Vector3 location) {
+            AssetID = assetID;
+            Location = location;
+        }
+
+        //Fields
+        public ushort AssetID;
+        public Vector3 Location;      
+    }
+
+    //General ping communication to teammates
+    public class CPing {
+
+        //Constructor
+        public CPing(Vector3 location) {
+            Location = location;
+        }
+
+        //Fields
+        public Vector3 Location;
+
+    }
+
+
+    #endregion
+
+    //----------------------------------------------------
     #region Lobby and player data
     //----------------------------------------------------
 
@@ -166,6 +200,7 @@ namespace SteamNet {
         [SerializeField] public Dictionary<CSteamID, SteamnetPlayer> LobbyMembers = new Dictionary<CSteamID, SteamnetPlayer>();
         [SerializeField] public string ChatLog = "";
         [SerializeField] public int GameStartingIn = 5;
+        [SerializeField] public int StartingResources = 10000;
 
         //Match Properties
         [SerializeField] public int MapIndex = 1;

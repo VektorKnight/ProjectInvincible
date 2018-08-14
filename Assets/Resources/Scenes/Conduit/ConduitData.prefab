@@ -52,10 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Splash: {fileID: 21300000, guid: b122eb2d56e5b094ba91ecdecd81f10b, type: 3}
-  SpawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   MapName: Conduit
+  BuildIndex: 1
   InDev: 0
+  MaxPlayers: 0

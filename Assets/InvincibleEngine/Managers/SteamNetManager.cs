@@ -514,6 +514,34 @@ namespace SteamNet {
 
         }
 
+
+        /// <summary>
+        /// Sends a message to the host if connected to one, or sends a message to all connected clients if hosting a game
+        /// doing this generates GC as the buffer and data stream must be filled with bytes and destroyed, this is normal
+        /// </summary>
+        /// <param name="message"></param>
+        public void SendDataToLobby(object[] message) {
+
+            //Prepare buffer of serialized message
+            List<byte> buffer = new List<byte>();
+
+            //Iterate through all messages and pack them into buffer
+            for(int i=0;i<message.Length; i++) {
+                HexSerialize.Zip(buffer, message[i], 10000);
+            }
+
+            //If hosting, relay to all clients
+            if (Hosting) {
+
+            }
+
+            //If connected, relay to host
+            if(Connected) {
+
+            }
+
+        }
+        
         #endregion
 
         //----------------------------------------------------
@@ -793,11 +821,11 @@ namespace SteamNet {
 
             //in the end, both load scene, account for index 0 being lobby, so increment by 1
             if (Connected | Hosting) {
+                
+                //Load desired level
                 SceneManager.LoadScene(CurrentLobbyData.MapIndex + 1);
             }
-
         }
-
 
         // Called from getting information about a lobby
         private void OnGetLobbyInfo(LobbyDataUpdate_t param) {

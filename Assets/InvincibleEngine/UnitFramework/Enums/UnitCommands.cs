@@ -10,4 +10,5 @@ namespace InvincibleEngine.UnitFramework.Enums {
         Hold = 16,
         Stop = 32
     }
+    
 }

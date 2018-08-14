@@ -8,7 +8,7 @@ using VektorLibrary.EntityFramework.Components;
 
 public class UIAction : MonoBehaviour {
     public Image DisplayImage;
-    public EntityBehavior Action;
+    public StructureBehavior Action;
 
     public void OnAction() {
         PlayerManager.Instance.OnBuildRequest(Action);

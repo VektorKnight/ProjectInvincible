@@ -7,12 +7,13 @@ using SteamNet;
 public class UIControlBar : MonoBehaviour {
 
     //Object Reference
-    [SerializeField] private Text EconomyText;
+    [SerializeField] private Text Resources,Energy;
 
 	// Update is called once per frame
 	void Update () {
         if(SteamNetManager.Instance.NetworkState!= ENetworkState.Stopped)
-        EconomyText.text = SteamNetManager.LocalPlayer.Economy.Resources.ToString();
+        Resources.text = SteamNetManager.LocalPlayer.Economy.Resources.ToString();
+        Energy.text = SteamNetManager.LocalPlayer.Economy.Energy.ToString();
 
-	}
+    }
 }
