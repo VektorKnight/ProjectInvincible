@@ -18,7 +18,7 @@ namespace InvincibleEngine {
 
         // Constants: Timestep
         public const float FIXED_TIMESTEP = 0.02f;     // Time interval for the fixed timestep update
-        public const float MAX_STEP_MARGIN = 0.75f;    // Maximum margin for delta time if a spike occurs
+        public const float MAX_STEP_MARGIN = 0.1f;    // Maximum margin for delta time if a spike occurs
         
         // Properties: Total number of sim ticks
         public static int SimTickCount { get; private set; }
@@ -60,10 +60,10 @@ namespace InvincibleEngine {
             // Calculate max deltas
             _stepMaxDelta = FIXED_TIMESTEP * (1f + MAX_STEP_MARGIN);
             
-            _entityBehaviors = new HashedArray<EntityBehavior>(1024);
+            _entityBehaviors = new HashedArray<EntityBehavior>(2048);
             
             // Log to dev console
-            DevConsole.Log("EntityManager", $"Simulation started with fixed timestep of {1f / FIXED_TIMESTEP:n1}Hz and maximum margin of {MAX_STEP_MARGIN:n1}s");
+            DevConsole.Log("EntityManager", $"Simulation started with fixed timestep of {FIXED_TIMESTEP * 1000f}ms and maximum margin of {MAX_STEP_MARGIN * 1000f}ms");
 
             // We're done here
             _initialized = true;

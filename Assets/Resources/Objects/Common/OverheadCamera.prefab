@@ -370,7 +370,7 @@ MonoBehaviour:
   _fadeTime: 0.25
   _geometryMask:
     serializedVersion: 2
-    m_Bits: 522496
+    m_Bits: 256
   _zoomToCursor: 1
   _enableEdgeScroll: 0
   _enableRotation: 1

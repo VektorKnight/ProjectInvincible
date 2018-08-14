@@ -3,7 +3,8 @@
 Shader "InvincibleEngine/UI/BackgroundBlurFast" {
     Properties {
         _TintColor ("Tint Color", Color) = (1,1,1,1)
-        _MainTex ("Main Texture", 2D) = "white" {}
+        _BackTint ("Background Tint", Color) = (1,1,1,1)
+        _MainTex ("Main Texture", 2D) = "white" {}    
     }
     SubShader {
         Tags {
@@ -28,7 +29,9 @@ Shader "InvincibleEngine/UI/BackgroundBlurFast" {
             uniform sampler2D _DSGrabTex;
 
             // Tint color and main texture
-            uniform float4 _TintColor;
+            uniform fixed4 _TintColor;
+            uniform fixed4 _BackTint;
+            uniform half _BackBright;
             uniform sampler2D _MainTex; 
             uniform float4 _MainTex_ST;
             
@@ -67,7 +70,7 @@ Shader "InvincibleEngine/UI/BackgroundBlurFast" {
                 fixed4 mainTexSample = tex2D(_MainTex,TRANSFORM_TEX(i.uv0, _MainTex));
 
                 // Grab the blurred pass sample and mask it by the main texture alpha
-                fixed4 blurSample = tex2D(_DSGrabTex, screenPos);
+                fixed4 blurSample = tex2D(_DSGrabTex, screenPos) * _BackTint * 2;
 
                 if (mainTexSample.a > 0.8)
                     blurSample = saturate(blurSample * mainTexSample.a);

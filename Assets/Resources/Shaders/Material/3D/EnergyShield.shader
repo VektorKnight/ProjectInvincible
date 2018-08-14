@@ -16,12 +16,12 @@
 			"Queue"="Transparent"
 		}
 
-		Blend OneMinusDstColor One
-		ZWrite Off
-		Cull Off
-
 		Pass
 		{
+			Blend OneMinusDstColor One
+			ZWrite Off
+			Cull Off
+
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag

@@ -9,77 +9,48 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1620081110383604}
+  m_RootGameObject: {fileID: 1296665374669674}
   m_IsPrefabAsset: 1
---- !u!1 &1099471996357090
+--- !u!1 &1296665374669674
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4081876166640372}
-  m_Layer: 15
-  m_Name: Weapon Anchor
+  - component: {fileID: 4845061363088712}
+  - component: {fileID: 33453576467308216}
+  - component: {fileID: 23769811906658084}
+  - component: {fileID: 195013169612023080}
+  - component: {fileID: 114596822203302514}
+  - component: {fileID: 114845105338764128}
+  - component: {fileID: 65816786928960876}
+  m_Layer: 0
+  m_Name: Land_MobileShield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1620081110383604
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4650950218731880}
-  - component: {fileID: 33413218033056926}
-  - component: {fileID: 23387112536263708}
-  - component: {fileID: 65367089835252634}
-  - component: {fileID: 114607497393256244}
-  - component: {fileID: 195848101477619378}
-  - component: {fileID: 114728793679915498}
-  m_Layer: 15
-  m_Name: Land_LightTank
-  m_TagString: Entity
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4081876166640372
+--- !u!4 &4845061363088712
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1099471996357090}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.75, z: 0}
+  m_GameObject: {fileID: 1296665374669674}
+  m_LocalRotation: {x: -6.123234e-17, y: 1, z: 6.123234e-17, w: -3.7493994e-33}
+  m_LocalPosition: {x: 508.77658, y: 5.18, z: 288.68567}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4650950218731880}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4650950218731880
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 451.86758, y: 1.7071381, z: 263.503}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 4081876166640372}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23387112536263708
+--- !u!23 &23769811906658084
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
+  m_GameObject: {fileID: 1296665374669674}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -89,7 +60,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 9d0dc2dcd5fe5e341a0ec0fb44ab5d66, type: 2}
+  - {fileID: 2100000, guid: 3840118b204fa2044970bfd3639c9d32, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,31 +80,43 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33413218033056926
+--- !u!33 &33453576467308216
 MeshFilter:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
-  m_Mesh: {fileID: 4300006, guid: 095fdde2b5f419145a89af7ff2669ece, type: 3}
---- !u!65 &65367089835252634
+  m_GameObject: {fileID: 1296665374669674}
+  m_Mesh: {fileID: 4300000, guid: b2f003942d4228344931548657c890e3, type: 3}
+--- !u!65 &65816786928960876
 BoxCollider:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
+  m_GameObject: {fileID: 1296665374669674}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.561298, y: 0.87500036, z: 3.671875}
-  m_Center: {x: 0.00000011920929, y: 0.049999908, z: 0.2734375}
---- !u!114 &114607497393256244
+  m_Size: {x: 2.2437868, y: 1.0270092, z: 3}
+  m_Center: {x: 0, y: 0.18763077, z: 0}
+--- !u!114 &114596822203302514
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
+  m_GameObject: {fileID: 1296665374669674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d7835d277c941249bee7ef877d8a342, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LerpFactor: 10
+--- !u!114 &114845105338764128
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1296665374669674}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e57f09556aa70214d9a0e31d70c7fd26, type: 3}
@@ -141,59 +124,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerOwner:
     m_SteamID: 0
-  _unitType: 1
+  _unitType: 0
   Health: 100
   _cost: 100
   _iconSprite: {fileID: 21300000, guid: eee522fbd27e68a4eb433d71bad9692d, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
-  ShieldPrefab: {fileID: 0}
-  ShieldAnchor: {fileID: 0}
-  CalculateShieldRadius: 1
-  ShieldRadius: 6
-  ShieldHealth: 100
-  ShieldRechargeRate: 20
-  ShieldRechargeDelay: 5
-  WeaponPrefab: {fileID: 114336591965011058, guid: 3966ae263ffe5eb49b44024b9db3a972,
+  ShieldPrefab: {fileID: 114099295224392054, guid: b5685ae7aff991149bc620e65bded9b1,
     type: 2}
-  WeaponAnchor: {fileID: 4081876166640372}
-  AutoAcquireTargets: 1
+  ShieldAnchor: {fileID: 0}
+  CalculateShieldRadius: 0
+  ShieldRadius: 75
+  ShieldHealth: 500
+  ShieldRechargeRate: 20
+  ShieldRechargeDelay: 10
+  WeaponPrefab: {fileID: 0}
+  WeaponAnchor: {fileID: 0}
+  AutoAcquireTargets: 0
   TargetingMode: 1
-  ScanRadius: 150
+  ScanRadius: 50
   DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
     type: 2}
   ConstructionOptions: []
   BuildOptions: []
   CanBeProduced: 0
---- !u!114 &114728793679915498
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d7835d277c941249bee7ef877d8a342, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  LerpFactor: 10
---- !u!195 &195848101477619378
+--- !u!195 &195013169612023080
 NavMeshAgent:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1620081110383604}
+  m_GameObject: {fileID: 1296665374669674}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 3
-  m_Speed: 9
+  m_Radius: 1.5
+  m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 1
+  m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 1
-  m_BaseOffset: 0.5
+  m_Height: 1.4022708
+  m_BaseOffset: 0.7011354
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 1
+  m_ObstacleAvoidanceType: 4
