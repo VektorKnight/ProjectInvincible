@@ -18,11 +18,11 @@
 		_Metallic ("Metallic", Range(0,1)) = 0.0
 
 		// Construction Properties
-		_UnbuiltColor("Unbuilt Color", Color) = (0,1,0.25,1)
-		_UnbuiltTexture("Unbuilt Texture", 2D) = "white" {}
-		_UnbuiltEmission("Unbuilt Emission Power", Range(0, 10)) = 1
-		_AlphaMask ("Alpha Mask Texture", 2D) = "white" {}
-		_ClipValue ("Alpha Clip Value", Range(0, 1)) = 1
+		_BuildColor("Build Effect Color", Color) = (0,1,0.25,1)
+		_BuildMask ("Build Mask Texture", 2D) = "white" {}
+		_BuildEmission("Build Emission Power", Range(0, 20)) = 1
+		_BuildEdge ("Build Edge Clip", Range(0, 0.5)) = 0.025
+		_ClipValue ("Build Clip Value", Range(0, 1)) = 1
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" }
@@ -30,10 +30,10 @@
 
 		CGPROGRAM
 		// Physically based Standard lighting model, and enable shadows on all light types
-		#pragma surface surf Standard fullforwardshadows
+		#pragma surface surf Standard vertex:vert fullforwardshadows
 
 		// Use shader model 3.0 target, to get nicer looking lighting
-		#pragma target 3.0
+		#pragma target 4.0
 
 		// Albedo Texture and Tint
 		sampler2D _MainTex;
@@ -49,15 +49,18 @@
 		half _Metallic;
 
 		// Construction Properties
-		sampler2D _UnbuiltTexture;
-		sampler2D _AlphaMask;
+		sampler2D _BuildTexture;
+		sampler2D _BuildMask;
 
 		// Input Struct
 		struct Input {
+			// UV coords
 			float2 uv_MainTex;
-			float2 uv_UnbuiltTexture;
-			float2 uv_AlphaMask;
-			float4 screenPos;
+			float2 uv_BuildMask;
+
+			// Triplanar mapping
+			float3 localCoord;
+            float3 localNormal;
 		};
 
 		// Set up instanced properties
@@ -66,10 +69,19 @@
 			UNITY_DEFINE_INSTANCED_PROP(fixed4, _TeamColor)
 			UNITY_DEFINE_INSTANCED_PROP(fixed4, _EmissionColor)
 			UNITY_DEFINE_INSTANCED_PROP(half, _EmissionPower)
-			UNITY_DEFINE_INSTANCED_PROP(fixed4, _UnbuiltColor)
-			UNITY_DEFINE_INSTANCED_PROP(half, _UnbuiltEmission)
+			UNITY_DEFINE_INSTANCED_PROP(fixed4, _BuildColor)
+			UNITY_DEFINE_INSTANCED_PROP(half, _BuildEmission)
+			UNITY_DEFINE_INSTANCED_PROP(half, _BuildEdge)
 			UNITY_DEFINE_INSTANCED_PROP(half, _ClipValue)
 		UNITY_INSTANCING_BUFFER_END(Props)
+
+		// Vertex program
+		void vert(inout appdata_full v, out Input data)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, data);
+            data.localCoord = v.vertex.xyz;
+            data.localNormal = v.normal.xyz;
+        }
 
 		// Surface program
 		void surf (Input IN, inout SurfaceOutputStandard o) {
@@ -86,24 +98,67 @@
 			// Combine albedo and team
 			fixed4 finalAlbedo = (albedo + team) / 2;
 
-			// Sample the build mask and unbuilt color property
-			fixed4 maskSample = tex2D(_AlphaMask, IN.uv_AlphaMask);
-			fixed4 unbuiltSample = tex2D(_UnbuiltTexture, IN.uv_UnbuiltTexture) * UNITY_ACCESS_INSTANCED_PROP(Props, _UnbuiltColor);
-			half unbuiltEmission = UNITY_ACCESS_INSTANCED_PROP(Props, _UnbuiltEmission);
+			// Access instanced copnstruction properties
+			//fixed4 maskSample = tex2D(_BuildMask, IN.uv_BuildMask);
+			fixed4 buildColor = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildColor);
+			//fixed4 buildSample = tex2D(_BuildTexture, IN.uv_BuildTexture) * buildColor;
 
-			// Set output albedo and emission or unbuilt color based on clip value
-			if (maskSample.a <= UNITY_ACCESS_INSTANCED_PROP(Props, _ClipValue)) {
-				o.Albedo = finalAlbedo.rgb;
-				o.Emission = emission;
-			}
-			else {
-				o.Albedo = unbuiltSample;
-				o.Emission = unbuiltSample * unbuiltEmission;
+			fixed4 buildEmission = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEmission) * buildColor;
+			half buildEdge = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEdge);
+			half clipValue = UNITY_ACCESS_INSTANCED_PROP(Props, _ClipValue);
+
+			// Branch for clip value
+			if (clipValue < 1) {
+				// Blending factor of triplanar mapping
+            	float3 bf = normalize(abs(IN.localNormal));
+            	bf /= dot(bf, (float3)1);
+
+            	// Triplanar mapping
+            	float2 tx = IN.localCoord.yz * 0.25;
+            	float2 ty = IN.localCoord.zx * 0.25;
+            	float2 tz = IN.localCoord.xy * 0.25;
+
+            	// Build mask sample
+            	half4 mx = tex2D(_BuildMask, tx) * bf.x;
+            	half4 my = tex2D(_BuildMask, ty) * bf.y;
+            	half4 mz = tex2D(_BuildMask, tz) * bf.z;
+            	half4 maskSample = (mx + my + mz);
+
+				// Add build color to mask sample
+            	half4 buildSample = maskSample * buildColor;
+
+				// Set output albedo and emission or unbuilt color based on clip value
+				if (maskSample.a <= clipValue) {
+					// Set edge-masked build effects to output
+					if (abs(maskSample.a - clipValue) < buildEdge) {
+						o.Albedo = buildSample;
+						o.Emission = buildEmission;
+					}
+					else {
+						// Set albedo and emission output where build effect is not
+						o.Albedo = finalAlbedo.rgb;
+						o.Emission = emission;
+						o.Metallic = _Metallic;
+						o.Smoothness = _Glossiness;
+					}
+				}
+				else {
+					// Set unbuilt texture effect to output
+					//o.Albedo = fixed4(0.1, 0.1, 0.1, 1) * maskSample;
+					//o.Metallic = _Metallic;
+					//o.Smoothness = 0;
+					discard;
+				}
+				return;
 			}
 
-			// Set surface properties and final alpha
+			// Set albedo and emission output
+			o.Albedo = finalAlbedo.rgb;
+			o.Emission = emission;
 			o.Metallic = _Metallic;
 			o.Smoothness = _Glossiness;
+
+			// Set surface properties
 			o.Alpha = albedo.a;
 		}
 		ENDCG
