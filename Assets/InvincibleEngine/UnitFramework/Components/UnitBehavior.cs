@@ -10,6 +10,7 @@ using InvincibleEngine.UnitFramework.Utility;
 using InvincibleEngine.WeaponSystem;
 using VektorLibrary.EntityFramework.Components;
 using UnityEngine;
+using UnityEngine.Rendering;
 using VektorLibrary.Utility;
 using VektorLibrary.EntityFramework.Singletons;
 using Random = UnityEngine.Random;
@@ -55,12 +56,13 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected TargetingMode TargetingMode = TargetingMode.Random;
         [SerializeField] protected float ScanRadius = 50f;
 
-        [Header("Destruction Aesthetics")] 
-        [SerializeField] protected ParticleSystem DeathEffect;
-
-        //Construction
+        [Header("Construction")] 
+        [SerializeField] protected float BuildTime = 4f;
         [SerializeField] public BuildOption[] ConstructionOptions;
         [SerializeField] public UnitBehavior[] BuildOptions;
+
+        [Header("Destruction Aesthetics")] 
+        [SerializeField] protected ParticleSystem DeathEffect;
         
         // Protected: Time Slicing
         protected int SliceIndex;
@@ -74,6 +76,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Protected: Component References
         protected MeshRenderer UnitRenderer;
+        protected Collider[] UnitColliders;
+        protected MaterialPropertyBlock MaterialProperties;
         
         // Protected: Command Processing
         protected CommandParser CommandParser = new CommandParser();
@@ -105,6 +109,11 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool Invulnerable { get; protected set; }
         public bool Selected { get; protected set; }
         public bool Dying { get; protected set; }
+        
+        // Properties: Construction
+        public bool FullyBuilt { get; protected set; }
+        public float BuildTimer { get; protected set; }
+        public float BuildProgress { get; protected set; }
 
         // Denotes whether this unit can be built from somewhere, eventually this should be changed 
         // to a proper flag system that tells exactly where this unit can be made from
@@ -117,16 +126,26 @@ namespace InvincibleEngine.UnitFramework.Components {
             
             // Reference required components
             UnitRenderer = GetComponentInChildren<MeshRenderer>();
+            UnitColliders = GetComponentsInChildren<Collider>();
             SelectionIndicator = GetComponentInChildren<GlowingObject>();
+            
+            // Update required components
+            UnitRenderer.shadowCastingMode = ShadowCastingMode.Off;
+            SelectionIndicator?.SetTargetColor(Color.black);
+            foreach (var col in UnitColliders) {
+                col.enabled = false;
+            }
             
             // Fetch team color from team
             UnitColor = TeamColor.GetTeamColor(UnitTeam);
             
             // Set instanced material properties
-            var properties = new MaterialPropertyBlock();
-            properties.SetColor("_TeamColor", UnitColor);
-            properties.SetColor("_EmissionColor", UnitColor);
-            UnitRenderer.SetPropertyBlock(properties);
+            MaterialProperties = new MaterialPropertyBlock();
+            MaterialProperties.SetColor("_TeamColor", UnitColor);
+            MaterialProperties.SetColor("_EmissionColor", UnitColor);
+            MaterialProperties.SetFloat("_EmissionPower", 1f);
+            MaterialProperties.SetColor("_BuildColor", UnitColor.Inverse());
+            UnitRenderer.SetPropertyBlock(MaterialProperties);
             
             // Construct this unit's icon if possible
             if (_iconSprite != null) {            
@@ -157,19 +176,6 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Calculate the scan layers based on the unit team
             CalculateLayers();
             
-            // Spawn in and initialize the energy shield prefab if set
-            if (ShieldPrefab != null) {
-                // Set shield anchor to this transform if null
-                if (ShieldAnchor == null) ShieldAnchor = transform;
-                
-                // Calculate shield radius if necessary
-                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
-                
-                // Instantiate and initialize the energy shield
-                ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
-                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
-            }
-            
             // Spawn in and initialize the weapon prefab if set
             if (WeaponPrefab != null) {
                 // Check for improper config
@@ -191,14 +197,71 @@ namespace InvincibleEngine.UnitFramework.Components {
             base.OnRegister();
         }
         
+        // Post-Build Initialization
+        protected virtual void OnBuildComplete() {
+            // Exit if already built
+            if (FullyBuilt) return;
+            
+            // Enable unit colliders
+            foreach (var col in UnitColliders) {
+                col.enabled = true;
+            }
+            
+            // Enable shadow casting and emission
+            MaterialProperties.SetFloat("_EmissionPower", 10f);
+            UnitRenderer.SetPropertyBlock(MaterialProperties);
+            UnitRenderer.shadowCastingMode = ShadowCastingMode.On;
+            
+            // Spawn in and initialize the energy shield prefab if set
+            if (ShieldPrefab != null) {
+
+                // Set shield anchor to this transform if null
+                if (ShieldAnchor == null) ShieldAnchor = transform;
+
+                // Calculate shield radius if necessary
+                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
+
+                // Instantiate and initialize the energy shield
+                ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
+                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
+            }
+
+            // Set built flag
+            FullyBuilt = true;
+        }
+        
         // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
+            // Exit if this object is dying
+            if (Dying) return;
+            
+            // Build unit if not built
+            if (!FullyBuilt) {
+                if (BuildTimer < BuildTime) {
+                    // Add fixed delta to build timer
+                    BuildTimer += fixedDelta;
+                }
+                else {
+                    BuildTimer = BuildTime;
+                    BuildProgress = 1.0f;
+                    OnBuildComplete();
+                }
+                
+                // Calculate and clamp build progress
+                BuildProgress = BuildTimer / BuildTime;
+                BuildProgress = Mathf.Clamp01(BuildProgress);
+                
+                // Set instanced material properties
+                MaterialProperties.SetFloat("_ClipValue", BuildProgress);
+                UnitRenderer.SetPropertyBlock(MaterialProperties);
+                
+                // Exit until built
+                return;
+            }
+            
             // Run interval update as needed
             if (EntityManager.SimTickCount % TimeSlicingWindow == SliceIndex)
                 OnIntervalUpdate();
-            
-            // Exit if this object is dying
-            if (Dying) return;
             
             // Check for lethal damage
             if (CurrentHealth <= 0f)
@@ -210,8 +273,13 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         // Render Update Callback
         public override void OnRenderUpdate(float deltaTime) {
-            // Exit if this object is dying
-            if (Dying) return;
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) {
+                // Update weapon position if necessary
+                if (WeaponReference != null)
+                    WeaponReference.transform.position = WeaponAnchor.transform.position;
+                return;
+            }
             
             // Update shield position if necessary
             if (ShieldReference != null) {
@@ -342,8 +410,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Called when this unit is selected
         public virtual void OnSelected() {
-            // Exit if this object is dying
-            if (Dying) return;
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
             
             // Set icon state to selected
             Icon?.SetSelected(true);
@@ -355,8 +423,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Called when this unit is deselected
         public virtual void OnDeselected() {
-            // Exit if this object is dying
-            if (Dying) return;
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
             
             // Set icon state to unselected
             Icon?.SetSelected(false);
@@ -368,8 +436,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Processes a given command
         public virtual void ProcessCommand(UnitCommand command) {
-            // Exit if this object is dying
-            if (Dying) return;
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
             
             // Relay the command to the parser
             CommandParser.ProcessCommand(command);
@@ -377,8 +445,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         
         // Applies the specified damage value to this unit
         public virtual void ApplyDamage(float damage) {
-            // Exit if this object is dying
-            if (Dying) return;
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
             
             // Exit if this unit is marked as invulnerable
             if (Invulnerable) return;

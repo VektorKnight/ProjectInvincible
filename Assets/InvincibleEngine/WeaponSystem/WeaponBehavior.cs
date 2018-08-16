@@ -4,6 +4,7 @@ using InvincibleEngine.UnitFramework.Components;
 using UnityEngine;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.EntityFramework.Singletons;
+using VektorLibrary.Utility;
 
 namespace InvincibleEngine.WeaponSystem {
 	/// <summary>
@@ -32,6 +33,7 @@ namespace InvincibleEngine.WeaponSystem {
 		
 		// Protected: Required References
 		protected Renderer WeaponRenderer;
+		protected MaterialPropertyBlock MaterialProperties;
 		protected UnitBehavior Parent;
 		
 		// Protected: State
@@ -55,11 +57,14 @@ namespace InvincibleEngine.WeaponSystem {
 			
 			// Assign team and glow material properties
 			if (WeaponRenderer != null) {
-				var properties = new MaterialPropertyBlock();
-				properties.SetColor("_TeamColor", Parent.UnitColor);
-				properties.SetColor("_EmissionColor", Parent.UnitColor);
-				WeaponRenderer.SetPropertyBlock(properties);
+				MaterialProperties = new MaterialPropertyBlock();
+				MaterialProperties.SetColor("_TeamColor", Parent.UnitColor);
+				MaterialProperties.SetColor("_EmissionColor", Parent.UnitColor);
+				MaterialProperties.SetColor("_BuildColor", Parent.UnitColor.Inverse());
+				WeaponRenderer.SetPropertyBlock(MaterialProperties);
 			}
+
+			transform.rotation = parent.transform.rotation;
 
 			// Calculate optimized range check value
 			SqrWeaponRange = WeaponRange * WeaponRange;
@@ -67,6 +72,13 @@ namespace InvincibleEngine.WeaponSystem {
 		
 		// Sim update callback
 		public override void OnSimUpdate(float fixedDelta, bool isHost) {
+			// Exit if the parent unit is not built
+			if (!Parent.FullyBuilt) {
+				MaterialProperties.SetFloat("_ClipValue", Parent.BuildProgress);
+				WeaponRenderer.SetPropertyBlock(MaterialProperties);
+				return;
+			}
+			
 			// Update the fire timer if necessary
 			if (!CanFire) {
 				if (FireTimer <= 0)
@@ -130,7 +142,7 @@ namespace InvincibleEngine.WeaponSystem {
 		// Called to try and fire the weapon immediately
 		public virtual bool TryFire() {
 			// Exit if we cannot fire
-			if (!CanFire) return false;
+			if (!CanFire ||  !Parent.FullyBuilt) return false;
 			
 			// Fire a projectile
 			FireProjectile();

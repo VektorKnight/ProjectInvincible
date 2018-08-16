@@ -23,7 +23,7 @@ Material:
         m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     - _BuildMask:
-        m_Texture: {fileID: 2800000, guid: 3aa76c2310e2c5c47a3cd6027077bc41, type: 3}
+        m_Texture: {fileID: 2800000, guid: ca1111806911e03499e27b3b4aa9b5df, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BuildNormal:
@@ -89,6 +89,7 @@ Material:
     m_Floats:
     - _BuildEdge: 0.025
     - _BuildEmission: 20
+    - _BuildScale: 0.25
     - _BumpScale: 1
     - _ClipValue: 1
     - _Cutoff: 0.5

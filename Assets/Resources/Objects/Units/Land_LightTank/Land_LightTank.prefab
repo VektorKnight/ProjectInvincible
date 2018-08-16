@@ -161,10 +161,11 @@ MonoBehaviour:
   AutoAcquireTargets: 1
   TargetingMode: 1
   ScanRadius: 150
-  DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
-    type: 2}
+  BuildTime: 10
   ConstructionOptions: []
   BuildOptions: []
+  DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
+    type: 2}
   CanBeProduced: 0
 --- !u!114 &114728793679915498
 MonoBehaviour:

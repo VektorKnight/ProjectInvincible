@@ -20,6 +20,7 @@
 		// Construction Properties
 		_BuildColor("Build Effect Color", Color) = (0,1,0.25,1)
 		_BuildMask ("Build Mask Texture", 2D) = "white" {}
+		_BuildScale("Build Mask Scale", Range(0.01, 4)) = 1
 		_BuildEmission("Build Emission Power", Range(0, 20)) = 1
 		_BuildEdge ("Build Edge Clip", Range(0, 0.5)) = 0.025
 		_ClipValue ("Build Clip Value", Range(0, 1)) = 1
@@ -70,6 +71,7 @@
 			UNITY_DEFINE_INSTANCED_PROP(fixed4, _EmissionColor)
 			UNITY_DEFINE_INSTANCED_PROP(half, _EmissionPower)
 			UNITY_DEFINE_INSTANCED_PROP(fixed4, _BuildColor)
+			UNITY_DEFINE_INSTANCED_PROP(half, _BuildScale)
 			UNITY_DEFINE_INSTANCED_PROP(half, _BuildEmission)
 			UNITY_DEFINE_INSTANCED_PROP(half, _BuildEdge)
 			UNITY_DEFINE_INSTANCED_PROP(half, _ClipValue)
@@ -98,25 +100,24 @@
 			// Combine albedo and team
 			fixed4 finalAlbedo = (albedo + team) / 2;
 
-			// Access instanced copnstruction properties
-			//fixed4 maskSample = tex2D(_BuildMask, IN.uv_BuildMask);
-			fixed4 buildColor = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildColor);
-			//fixed4 buildSample = tex2D(_BuildTexture, IN.uv_BuildTexture) * buildColor;
-
-			fixed4 buildEmission = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEmission) * buildColor;
-			half buildEdge = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEdge);
 			half clipValue = UNITY_ACCESS_INSTANCED_PROP(Props, _ClipValue);
 
-			// Branch for clip value
+			// Branch for construction effects
 			if (clipValue < 1) {
+				// Access instanced copnstruction properties
+				fixed4 buildColor = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildColor);
+				fixed4 buildEmission = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEmission) * buildColor;
+				half buildEdge = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildEdge);
+				half buildScale = UNITY_ACCESS_INSTANCED_PROP(Props, _BuildScale);
+
 				// Blending factor of triplanar mapping
             	float3 bf = normalize(abs(IN.localNormal));
             	bf /= dot(bf, (float3)1);
 
             	// Triplanar mapping
-            	float2 tx = IN.localCoord.yz * 0.25;
-            	float2 ty = IN.localCoord.zx * 0.25;
-            	float2 tz = IN.localCoord.xy * 0.25;
+            	float2 tx = IN.localCoord.yz * buildScale;
+            	float2 ty = IN.localCoord.zx * buildScale;
+            	float2 tz = IN.localCoord.xy * buildScale;
 
             	// Build mask sample
             	half4 mx = tex2D(_BuildMask, tx) * bf.x;

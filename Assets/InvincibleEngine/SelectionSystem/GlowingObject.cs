@@ -24,7 +24,8 @@ namespace InvincibleEngine.SelectionSystem {
 		{
 			Renderers = GetComponentsInChildren<Renderer>();
 			GlowController.RegisterObject(this);
-			_targetColor = Color.white;
+			_targetColor = Color.black;
+			_currentColor = _targetColor;
 		}
 		
 		// Set new glow color

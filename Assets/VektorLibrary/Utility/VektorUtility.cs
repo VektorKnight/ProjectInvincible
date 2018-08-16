@@ -25,6 +25,10 @@ namespace VektorLibrary.Utility {
             return Quaternion.Euler(angles) * (point - pivot) + pivot;
         }
 
+        public static Color Inverse(this Color color) {
+            return new Color(1f - color.r, 1f - color.g, 1f - color.b, color.a);
+        }
+
         public static bool MouseInView() {
             #if UNITY_EDITOR
             if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1) {
