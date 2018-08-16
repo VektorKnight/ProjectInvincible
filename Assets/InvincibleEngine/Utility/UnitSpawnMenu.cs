@@ -74,7 +74,7 @@ namespace InvincibleEngine.Utility {
         // Method for spawning a unit based on current settings
         public void SpawnUnit() {
             DevConsole.Log("DebugTools", $"Spawning <b>{_spawnCount}</b> instance(s) of <b>{_spawnableUnits[_selectedUnit].name}</b> at <b>{InvincibleCamera.MouseData.WorldPosition}</b>");
-            var spawnGrid = VektorUtility.CenteredGrid(InvincibleCamera.MouseData.WorldPosition, _spawnCount);
+            var spawnGrid = VektorUtility.CenteredGrid(InvincibleCamera.MouseData.WorldPosition, _spawnCount, 1.25f);
             for (var i = 0; i < _spawnCount; i++) {
                 var unit = Instantiate(_spawnableUnits[_selectedUnit], spawnGrid[i], Quaternion.identity);
                 unit.SetTeam(_selectedTeam);

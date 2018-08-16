@@ -34,7 +34,7 @@ namespace VektorLibrary.Utility {
             count += count % 2;
             
             // Calculate side length as count / 2
-            var sideLength = count / 2;
+            var sideLength = Mathf.CeilToInt(Mathf.Sqrt(count));
             
             // Initialize grid array
             var grid = new Vector3[count];
