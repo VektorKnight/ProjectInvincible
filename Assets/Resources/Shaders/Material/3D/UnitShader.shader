@@ -20,8 +20,8 @@
 		// Construction Properties
 		_BuildColor("Build Effect Color", Color) = (0,1,0.25,1)
 		_BuildMask ("Build Mask Texture", 2D) = "white" {}
-		_BuildScale("Build Mask Scale", Range(0.01, 4)) = 1
-		_BuildEmission("Build Emission Power", Range(0, 20)) = 1
+		_BuildScale("Build Mask Scale", Range(0.01, 4)) = 0.25
+		_BuildEmission("Build Emission Power", Range(0, 20)) = 15
 		_BuildEdge ("Build Edge Clip", Range(0, 0.5)) = 0.025
 		_ClipValue ("Build Clip Value", Range(0, 1)) = 1
 	}
@@ -144,10 +144,6 @@
 					}
 				}
 				else {
-					// Set unbuilt texture effect to output
-					//o.Albedo = fixed4(0.1, 0.1, 0.1, 1) * maskSample;
-					//o.Metallic = _Metallic;
-					//o.Smoothness = 0;
 					discard;
 				}
 				return;

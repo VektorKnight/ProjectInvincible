@@ -74,8 +74,9 @@ namespace InvincibleEngine.WeaponSystem {
 		public override void OnSimUpdate(float fixedDelta, bool isHost) {
 			// Exit if the parent unit is not built
 			if (!Parent.FullyBuilt) {
-				MaterialProperties.SetFloat("_ClipValue", Parent.BuildProgress);
-				WeaponRenderer.SetPropertyBlock(MaterialProperties);
+				MaterialProperties?.SetFloat("_ClipValue", Parent.BuildProgress);
+				if (WeaponRenderer != null)
+					WeaponRenderer.SetPropertyBlock(MaterialProperties);
 				return;
 			}
 			

@@ -14,7 +14,7 @@ using UnityEngine.Rendering;
 using VektorLibrary.Utility;
 using VektorLibrary.EntityFramework.Singletons;
 using Random = UnityEngine.Random;
-
+    
 namespace InvincibleEngine.UnitFramework.Components {
     /// <summary>
     /// Base class for all unit behaviors.
@@ -304,11 +304,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             }
 
             // Determine if this object is on screen or not
-            if (GeometryUtility.TestPlanesAABB(InvincibleCamera.FrustrumPlanes, UnitRenderer.bounds)) {
-                InvincibleCamera.VisibleObjects.Add(this);
-            }
-            else {
-                InvincibleCamera.VisibleObjects.Remove(this);
+            var onScreen = InvincibleCamera.UpdateVisibility(this, UnitRenderer);
+            if (!onScreen) {
                 Icon?.SetRender(false);
                 HealthBar?.SetRender(false);
             }

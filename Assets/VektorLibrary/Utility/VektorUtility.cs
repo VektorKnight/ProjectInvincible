@@ -29,6 +29,25 @@ namespace VektorLibrary.Utility {
             return new Color(1f - color.r, 1f - color.g, 1f - color.b, color.a);
         }
 
+        public static Vector3[] CenteredGrid(Vector3 origin, int count, float scale = 1f) {
+            // Make sure count is always even
+            count += count % 2;
+            
+            // Calculate side length as count / 2
+            var sideLength = count / 2;
+            
+            // Initialize grid array
+            var grid = new Vector3[count];
+
+            for (var i = 0; i < count; i++) {
+                var x = i % sideLength;
+                var y = i / sideLength;
+                grid[i] = new Vector3(origin.x + (x * scale), origin.y, origin.z + (y * scale));
+            }
+
+            return grid;
+        }
+
         public static bool MouseInView() {
             #if UNITY_EDITOR
             if (Input.mousePosition.x == 0 || Input.mousePosition.y == 0 || Input.mousePosition.x >= Handles.GetMainGameViewSize().x - 1 || Input.mousePosition.y >= Handles.GetMainGameViewSize().y - 1) {

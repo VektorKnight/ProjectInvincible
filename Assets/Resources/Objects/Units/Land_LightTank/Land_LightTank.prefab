@@ -161,7 +161,7 @@ MonoBehaviour:
   AutoAcquireTargets: 1
   TargetingMode: 1
   ScanRadius: 150
-  BuildTime: 10
+  BuildTime: 5
   ConstructionOptions: []
   BuildOptions: []
   DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,

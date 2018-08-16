@@ -107,6 +107,9 @@ namespace InvincibleEngine {
                         DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnEconomyUpdate</b>!\n" +
                                                              "Entity will be removed from the collection!\n" +
                                                              e.Message);
+                        #if UNITY_EDITOR
+                        Debug.LogException(e);
+                        #endif
                         _entityBehaviors.Remove(_entityBehaviors[i]);
                     }
                 }
@@ -123,6 +126,9 @@ namespace InvincibleEngine {
                         DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnSimUpdate</b>!\n" +
                                                              "Entity will be removed from the collection!\n" +
                                                              e.Message);
+                        #if UNITY_EDITOR
+                        Debug.LogException(e);
+                        #endif
                         _entityBehaviors.Remove(_entityBehaviors[i]);
                     }
                 }
@@ -149,6 +155,9 @@ namespace InvincibleEngine {
                     DevConsole.LogError("EntityManager", $"Exception ticking entity {i} <b>OnRenderUpdate</b>!\n" +
                                                          "Entity will be removed from the collection!\n" +
                                                          e.Message);
+                    #if UNITY_EDITOR
+                    Debug.LogException(e);
+                    #endif
                     _entityBehaviors.Remove(_entityBehaviors[i]);
                 }
             }
