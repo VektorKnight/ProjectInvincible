@@ -97,7 +97,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1620081110383604}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 454.8497, y: 3.843, z: 291.16315}
+  m_LocalPosition: {x: 478.51306, y: 4.83, z: 302.09158}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4081876166640372}
@@ -176,7 +176,6 @@ MonoBehaviour:
     m_SteamID: 0
   _unitType: 1
   Health: 100
-  _cost: 100
   _iconSprite: {fileID: 21300000, guid: eee522fbd27e68a4eb433d71bad9692d, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
   ShieldPrefab: {fileID: 0}
@@ -192,6 +191,7 @@ MonoBehaviour:
   AutoAcquireTargets: 1
   TargetingMode: 1
   ScanRadius: 150
+  _cost: 100
   BuildTime: 5
   ConstructionOptions: []
   BuildOptions: []
@@ -311,7 +311,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 0.25
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -364,8 +364,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: -10
-      minScalar: -5
+      scalar: -20
+      minScalar: -10
       maxCurve:
         serializedVersion: 2
         m_Curve:

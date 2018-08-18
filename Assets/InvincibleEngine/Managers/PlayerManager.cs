@@ -24,6 +24,13 @@ namespace InvincibleEngine.Managers {
 
         // Singleton Instance Accessor
         public static PlayerManager Instance { get; private set; }
+        
+        // Static Events: Unit Selection
+        public delegate void UnitsSelected(List<UnitBehavior> units);
+        public static event UnitsSelected OnUnitsSelected;
+
+        public delegate void UnitsDeselected();
+        public static event UnitsDeselected OnUnitsDeselected;
 
         // Private: Unit Selection
         private List<UnitBehavior> _selectedUnits;
@@ -38,8 +45,6 @@ namespace InvincibleEngine.Managers {
 
         // Location of mouse on screen
         public Vector2 MousePosition;
-
-        // List of selected Entities
 
         // Building variables
         public bool BuildMode { get; set; }
@@ -311,6 +316,9 @@ namespace InvincibleEngine.Managers {
             foreach (var behavior in _selectedUnits) {
                 behavior.OnDeselected();
             }
+            
+            // Invoke the units deselected event
+            OnUnitsDeselected?.Invoke();
 
             // Clear the list of selected entities
             _selectedUnits.Clear();
@@ -328,6 +336,7 @@ namespace InvincibleEngine.Managers {
                 if (selectable != null) {
                     _selectedUnits.Add(selectable);
                     selectable.OnSelected();
+                    OnUnitsSelected?.Invoke(_selectedUnits);
                 }
             }
 
@@ -351,6 +360,10 @@ namespace InvincibleEngine.Managers {
                 // Invoke the OnSelected callback
                 entity.OnSelected();
             }
+            
+            // Invoke OnUnitsSelected event
+            if (_selectionBox.size.sqrMagnitude > 0f)
+                OnUnitsSelected?.Invoke(_selectedUnits);
 
             // Reset the selection rect
             _selectionBox = new Rect(0, 0, 0, 0);

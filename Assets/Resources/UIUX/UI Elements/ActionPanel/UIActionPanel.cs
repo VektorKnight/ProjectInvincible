@@ -7,7 +7,10 @@ using InvincibleEngine;
 using InvincibleEngine.Managers;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.UnitFramework.Components;
-
+/// <summary>
+/// Handles the unit actions panel component of the in-game UI.
+/// --Edited by VektorKnight: Refactored to use new selection events from PlayerManager.
+/// </summary>
 public class UIActionPanel : MonoBehaviour {
 
     //Object displaying actions of
@@ -15,45 +18,46 @@ public class UIActionPanel : MonoBehaviour {
 
     //Prefab for displaying actions
     public UIAction ActionPrefab;
+    
+    // Initialization
+    private void Start() {
+        // Register event handlers with player manager
+        PlayerManager.OnUnitsSelected += OnUnitsSelected;
+        PlayerManager.OnUnitsDeselected += OnUnitsDeselected;
+    }
+    
+    // OnUnitsSelected event handler
+    private void OnUnitsSelected(List<UnitBehavior> units) {
+        _CurrentlySelectedObject = units[0];
+        
+        // Generate actions for object
+        foreach (var n in _CurrentlySelectedObject.ConstructionOptions) {
 
-    void Update() {
+            //instantiate object
+            var u = Instantiate(ActionPrefab, transform);
 
-        //if nothing is selected, clear build list
-        if (PlayerManager.SelectedUnits.Count == 0) {
-
-            //clear current actions
-            foreach (Transform child in transform) {
-                GameObject.Destroy(child.gameObject);
-            }
-
-            //reset currently selected object
-            _CurrentlySelectedObject = null;
-
-            //break out of loop, nothing selected
-            return;
+            // Set values for object
+            u.Action = n.PrefabBuild;
+            u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
+        }
+        
+    }
+    
+    // OnUnitsDeselected event handler
+    private void OnUnitsDeselected() {
+        // Clear current actions
+        foreach (Transform child in transform) {
+            Destroy(child.gameObject);
         }
 
-        //Check to see if the selected unit changed
-        if (PlayerManager.SelectedUnits.Count > 0 && (_CurrentlySelectedObject == null || PlayerManager.SelectedUnits[0].name != _CurrentlySelectedObject.name)) {
-            
-            //Set currently actioned entity
-            _CurrentlySelectedObject = PlayerManager.SelectedUnits[0];
-
-            //clear current actions
-            foreach (Transform child in transform) {
-                GameObject.Destroy(child.gameObject);
-            }
-
-            //generate actions for object
-            foreach (BuildOption n in _CurrentlySelectedObject.ConstructionOptions) {
-
-                //instantiate object
-                UIAction u = Instantiate(ActionPrefab, transform);
-
-                //Set values for object
-                u.Action = n.PrefabBuild;
-                u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
-            }
-        }
+        // Reset currently selected object
+        _CurrentlySelectedObject = null;
+    }
+    
+    // Destroy callback
+    private void OnDestroy() {
+        // Unregister event handlers with player manager
+        PlayerManager.OnUnitsSelected -= OnUnitsSelected;
+        PlayerManager.OnUnitsDeselected -= OnUnitsDeselected;
     }
 }

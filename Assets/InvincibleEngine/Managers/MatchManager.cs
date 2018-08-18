@@ -24,6 +24,7 @@ using InvincibleEngine.UnitFramework.DataTypes;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.Managers;
 using InvincibleEngine.CameraSystem;
+using VektorLibrary.Utility;
 
 /// <summary>
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
@@ -165,18 +166,37 @@ public class MatchManager : MonoBehaviour {
     /// </summary>
     public void OnMatchStart(bool isHost) {
 
-        //Generate Grid
+        // Generate Grid
         GridSystem.GenerateGrid();
 
-        //Locate all spawn points
+        // Locate all spawn points
         GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         int spawnIndex = 0;
+        
+        // Try to spawn in the camera system prefab
+        try {
+            // Destroy any existing camera systems
+            var existingCameras = FindObjectsOfType<InvincibleCamera>();
+            foreach (var cam in existingCameras) {
+                DevConsole.LogWarning("MatchManager", "Found existing camera system in scene on match start!\n" +
+                                                      "The existing camera system will be destroyed.");
+                Destroy(cam.gameObject);
+            }
+            
+            // Load the Camera System prefab from the resources folder and try to spawn it
+            var cameraSystem = Resources.Load<InvincibleCamera>("Objects/Common/OverheadCamera");
+            Instantiate(cameraSystem, spawnPoints[0].transform.position, Quaternion.identity);
+        }
+        catch (Exception e) {
+            DevConsole.LogError("MatchManager", $"Error spawning in camera system prefab!\n" +
+                                                e.Message);
+        }
 
-        //If hosting, Spawn command centers for each player in the match and assign them their starting resources
+        // If hosting, Spawn command centers for each player in the match and assign them their starting resources
         if (isHost) {
 
             foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
-                Debug.Log($"Setting econ for {n.Value.DisplayName} and spawning command center");
+                DevConsole.Log("MatchManager", $"Spawning Command Center and setting initial economy values for <b>{n.Value.DisplayName}</b>");
                 //Give each player starting resources
                 n.Value.Economy.Resources = SteamNetManager.CurrentLobbyData.StartingResources;
 

@@ -32,7 +32,7 @@ namespace VektorLibrary.Utility {
         
         // Private Static: Message Queue / Command Registry
         private static readonly Queue<string> MessageQueue = new Queue<string>();
-        private static readonly Dictionary<string, ConsoleCommand> CommandRegistry = new Dictionary<string, ConsoleCommand>();
+        private static readonly Dictionary<string, Action> CommandRegistry = new Dictionary<string, Action>();
         
         
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -71,6 +71,13 @@ namespace VektorLibrary.Utility {
         public static void Log(string caller, string message, string nameColor = "lightblue") {
             try {
                 MessageQueue.Enqueue($"<color={nameColor}>[{caller}]</color> {message}\n");
+                
+                if (Instance._scrollBar != null)
+                    Instance._scrollBar.value = 0f;
+                
+                #if UNITY_EDITOR
+                Debug.Log(message);
+                #endif
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -82,6 +89,13 @@ namespace VektorLibrary.Utility {
             try {
                 MessageQueue.Enqueue($"<color=#f9ba1bff>[{caller}]</color> {message}\n");
                 Instance._canvas.enabled = true;
+                
+                if (Instance._scrollBar != null)
+                    Instance._scrollBar.value = 0f;
+                
+                #if UNITY_EDITOR
+                Debug.LogWarning(message);
+                #endif
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -93,6 +107,13 @@ namespace VektorLibrary.Utility {
             try {
                 MessageQueue.Enqueue($"<color=#ff6666ff>[{caller}]</color> {message}\n");
                 Instance._canvas.enabled = true;
+                
+                if (Instance._scrollBar != null)
+                    Instance._scrollBar.value = 0f;
+                
+                #if UNITY_EDITOR
+                Debug.LogError(message);
+                #endif
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
@@ -100,8 +121,8 @@ namespace VektorLibrary.Utility {
         }
         
         // Registers a command
-        public static void RegisterCommand(string keyword, ConsoleCommand command) {
-            CommandRegistry.Add(keyword, command);
+        public static void RegisterCommand(string keyword, Action action) {
+            CommandRegistry.Add(keyword.ToLower(), action);
         }
         
         // Try to parse a command string
@@ -109,15 +130,27 @@ namespace VektorLibrary.Utility {
             // Split the command string and remove empty entries
             var rawData = entry.Split(' ');
             rawData = rawData.Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            rawData[0] = rawData[0].ToLower();
+            
+            // Check for special "help" command
+            if (rawData[0] == "help") {
+                foreach (var command in CommandRegistry) {
+                    Log("Help", $"<b>{command.Key}</b> invokes <b>{command.Value.Method.Name}</b>", "lime");
+                }
+                return;
+            }
+                
             
             // Exit if the keyword is not in the registry
-            //if (!CommandRegistry.ContainsKey(rawData[0])) {
+            if (!CommandRegistry.ContainsKey(rawData[0])) {
                 // Inform the user that the given command is malformed or invalid
-                //LogWarning("Commands", $"Invalid or malformed command: <b>{rawData[0]}</b>");
+                LogWarning("Commands", $"Invalid or malformed command: <b>{rawData[0]}</b>");
                 return;
-            //}
+            }
             
-            // Try to parse the arguments within the split entry string
+            // Invoke the action paired to the specified keyword
+            Log("Commands", $"Executing command: <b>{rawData[0]}</b>", "lime");
+            CommandRegistry[rawData[0]].Invoke();
         }    
         
         // Unity Update
@@ -132,8 +165,6 @@ namespace VektorLibrary.Utility {
                 ParseCommand(_commandInput.text);
                 _commandInput.text = "";
             }
-            
-            _scrollBar.value = 0f;
             
             // Loop through the message queue and build the output string
             for (var i = 0; i < MessageQueue.Count; i++) {

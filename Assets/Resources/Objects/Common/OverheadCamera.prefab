@@ -259,8 +259,8 @@ MonoBehaviour:
   volumeLayer:
     serializedVersion: 2
     m_Bits: 4294967295
-  stopNaNPropagation: 0
-  antialiasingMode: 3
+  stopNaNPropagation: 1
+  antialiasingMode: 2
   temporalAntialiasing:
     jitterSpread: 0.75
     sharpness: 0.25
@@ -362,14 +362,12 @@ MonoBehaviour:
   _pitchRange: {x: 60, y: 90}
   _heightRangeOrbit: {x: 5, y: 500}
   _pitchRangeOrbit: {x: 0, y: 90}
-  _orbitModeMaximum: 0.25
   _panSpeedRange: {x: 75, y: 175}
   _zoomSpeed: 200
   _rotateSpeed: 10
   _zoomSmoothing: 0.1
   _edgeScrollBuffer: 6
   _worldBounds: {x: 1000, y: 500, z: 1000}
-  _fadeTime: 0.25
   _geometryMask:
     serializedVersion: 2
     m_Bits: 256

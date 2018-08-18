@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using InvincibleEngine.DataTypes;
 using InvincibleEngine.UnitFramework.Components;
-using InvincibleEngine.UnitFramework.DataTypes;
 using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
+using QualitySettings = UnityEngine.QualitySettings;
 
 namespace InvincibleEngine.CameraSystem {
     /// <summary>
@@ -26,7 +26,6 @@ namespace InvincibleEngine.CameraSystem {
         [Header("Camera View (Orbital)")] 
         [SerializeField] private Vector2 _heightRangeOrbit = new Vector2(1f, 200f);
         [SerializeField] private Vector2 _pitchRangeOrbit = new Vector2(0f, 90f);
-        [SerializeField] private float _orbitModeMaximum = 0.25f;
 
         [Header("Camera Movement")] 
         [SerializeField] private Vector2 _panSpeedRange = new Vector2(5f, 50f);
@@ -37,7 +36,6 @@ namespace InvincibleEngine.CameraSystem {
         [SerializeField] Vector3 _worldBounds = new Vector3(1000,5, 1000);
 
         [Header("Camera Features")] 
-        [SerializeField] private float _fadeTime = 0.25f;
         [SerializeField] private LayerMask _geometryMask;
         [SerializeField] private bool _zoomToCursor = true;
         [SerializeField] private bool _enableEdgeScroll = true;
@@ -96,18 +94,122 @@ namespace InvincibleEngine.CameraSystem {
         public static float ZoomLevel => Instance._zoomValue;
         public static bool IconsRendered => Instance._iconsRendered;
         public static bool HealthBarsRendered => Instance._healthBarsRendered;
+        
+        /// <summary>
+        /// Returns the screen position of the specified world position.
+        /// </summary>
+        /// <param name="position">The point to be transformed to screen space.</param>
+        /// <returns>The screen space position of the specified point.</returns>
+        public static Vector2 GetScreenPosition(Vector3 position) {
+            try {
+                return Instance._camera.WorldToScreenPoint(position);
+            }
+            catch (Exception ex) {
+                DevConsole.LogError("CameraSystem", "An exception occured in method <b>GetScreenPosition(Vector3)</b>!\n" +
+                                                    ex.Message);
+                return Vector2.zero;
+            }
+        }
+        
+        /// <summary>
+        /// Determines whether a given unit is in view and updates the VisibleObjects collection.
+        /// </summary>
+        /// <param name="unit">The unit requesting the update.</param>
+        /// <param name="renderer">The primary renderer attatched to the given unit.</param>
+        /// <returns>True if in view and false otherwise.</returns>
+        public static bool UpdateVisibility(UnitBehavior unit, MeshRenderer renderer) {
+            try {
+                // Add this object to the VisibleObjects collection and return true if visible
+                if (GeometryUtility.TestPlanesAABB(FrustrumPlanes, renderer.bounds)) {
+                    VisibleObjects.Add(unit);
+                    return true;
+                }
+
+                // Otherwise remove this object from the collection and return false
+                VisibleObjects.Remove(unit);
+                return false;
+            }
+            catch (Exception ex) {
+                DevConsole.LogError("CameraSystem", "An exception occured in method <b>UpdateVisibility(UnitBehavior, MeshRenderer)</b>!\n" +
+                                                    ex.Message);
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Toggles post-processing on the main camera.
+        /// Some command-buffer effects will remain as they are required by the engine.
+        /// </summary>
+        public static void TogglePostFX() {
+            var postLayer = Instance.GetComponentInChildren<PostProcessLayer>();
+            var postVolume = Instance.GetComponentInChildren<PostProcessVolume>();
+
+            postLayer.enabled = !postLayer.enabled;
+            postVolume.enabled = !postVolume.enabled;
+
+            DevConsole.Log("CameraSystem", $"Post-Processing Enabled: <b>{postLayer.enabled}</b>");
+        }
+        
+        /// <summary>
+        /// Toggles vertical-sync on/off
+        /// </summary>
+        public static void ToggleVSync() {
+            var syncEnabled = QualitySettings.vSyncCount == 1;
+            QualitySettings.vSyncCount = syncEnabled ? 0 : 1;
+            DevConsole.Log("CameraSystem", $"Vertical Sync Enabled: <b>{!syncEnabled}</b>");
+        }
+        
+        /// <summary>
+        /// Pans the camera by the specified delta.
+        /// </summary>
+        /// <param name="delta"></param>
+        public static void Pan(Vector2 delta) {
+            try {
+                var moveVector = new Vector3(delta.x, 0f, delta.y);
+                Instance.transform.position += Quaternion.Euler(0f, Instance.transform.eulerAngles.y, 0f) * moveVector;
+            }
+            catch (Exception e) {
+                DevConsole.LogError("CameraSystem", "Exception occured at call to static function: Pan\n" +
+                                                    e.Message);
+            }
+        }
+        
+        /// <summary>
+        /// Rotates the camera view by the specified angle.
+        /// </summary>
+        /// <param name="angle"></param>
+        public static void Rotate(float angle) {
+            
+        }
+        
+        /// <summary>
+        /// Tries to zoom the camera by the specified delta.
+        /// </summary>
+        /// <param name="delta"></param>
+        public static void Zoom(float delta) {
+            
+        }
 
         // Initialization
         public override void OnRegister() {
             // Ensure this camera is the only instance in the scene
-            if (Instance == null) { Instance = this; }
-            else if (Instance != this) { Destroy(gameObject); }
+            if (Instance == null) {
+                Instance = this;
+            }
+            else if (Instance != this) { 
+                Destroy(Instance.gameObject);
+                Instance = this;
+            }
             
             // Ensure the camera reference has been set
             if (_camera == null) {
                 Debug.LogWarning($"{name}: The required camera reference is missing, please check your configuration!");
                 return;
             }
+            
+            // Register commands with the dev console
+            DevConsole.RegisterCommand("togglePostFX", TogglePostFX);
+            DevConsole.RegisterCommand("togglevsync", ToggleVSync);
             
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
@@ -155,61 +257,6 @@ namespace InvincibleEngine.CameraSystem {
             base.OnRegister();
         }
         
-        /// <summary>
-        /// Returns the screen position of the specified point.
-        /// </summary>
-        /// <param name="position">The point to be transformed to screen space.</param>
-        /// <returns>The screen space position of the specified point.</returns>
-        public static Vector2 GetScreenPosition(Vector3 position) {
-            try {
-                return Instance._camera.WorldToScreenPoint(position);
-            }
-            catch (Exception ex) {
-                DevConsole.LogError("CameraSystem", "An exception occured in method <b>GetScreenPosition(Vector3)</b>!\n" +
-                                                    ex.Message);
-                return Vector2.zero;
-            }
-        }
-        
-        /// <summary>
-        /// Determines whether a given unit is in view and updates the VisibleObjects collection.
-        /// </summary>
-        /// <param name="unit">The unit requesting the update.</param>
-        /// <param name="renderer">The primary renderer attatched to the given unit.</param>
-        /// <returns>True if in view and false otherwise.</returns>
-        public static bool UpdateVisibility(UnitBehavior unit, MeshRenderer renderer) {
-            try {
-                // Add this object to the VisibleObjects collection and return true if visible
-                if (GeometryUtility.TestPlanesAABB(FrustrumPlanes, renderer.bounds)) {
-                    VisibleObjects.Add(unit);
-                    return true;
-                }
-
-                // Otherwise remove this object from the collection and return false
-                VisibleObjects.Remove(unit);
-                return false;
-            }
-            catch (Exception ex) {
-                DevConsole.LogError("CameraSystem", "An exception occured in method <b>UpdateVisibility(UnitBehavior, MeshRenderer)</b>!\n" +
-                                                    ex.Message);
-                return false;
-            }
-        }
-        
-        /// <summary>
-        /// Toggles post-processing on the main camera.
-        /// Some command-buffer effects will remain as they are required.
-        /// </summary>
-        public static void TogglePostFX() {
-            var postLayer = Instance.GetComponentInChildren<PostProcessLayer>();
-            var postVolume = Instance.GetComponentInChildren<PostProcessVolume>();
-
-            postLayer.enabled = !postLayer.enabled;
-            postVolume.enabled = !postVolume.enabled;
-
-            DevConsole.Log("CameraSystem", $"Post-Processing Enabled: <b>{postLayer.enabled}</b>");
-        }
-        
         // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
             var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
@@ -227,8 +274,7 @@ namespace InvincibleEngine.CameraSystem {
         public override void OnRenderUpdate(float deltaTime) {
             // Update debug readout
             DevReadout.UpdateField("[Cam] Visible Units", VisibleObjects.Count.ToString());
-            DevReadout.UpdateField("[Cam] Zoom level", $"{ZoomLevel:n1}");
-            DevReadout.UpdateField("[Cam] View Angle", $"{_pitchValue:n0}");
+            DevReadout.UpdateField("[Cam] Position", transform.position.ToString());
             
             // Update frustrum planes
             GeometryUtility.CalculateFrustumPlanes(_camera, FrustrumPlanes);
@@ -411,12 +457,12 @@ namespace InvincibleEngine.CameraSystem {
             _camera.transform.localRotation = Quaternion.Euler(_pitchValue, 0f, 0f);
             _camera.transform.localPosition = Vector3.forward * _zOffset;
 
-            //Finally, if the camera is out of the bounds of the world, clamp back to world
-            Vector3 n = transform.position;
+            // Finally, if the camera is out of the bounds of the world, clamp back to world
+            var position = transform.position;
             transform.position = new Vector3(
-                Mathf.Clamp(n.x, 0, _worldBounds.x),
-                Mathf.Clamp(n.y, 0, _worldBounds.y),
-                Mathf.Clamp(n.z, 0, _worldBounds.z));
+                Mathf.Clamp(position.x, 0, _worldBounds.x),
+                Mathf.Clamp(position.y, 0, _worldBounds.y),
+                Mathf.Clamp(position.z, 0, _worldBounds.z));
         }
     }
 }
