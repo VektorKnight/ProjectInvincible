@@ -1,4 +1,4 @@
-﻿using InvincibleEngine.Components.Units;
+﻿using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.Enums;
 using UnityEngine;
 using UnityEngine.AI;

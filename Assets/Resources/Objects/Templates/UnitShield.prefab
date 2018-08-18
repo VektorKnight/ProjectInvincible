@@ -96,10 +96,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23cdf5c93e434a4aa538c0d7e7daea44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NetID: 0
+  AssetID: 0
   PlayerOwner:
     m_SteamID: 0
-  _burstEffect: {fileID: 198576317306974602, guid: d80f25a06305537468de45d9f65bd7b3,
-    type: 2}
+  _burstEffect: {fileID: 0}
 --- !u!135 &135547894918208904
 SphereCollider:
   m_ObjectHideFlags: 1

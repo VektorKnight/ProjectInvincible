@@ -59,7 +59,7 @@ namespace VektorLibrary.Utility {
             var version = Debug.isDebugBuild ? "DEVELOPMENT" : "DEPLOY";
             UpdateField("Vektor Games", $"Project Invincible [{version}]");
             
-            AddField("Display");
+            UpdateField("Render", $"{SystemInfo.graphicsDeviceName} [{SystemInfo.graphicsDeviceType}]");
             UpdateField("Display", $"{Screen.width}x{Screen.height}");
             
             AddField("FPS");

@@ -7,6 +7,7 @@ using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 namespace InvincibleEngine.CameraSystem {
     /// <summary>
@@ -195,6 +196,20 @@ namespace InvincibleEngine.CameraSystem {
             }
         }
         
+        /// <summary>
+        /// Toggles post-processing on the main camera.
+        /// Some command-buffer effects will remain as they are required.
+        /// </summary>
+        public static void TogglePostFX() {
+            var postLayer = Instance.GetComponentInChildren<PostProcessLayer>();
+            var postVolume = Instance.GetComponentInChildren<PostProcessVolume>();
+
+            postLayer.enabled = !postLayer.enabled;
+            postVolume.enabled = !postVolume.enabled;
+
+            DevConsole.Log("CameraSystem", $"Post-Processing Enabled: <b>{postLayer.enabled}</b>");
+        }
+        
         // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
             var mouseRay = _camera.ScreenPointToRay(Input.mousePosition);
@@ -233,6 +248,10 @@ namespace InvincibleEngine.CameraSystem {
             // Update icon canvas rendering
             _iconsRendered = _zoomValue <= _iconThreshold && !_orbitMode;
             _healthBarsRendered = _zoomValue >= _healthBarThreshold && !_orbitMode;
+            
+            // Check for postfx toggle
+            if (Input.GetKeyDown(KeyCode.F4))
+                TogglePostFX();
             
             // Check for orbit mode start
             if (Input.GetKeyDown(KeyCode.Space)) {

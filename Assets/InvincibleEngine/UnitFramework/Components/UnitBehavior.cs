@@ -34,7 +34,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         [Header("General Settings")]
         [SerializeField] private UnitType _unitType;
         [SerializeField] protected float Health = 100f;
-        [SerializeField] protected int _cost = 100;
        
         [Header("Gameplay UI Elements")]
         [SerializeField] private Sprite _iconSprite;
@@ -57,11 +56,13 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected float ScanRadius = 50f;
 
         [Header("Construction")] 
+        [SerializeField] protected int _cost = 100;
         [SerializeField] protected float BuildTime = 4f;
         [SerializeField] public BuildOption[] ConstructionOptions;
         [SerializeField] public UnitBehavior[] BuildOptions;
 
-        [Header("Destruction Aesthetics")] 
+        [Header("Particle Effects")] 
+        [SerializeField] protected ParticleSystem BuildEffect;
         [SerializeField] protected ParticleSystem DeathEffect;
         
         // Protected: Time Slicing
@@ -147,6 +148,12 @@ namespace InvincibleEngine.UnitFramework.Components {
             MaterialProperties.SetColor("_BuildColor", UnitColor.Inverse());
             UnitRenderer.SetPropertyBlock(MaterialProperties);
             
+            // Set build effect color if possible
+            if (BuildEffect != null) {
+                var module = BuildEffect.main;
+                module.startColor = UnitColor.Inverse();
+            }
+            
             // Construct this unit's icon if possible
             if (_iconSprite != null) {            
                 // Load the appropriate template for the unit type
@@ -201,6 +208,11 @@ namespace InvincibleEngine.UnitFramework.Components {
         protected virtual void OnBuildComplete() {
             // Exit if already built
             if (FullyBuilt) return;
+            
+            // Stop build effect particle system
+            if (BuildEffect != null) {
+                BuildEffect.Stop();
+            }
             
             // Enable unit colliders
             foreach (var col in UnitColliders) {

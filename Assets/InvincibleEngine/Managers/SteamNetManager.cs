@@ -158,8 +158,8 @@ namespace SteamNet {
         public void Update() {
 
             //Disable network view
-            if (Input.GetKeyDown(KeyCode.BackQuote)) {
-                GUIToggle = GUIToggle ? false : true;
+            if (Input.GetKeyDown(KeyCode.Backslash)) {
+                GUIToggle = !GUIToggle;
             }
 
             //Always check to see if the currently joined lobby has started the game, if so be sure to load in
