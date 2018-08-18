@@ -17,7 +17,7 @@ namespace InvincibleEngine {
     public class GridPoint {
 
         //Occupying Object
-        public GameObject ObjectOccupied;
+        public bool Occupied;
 
         //Enabled flags
         public bool Buildable;
@@ -30,7 +30,7 @@ namespace InvincibleEngine {
 
         //get open status, if the node is marked as buildable and no object exists there, it is open
         public bool IsOpen() {
-            if (Buildable & ObjectOccupied == null) {
+            if (Buildable & !Occupied) {
                 return true;
             }
             else {
@@ -51,9 +51,7 @@ namespace InvincibleEngine {
 
         //Holds all grid points
         private Dictionary<UInt32, GridPoint> GridPoints = new Dictionary<uint, GridPoint>();
-
-
-
+        
         /// <summary>
         /// Generates a grid with current terrain and NavMesh data
         /// </summary>
@@ -130,6 +128,56 @@ namespace InvincibleEngine {
             x = (int)Math.Round(point.x / GridScale) * GridScale;
             z = (int)Math.Round(point.z / GridScale) * GridScale;
             return GridPoints[MergeInt(x, z)];
+        }
+
+        /// <summary>
+        /// returns all points within a specific origin 
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public GridPoint[] WorldToGridPoints(Vector3 origin, float width, float height) {
+
+            int _width = Mathf.CeilToInt(width);
+            int _height = Mathf.CeilToInt(height);
+
+            GridPoint _origin = WorldToGridPoint(origin);
+
+            List<GridPoint> returns = new List<GridPoint>();
+
+            for (int u = (int)_origin.WorldPosition.x; u < _width; u += GridScale) {
+                for (int v = (int)_origin.WorldPosition.y; v < _height; v += GridScale) {
+                    try {
+                        returns.Add(GridPoints[MergeInt(u, v)]);
+                    }
+                    catch (Exception e) {
+                        Debug.Log(e);
+                    }
+                }
+            }
+
+            return returns.ToArray();
+        }
+
+        /// <summary>
+        /// Call to occupy grid points with a structure, done on instantiation in game
+        /// </summary>
+        /// <param name="origin">Original grid point</param>
+        /// <param name="width">Width in grid points</param>
+        /// <param name="height">Height in grid points</param>
+        public void OnOccupyGrid(GridPoint origin, int width, int height) {
+
+        }
+
+        /// <summary>
+        /// Call on grid unoccupy, when a structure is destroyed or removed
+        /// </summary>
+        /// <param name="origin">Original grid point</param>
+        /// <param name="width">Width in grid points</param>
+        /// <param name="height">Height in grid points</param>
+        public void OnVacateGrid(GridPoint origin, int width, int height) {
+
         }
     }
 }
