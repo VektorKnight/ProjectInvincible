@@ -1,5 +1,4 @@
 ﻿using System;
-using _3rdParty.PostProcessing.Runtime;
 
 namespace InvincibleEngine.DataTypes {
     /// <summary>
@@ -7,7 +6,6 @@ namespace InvincibleEngine.DataTypes {
     /// </summary>
     [Serializable]
     public struct QualitySettings {
-        public PostProcessingProfile Profile;
         public AntiAliasingMode AntiAliasing;
         public bool EnableAo;
         public bool EnableBloom;

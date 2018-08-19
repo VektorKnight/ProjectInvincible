@@ -6,7 +6,6 @@ using VektorLibrary.EntityFramework.Components;
 using VektorLibrary.Math;
 using VektorLibrary.Utility;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 using QualitySettings = UnityEngine.QualitySettings;
 
 namespace InvincibleEngine.CameraSystem {
@@ -141,13 +140,13 @@ namespace InvincibleEngine.CameraSystem {
         /// Some command-buffer effects will remain as they are required by the engine.
         /// </summary>
         public static void TogglePostFX() {
-            var postLayer = Instance.GetComponentInChildren<PostProcessLayer>();
-            var postVolume = Instance.GetComponentInChildren<PostProcessVolume>();
+            //var postLayer = Instance.GetComponentInChildren<PostProcessLayer>();
+            //var postVolume = Instance.GetComponentInChildren<PostProcessVolume>();
 
-            postLayer.enabled = !postLayer.enabled;
-            postVolume.enabled = !postVolume.enabled;
+           // postLayer.enabled = !postLayer.enabled;
+            //postVolume.enabled = !postVolume.enabled;
 
-            DevConsole.Log("CameraSystem", $"Post-Processing Enabled: <b>{postLayer.enabled}</b>");
+           // DevConsole.Log("CameraSystem", $"Post-Processing Enabled: <b>{postLayer.enabled}</b>");
         }
         
         /// <summary>

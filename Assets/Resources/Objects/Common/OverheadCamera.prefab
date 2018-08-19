@@ -39,8 +39,8 @@ GameObject:
   - component: {fileID: 20157748194464520}
   - component: {fileID: 124324974916207308}
   - component: {fileID: 81762243503767070}
-  - component: {fileID: 114743620409452700}
-  - component: {fileID: 114603884207257116}
+  - component: {fileID: 114667489205879644}
+  - component: {fileID: 114689575634955268}
   - component: {fileID: 114825955574165286}
   - component: {fileID: 114246198905857426}
   - component: {fileID: 114413213777720642}
@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dd8841e3fcdcc548ac09132d9f65cab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114603884207257116
+--- !u!114 &114667489205879644
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -272,7 +272,7 @@ MonoBehaviour:
     fastMode: 0
     keepAlpha: 0
   fog:
-    enabled: 0
+    enabled: 1
     excludeSkybox: 1
   debugLayer:
     lightMeter:
@@ -302,7 +302,7 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
---- !u!114 &114743620409452700
+--- !u!114 &114689575634955268
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,8 +330,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bufferEvent: 15
-  _blurPower: 4
-  _downSample: 8
+  _blurPower: 6
+  _downSample: 4
 --- !u!114 &114825955574165286
 MonoBehaviour:
   m_ObjectHideFlags: 1
