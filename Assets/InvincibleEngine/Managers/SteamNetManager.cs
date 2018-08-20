@@ -587,10 +587,7 @@ namespace SteamNet {
 
                 //create lobby member for the current user
                 CurrentlyJoinedLobby.LobbyMembers.Add(MySteamID, new SteamnetPlayer(MySteamID));
-
-                Debug.Log(CurrentlyJoinedLobby.LobbyMembers[MySteamID].SteamID);
-                Debug.Log(CurrentlyJoinedLobby.Host);
-
+               
 
             }
 

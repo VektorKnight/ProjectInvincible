@@ -33,10 +33,10 @@ public class MatchManager : MonoBehaviour {
 
     //Match manager properties
     [SerializeField] public GridSystem GridSystem = new GridSystem();
-   
+
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
-    
+
 
     ///Force the game to start in the lobby scene, as we move toward an online
     ///match based game it is simply too hard to put checks everywhere that bypass
@@ -44,11 +44,11 @@ public class MatchManager : MonoBehaviour {
     ///can be selected in the lobby to load and test
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void ForceLobbyLoad() {
-       
+
         //If scene index is not zero (lobby)           and  not in edtior       or    nothing I can't get input before scene loads
-        if(SceneManager.GetActiveScene().buildIndex!=0 & (Application.isEditor)) {
-            SceneManager.LoadScene(0);            
-        }        
+        if (SceneManager.GetActiveScene().buildIndex != 0 & (Application.isEditor)) {
+            SceneManager.LoadScene(0);
+        }
     }
 
 
@@ -67,6 +67,20 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+    private void OnDrawGizmos() {
+        foreach (KeyValuePair<Vector2Int, GridPoint> n in GridSystem.GridPoints) {
+
+            if (n.Value.IsOpen()) {
+                Gizmos.color = Color.green;
+            }
+            else {
+                Gizmos.color = Color.red;
+
+            }
+            Gizmos.DrawWireCube(n.Value.WorldPosition, Vector3.one);
+        }
+    }
+
     //----------------------------------------------------
     #region  Game flow control, spawning players and command centers on Game Start
     //----------------------------------------------------
@@ -78,14 +92,14 @@ public class MatchManager : MonoBehaviour {
     private void OnLevelWasLoaded(int level) {
 
         //Signal the match to start if we're not in the lobby
-        if(SceneManager.GetActiveScene().buildIndex !=0) {
+        if (SceneManager.GetActiveScene().buildIndex != 0) {
 
             //Signal OnMatchStart to the match manager
             MatchManager.Instance.OnMatchStart(SteamNetManager.Instance.Hosting);
         }
     }
 
-  
+
 
     #endregion
 
@@ -106,14 +120,21 @@ public class MatchManager : MonoBehaviour {
     }
 
     /// <summary>
-    /// Returns true if we have the money/room to construct something, locally determined
+    /// Returns true if we have the money/room to construct something, locally determined - host authoritated
     /// </summary>
     /// <returns></returns>
     public bool CanConstructBuilding(StructureBehavior Building, GridPoint point, CSteamID player) {
-        if (SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.Cost) && Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen()) {
+
+        //Check all conditions
+        bool a = SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.Cost);
+        bool b = Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen();
+        bool c = GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y).AreOpen();
+
+        if (a & b & c) {
             return true;
         }
-        else return false;
+
+        else { Debug.Log($"{a},{b},{c}"); return false; }
     }
 
     /// <summary>
@@ -142,6 +163,12 @@ public class MatchManager : MonoBehaviour {
 
                 //Set ownership to the player that built it
                 n.GetComponent<StructureBehavior>().PlayerOwner = playerSource;
+
+                //Occupy grid points TODO: this should be moved/copied to when the structure appears so that they get set on remote instances as well
+                Debug.Log($"{Building.Bounds.x}, {Building.Bounds.y}");
+
+                //
+                GridSystem.OnOccupyGrid(GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y));
 
                 return true;
 

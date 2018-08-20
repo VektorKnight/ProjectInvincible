@@ -8,9 +8,7 @@ using SteamNet;
 public class StructureBehavior : UnitBehavior {
 
     //Structure Properties
-    [Header("Structure Properties")]
-    [SerializeField] private float BuildTime = 5;
-    [SerializeField] private float BuildResources = 0;
+    [Header("Structure Properties")]    
     [SerializeField] private Vector3 Origin;
     [SerializeField] private float Height;
     [SerializeField] private GameObject BuildPoint;   

@@ -28,6 +28,9 @@ namespace InvincibleEngine {
         //World position
         public Vector3 WorldPosition;
 
+        //Grid index
+        public Vector2Int GridIndex;
+
         //get open status, if the node is marked as buildable and no object exists there, it is open
         public bool IsOpen() {
             if (Buildable & !Occupied) {
@@ -47,10 +50,10 @@ namespace InvincibleEngine {
         //Scale of grid, scale of 1 = 1 grid point to 1 meter(s)
         //                        2 = 1 grid point to 2 meter(s)
         //                        8 = 1 grid point to 8 meter(s)
-        private int GridScale = 4;
+        public static readonly int GridScale = 4;
 
         //Holds all grid points
-        private Dictionary<UInt32, GridPoint> GridPoints = new Dictionary<uint, GridPoint>();
+        public Dictionary<Vector2Int, GridPoint> GridPoints = new Dictionary<Vector2Int, GridPoint>();
         
         /// <summary>
         /// Generates a grid with current terrain and NavMesh data
@@ -92,6 +95,7 @@ namespace InvincibleEngine {
 
                     //Set world position for easy retrieval
                     n.WorldPosition = new Vector3(u * GridScale, n.Height, v * GridScale);
+                    n.GridIndex = new Vector2Int(u * GridScale, v *GridScale);
 
                     //Sample Navmesh, set flags
                     allowed = NavMesh.SamplePosition(new Vector3(u * GridScale, n.Height, v * GridScale), out hit, GridScale / 2, NavMesh.AllAreas);
@@ -104,7 +108,7 @@ namespace InvincibleEngine {
                     }
 
                     //Append to node list
-                    GridPoints.Add((UInt32)((u * GridScale) << 16 | (v * GridScale)), n);
+                    GridPoints.Add(new Vector2Int((u * GridScale),(v * GridScale)), n);
 
                 }
 
@@ -112,12 +116,7 @@ namespace InvincibleEngine {
             //Log grid sum
             Debug.Log($"Generate grid with {a} good nodes and {b} bad nodes");
         }
-
-        //Combines two intergers on a bit level
-        private UInt32 MergeInt(int a, int b) {
-            return (uint)(a << 16 | b);
-        }
-
+        
         /// <summary>
         /// Returns the nearest grid point that cooresponds to a world point.
         /// For now this will just clamp values in increments according to grid scale
@@ -127,36 +126,44 @@ namespace InvincibleEngine {
             int x, z;
             x = (int)Math.Round(point.x / GridScale) * GridScale;
             z = (int)Math.Round(point.z / GridScale) * GridScale;
-            return GridPoints[MergeInt(x, z)];
+            return GridPoints[new Vector2Int(x, z)];
         }
 
         /// <summary>
         /// returns all points within a specific origin 
         /// </summary>
-        /// <param name="origin"></param>
+        /// <param name="origin">Center Point Origin</param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public GridPoint[] WorldToGridPoints(Vector3 origin, float width, float height) {
-
-            int _width = Mathf.CeilToInt(width);
-            int _height = Mathf.CeilToInt(height);
+        public GridPoint[] WorldToGridPoints(Vector3 origin, int width, int height) {
 
             GridPoint _origin = WorldToGridPoint(origin);
 
             List<GridPoint> returns = new List<GridPoint>();
 
-            for (int u = (int)_origin.WorldPosition.x; u < _width; u += GridScale) {
-                for (int v = (int)_origin.WorldPosition.y; v < _height; v += GridScale) {
+            var gridX= _origin.GridIndex.x;
+            var gridY = _origin.GridIndex.y;
+
+            for (int
+                u = gridX - width;
+                u < (width + gridX);
+                u += GridScale) {
+
+                for (int
+                    v = gridY - height;
+                    v < (height + gridY);
+                    v += GridScale) {
+
                     try {
-                        returns.Add(GridPoints[MergeInt(u, v)]);
+                        returns.Add(GridPoints[new Vector2Int(u, v)]);
                     }
                     catch (Exception e) {
                         Debug.Log(e);
                     }
                 }
             }
-
+            Debug.Log(returns.Count);
             return returns.ToArray();
         }
 
@@ -166,8 +173,11 @@ namespace InvincibleEngine {
         /// <param name="origin">Original grid point</param>
         /// <param name="width">Width in grid points</param>
         /// <param name="height">Height in grid points</param>
-        public void OnOccupyGrid(GridPoint origin, int width, int height) {
-
+        public void OnOccupyGrid(GridPoint[] gridPoints) {
+            foreach(GridPoint n in gridPoints) {
+                Debug.Log("OnOccupy");
+                GridPoints[n.GridIndex].Occupied = true;
+            }
         }
 
         /// <summary>

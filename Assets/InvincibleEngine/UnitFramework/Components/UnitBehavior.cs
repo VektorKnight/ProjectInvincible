@@ -14,14 +14,20 @@ using UnityEngine.Rendering;
 using VektorLibrary.Utility;
 using VektorLibrary.EntityFramework.Singletons;
 using Random = UnityEngine.Random;
-    
+using InvincibleEngine.UnitFramework.Components;
+using InvincibleEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace InvincibleEngine.UnitFramework.Components {
     /// <summary>
     /// Base class for all unit behaviors.
     /// Base methods for this class should be called first in any overrides.
     /// </summary>
     [RequireComponent(typeof(GlowingObject))]
-    public class UnitBehavior : EntityBehavior, IUnit {
+    public partial class UnitBehavior : EntityBehavior, IUnit {
         // Constant: Team Layers Start/End
         public static readonly int[] TeamLayerBounds = {11, 18};
         
@@ -115,11 +121,35 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool FullyBuilt { get; protected set; }
         public float BuildTimer { get; protected set; }
         public float BuildProgress { get; protected set; }
+        public Vector2Int Bounds = new Vector2Int(1, 1);
+        public bool DrawGizmos;
 
         // Denotes whether this unit can be built from somewhere, eventually this should be changed 
         // to a proper flag system that tells exactly where this unit can be made from
-        public bool CanBeProduced;  
-        
+        public bool CanBeProduced;
+
+        /// <summary>
+        /// Draws debug gizmos
+        /// </summary>
+        [ExecuteInEditMode]
+        void OnDrawGizmos() {
+
+            int a, b;
+            a = Bounds.x;
+            b = Bounds.y;
+
+
+            //Draw gizmos for bounds
+            if (DrawGizmos) {
+
+                
+
+                Vector3 location = transform.position;
+               
+                Gizmos.DrawLine(location, location + Vector3.up * 4);
+            }
+        }
+
         // Initialization
         public override void OnRegister() {
             // Calculate time slicing index

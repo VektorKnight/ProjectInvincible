@@ -71,6 +71,7 @@ GameObject:
   - component: {fileID: 114596495768807292}
   - component: {fileID: 114595099689148688}
   - component: {fileID: 114876300090599058}
+  - component: {fileID: 65054785509112888}
   m_Layer: 0
   m_Name: CommandCenter
   m_TagString: Untagged
@@ -111,7 +112,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1982840563351148}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 307.29965, y: 8.002197, z: 294.57843}
+  m_LocalPosition: {x: 147.61945, y: 8.002197, z: 267.4981}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4704225602509832}
@@ -219,6 +220,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1406777580319386}
   m_Mesh: {fileID: 4300002, guid: 2abad1d649d400e42835893b47b72a3b, type: 3}
+--- !u!65 &65054785509112888
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1982840563351148}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 15.814072, y: 6.626957, z: 17.803406}
+  m_Center: {x: 0.29340363, y: 2.8134785, z: 0.30941772}
 --- !u!114 &114595099689148688
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -242,27 +255,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff203a0b605c6e749bf8777d5a60a19b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NetID: 0
+  AssetID: 1
   PlayerOwner:
     m_SteamID: 0
   _unitType: 0
   Health: 100
-  _cost: 100
   _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
-  AutoSpawnWeapon: 0
+  ShieldPrefab: {fileID: 0}
+  ShieldAnchor: {fileID: 0}
+  CalculateShieldRadius: 1
+  ShieldRadius: 0
+  ShieldHealth: 100
+  ShieldRechargeRate: 20
+  ShieldRechargeDelay: 5
   WeaponPrefab: {fileID: 0}
   WeaponAnchor: {fileID: 0}
   AutoAcquireTargets: 0
   TargetingMode: 1
   ScanRadius: 50
-  DeathEffect: {fileID: 0}
+  _cost: 100
+  BuildTime: 5
   ConstructionOptions:
   - PrefabBuild: {fileID: 114722318489089258, guid: 308889d8b3110024bbccf27987feda82,
       type: 2}
   BuildOptions: []
+  BuildEffect: {fileID: 0}
+  DeathEffect: {fileID: 0}
+  Bounds: {x: 10, y: 10}
+  DrawGizmos: 0
   CanBeProduced: 0
-  BuildTime: 5
-  BuildResources: 0
   Origin: {x: 0, y: 0, z: 0}
   Height: 0
   BuildPoint: {fileID: 0}
@@ -280,5 +303,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f32c6cbaf6caac4888ecb3c6aa01634, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetID: 0
-  AssetID: 0
