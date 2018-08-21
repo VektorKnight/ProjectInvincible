@@ -8,6 +8,7 @@ namespace InvincibleEngine.WeaponSystem {
         [SerializeField] protected float Acceleration = 15f;
         [SerializeField] protected float MaxVelocity = 75f;
         [SerializeField] protected float SteerSpeed = 90f;
+        [SerializeField] protected float TimeToTrack = 1f;
 
         [Header("Targeting")] 
         [SerializeField] protected bool SeekTarget = true;
@@ -33,6 +34,7 @@ namespace InvincibleEngine.WeaponSystem {
         
         // OnSimUpdate override
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
+           
             // Call base method
             base.OnSimUpdate(fixedDelta, isHost);
             
@@ -41,14 +43,16 @@ namespace InvincibleEngine.WeaponSystem {
             
             // Calculate vector to target
             var targetVector = Vector3.Normalize(TargetPosition - transform.position);
-            
-            // Accelerate
-            CurrentVelocity += transform.forward * Acceleration * fixedDelta;
-            
-            // Rotate to match current velocity vector
-            var heading = Quaternion.LookRotation(targetVector, transform.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, heading, SteerSpeed * fixedDelta);
-            
+
+            if (TimeAlive > TimeToTrack) {
+                // Accelerate
+                CurrentVelocity += transform.forward * Acceleration * fixedDelta;
+
+                // Rotate to match current velocity vector
+                var heading = Quaternion.LookRotation(targetVector, transform.up);
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, heading, SteerSpeed * fixedDelta);
+            }
+
             // Clamp velocity vector to maximum velocity value
             CurrentVelocity = Vector3.ClampMagnitude(CurrentVelocity, MaxVelocity);
         }

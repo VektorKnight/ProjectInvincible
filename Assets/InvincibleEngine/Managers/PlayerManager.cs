@@ -111,7 +111,8 @@ namespace InvincibleEngine.Managers {
 
            
             //Set build preview
-            _buildPreview = Instantiate(GenerateEmptyObject(building.gameObject)).GetComponent<StructureBehavior>();
+            _buildPreview = (GenerateEmptyObject(building.gameObject)).GetComponent<StructureBehavior>();
+            _buildPreview.name = "Construction Preview";
 
             //Activate Build Mode
             BuildMode = true;
@@ -120,7 +121,7 @@ namespace InvincibleEngine.Managers {
         //Call to stop construction of a building preview
         public void OnStopBuilding() {
             BuildMode = false;
-            Destroy(_buildPreview);
+            Destroy(_buildPreview.gameObject);
         }
 
         //Build behavior

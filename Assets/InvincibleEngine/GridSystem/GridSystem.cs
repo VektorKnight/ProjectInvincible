@@ -138,20 +138,26 @@ namespace InvincibleEngine {
         /// <returns></returns>
         public GridPoint[] WorldToGridPoints(Vector3 origin, int width, int height) {
 
+            origin.x -= width;
+            origin.z -= height;
+
             GridPoint _origin = WorldToGridPoint(origin);
 
-            List<GridPoint> returns = new List<GridPoint>();
+            List<GridPoint> returns = new List<GridPoint>();           
+
+            width *= 2;
+            height *= 2;
 
             var gridX= _origin.GridIndex.x;
             var gridY = _origin.GridIndex.y;
 
             for (int
-                u = gridX - width;
+                u = gridX;
                 u < (width + gridX);
                 u += GridScale) {
 
                 for (int
-                    v = gridY - height;
+                    v = gridY;
                     v < (height + gridY);
                     v += GridScale) {
 
@@ -163,7 +169,7 @@ namespace InvincibleEngine {
                     }
                 }
             }
-            Debug.Log(returns.Count);
+
             return returns.ToArray();
         }
 
@@ -175,7 +181,6 @@ namespace InvincibleEngine {
         /// <param name="height">Height in grid points</param>
         public void OnOccupyGrid(GridPoint[] gridPoints) {
             foreach(GridPoint n in gridPoints) {
-                Debug.Log("OnOccupy");
                 GridPoints[n.GridIndex].Occupied = true;
             }
         }

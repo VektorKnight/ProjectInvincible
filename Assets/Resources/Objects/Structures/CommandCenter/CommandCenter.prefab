@@ -260,16 +260,17 @@ MonoBehaviour:
   PlayerOwner:
     m_SteamID: 0
   _unitType: 0
-  Health: 100
+  Health: 20000
   _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
-  ShieldPrefab: {fileID: 0}
+  ShieldPrefab: {fileID: 114099295224392054, guid: b5685ae7aff991149bc620e65bded9b1,
+    type: 2}
   ShieldAnchor: {fileID: 0}
-  CalculateShieldRadius: 1
-  ShieldRadius: 0
-  ShieldHealth: 100
-  ShieldRechargeRate: 20
-  ShieldRechargeDelay: 5
+  CalculateShieldRadius: 0
+  ShieldRadius: 50
+  ShieldHealth: 5000
+  ShieldRechargeRate: 0
+  ShieldRechargeDelay: 0
   WeaponPrefab: {fileID: 0}
   WeaponAnchor: {fileID: 0}
   AutoAcquireTargets: 0

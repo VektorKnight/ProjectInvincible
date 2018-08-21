@@ -14,6 +14,10 @@ namespace InvincibleEngine.WeaponSystem {
         [SerializeField] protected float GravityScale = 1.0f;
         [SerializeField] protected float MaxRange = 500f;
         [SerializeField] protected float Damage = 10f;
+        [SerializeField] protected float TimeCreated;
+         protected float TimeAlive {
+            get { return Time.time - TimeCreated; }
+        }
         
         [Header("Projectile Aesthetics")]
         [SerializeField] protected ParticleSystem ImpactEffect;
@@ -51,6 +55,10 @@ namespace InvincibleEngine.WeaponSystem {
         
         // Called by a weapon to set the config values for this projectile
         public virtual void Initialize(LayerMask collisionMask, Transform target = null) {
+
+            //Set time
+            TimeCreated = Time.time;
+
             // Set config values
             CollisionMask = collisionMask | (int)Mathf.Pow(2, 8);
             Target = target;

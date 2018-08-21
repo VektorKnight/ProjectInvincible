@@ -128,6 +128,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 877385def43948b7a0d3f5341a605cf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  NetID: 0
+  AssetID: 0
   PlayerOwner:
     m_SteamID: 0
   AutoDespawn: 1
@@ -137,11 +139,13 @@ MonoBehaviour:
   GravityScale: 0
   MaxRange: 500
   Damage: 100
+  TimeCreated: 0
   ImpactEffect: {fileID: 198841956466499582, guid: 197243f31b26bf84abf621b71e77bd70,
     type: 2}
   Acceleration: 50
   MaxVelocity: 20
   SteerSpeed: 360
+  TimeToTrack: 0.5
   SeekTarget: 1
 --- !u!198 &198000013032032016
 ParticleSystem:

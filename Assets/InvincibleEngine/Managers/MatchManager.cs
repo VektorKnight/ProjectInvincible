@@ -67,6 +67,7 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+    /*
     private void OnDrawGizmos() {
         foreach (KeyValuePair<Vector2Int, GridPoint> n in GridSystem.GridPoints) {
 
@@ -80,6 +81,7 @@ public class MatchManager : MonoBehaviour {
             Gizmos.DrawWireCube(n.Value.WorldPosition, Vector3.one);
         }
     }
+    */
 
     //----------------------------------------------------
     #region  Game flow control, spawning players and command centers on Game Start
@@ -130,11 +132,8 @@ public class MatchManager : MonoBehaviour {
         bool b = Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen();
         bool c = GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y).AreOpen();
 
-        if (a & b & c) {
-            return true;
-        }
-
-        else { Debug.Log($"{a},{b},{c}"); return false; }
+        return (a & b & c) ? true : false;
+        
     }
 
     /// <summary>
@@ -163,10 +162,7 @@ public class MatchManager : MonoBehaviour {
 
                 //Set ownership to the player that built it
                 n.GetComponent<StructureBehavior>().PlayerOwner = playerSource;
-
-                //Occupy grid points TODO: this should be moved/copied to when the structure appears so that they get set on remote instances as well
-                Debug.Log($"{Building.Bounds.x}, {Building.Bounds.y}");
-
+                
                 //
                 GridSystem.OnOccupyGrid(GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y));
 

@@ -29,7 +29,7 @@ public class UILobbySettings : MonoBehaviour {
         List<Dropdown.OptionData> mapData = new List<Dropdown.OptionData>();
 
         foreach (MapData n in AssetManager.LoadedMaps) {
-            Debug.Log(n.BuildIndex-1);
+
             mapData.Insert(n.BuildIndex-1, new Dropdown.OptionData(n.MapName, n.Splash));
         }
 

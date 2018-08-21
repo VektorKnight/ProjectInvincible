@@ -7,6 +7,7 @@ using InvincibleEngine;
 using InvincibleEngine.Managers;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.UnitFramework.Components;
+using System;
 /// <summary>
 /// Handles the unit actions panel component of the in-game UI.
 /// --Edited by VektorKnight: Refactored to use new selection events from PlayerManager.
@@ -28,19 +29,26 @@ public class UIActionPanel : MonoBehaviour {
     
     // OnUnitsSelected event handler
     private void OnUnitsSelected(List<UnitBehavior> units) {
-        _CurrentlySelectedObject = units[0];
-        
-        // Generate actions for object
-        foreach (var n in _CurrentlySelectedObject.ConstructionOptions) {
 
-            //instantiate object
-            var u = Instantiate(ActionPrefab, transform);
+        try {
+            _CurrentlySelectedObject = units[0];
 
-            // Set values for object
-            u.Action = n.PrefabBuild;
-            u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
+
+
+            // Generate actions for object
+            foreach (var n in _CurrentlySelectedObject.ConstructionOptions) {
+
+                //instantiate object
+                var u = Instantiate(ActionPrefab, transform);
+
+                // Set values for object
+                u.Action = n.PrefabBuild;
+                u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
+            }
         }
-        
+        catch (Exception e) {
+            Debug.Log(e);
+        }
     }
     
     // OnUnitsDeselected event handler
