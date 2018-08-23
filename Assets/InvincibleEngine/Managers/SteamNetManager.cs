@@ -847,6 +847,10 @@ namespace SteamNet {
                 //Load desired level
                 SceneManager.LoadScene(CurrentLobbyData.MapIndex + 1);
             }
+
+            //stop the timer
+            ResetTimer();
+
         }
 
         /// <summary>
