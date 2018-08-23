@@ -213,6 +213,22 @@ namespace SteamNet {
         //-----------------------------------
 
         /// <summary>
+        /// Call to add player
+        /// </summary>
+        /// <param name="playerData"></param>
+        public void AddNewPlayer(SteamnetPlayer playerData) {
+            LobbyMembers.Add(playerData.SteamID, playerData);
+        }
+
+        /// <summary>
+        /// Call to remove player
+        /// </summary>
+        /// <param name="player"></param>
+        public void RemovePlayer(CSteamID player) {
+            LobbyMembers.Remove(player);
+        }
+
+        /// <summary>
         /// Post chat to lobby, do not call directly, this is used by the network manager 
         /// </summary>
         /// <param name="message"> Raw message</param>

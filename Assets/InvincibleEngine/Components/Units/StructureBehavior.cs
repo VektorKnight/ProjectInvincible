@@ -44,7 +44,7 @@ public class StructureBehavior : UnitBehavior {
 
 
         //Generate resources according to generation
-        SteamNetManager.Instance.CurrentlyJoinedLobby.LobbyMembers[PlayerOwner].Economy.OnGenerateResouces(ResourceGen);
+        SteamNetManager.CurrentLobbyData.LobbyMembers[PlayerOwner].Economy.OnGenerateResouces(ResourceGen);
 
     }
 

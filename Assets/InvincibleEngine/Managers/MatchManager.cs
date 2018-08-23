@@ -37,7 +37,6 @@ public class MatchManager : MonoBehaviour {
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
 
-
     ///Force the game to start in the lobby scene, as we move toward an online
     ///match based game it is simply too hard to put checks everywhere that bypass
     ///the expected state of the game and list of players. Maps from the build settings

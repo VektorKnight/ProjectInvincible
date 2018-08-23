@@ -140,7 +140,7 @@ namespace SteamNet {
                 m_lobbyInfo = Callback<LobbyDataUpdate_t>.Create(OnGetLobbyInfo);
                 m_LobbyJoinRequest = Callback<GameLobbyJoinRequested_t>.Create(OnJoinLobbyRequest);
                 m_LobbyChatMsg = Callback<LobbyChatMsg_t>.Create(OnLobbyChatMsg);
-                //  m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
+                m_LobbyChatUpdate = Callback<LobbyChatUpdate_t>.Create(OnLobbyChatUpdate);
                 m_P2PSessionRequest = Callback<P2PSessionRequest_t>.Create(OnP2PRequest);
             }
             return wasInit;
@@ -151,8 +151,14 @@ namespace SteamNet {
         /// </summary>
         public void Start() {
 
-            InitializeSteam();
-            StartCoroutine(NetworkUpdate());
+            //Start steam, only run loop if we can start steam
+            if (InitializeSteam()) {
+                StartCoroutine(NetworkUpdate());
+            }
+
+            else {
+                Debug.Log("Steamworks could not be started!");
+            }
         }
 
         public void Update() {
@@ -181,96 +187,59 @@ namespace SteamNet {
         protected IEnumerator NetworkUpdate() {
             while (true) {
                 try {
-                    {
 
-                        //Grab game state from steam server if connected to server not hosting
-                        if (Connected) {
+                    //Grab game state from steam server if connected to server not hosting
+                    if (Connected) {
 
-                            //convert from json
-                            jdata = SteamMatchmaking.GetLobbyData(CurrentlyJoinedLobby.LobbyID, "0");
+                        //convert from json
+                        jdata = SteamMatchmaking.GetLobbyData(CurrentlyJoinedLobby.LobbyID, "0");
 
-                            //set to client
-                            CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);
-                        }
+                        //set to client
+                        CurrentlyJoinedLobby = JsonConvert.DeserializeObject<LobbyData>(jdata);
+                    }
 
-                        //Update list of lobbies found on matchmaking
-                        SteamMatchmaking.RequestLobbyList();
+                    //Update list of lobbies found on matchmaking
+                    SteamMatchmaking.RequestLobbyList();
 
-                        //Run steam callbacks
-                        SteamAPI.RunCallbacks();
+                    //Run steam callbacks
+                    SteamAPI.RunCallbacks();
 
-                        //Ensure that if the host left the lobby we leave
-                        if (Connected) {
+                    //Ensure that if the host left the lobby we leave
+                    if (Connected) {
 
-                            //Check to ensure the host has not left, if he did, leave lobby
-                            //There is a chance that the lobby owner ID is 0 on initial start
-                            if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
-                                if ((ulong)SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != 0) {
-                                    LeaveLobby("Host has left the lobby");
-                                }
+                        //Check to ensure the host has not left, if he did, leave lobby
+                        //There is a chance that the lobby owner ID is 0 on initial start
+                        if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
+                            if ((ulong)SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != 0) {
+                                LeaveLobby("Host has left the lobby");
                             }
-                        }
-
-                        //Sync lobby state to steam server
-                        if (Hosting) {
-
-                            //Set relevent lobby data
-                            CurrentlyJoinedLobby.ConnectedPlayers = CurrentlyJoinedLobby.LobbyMembers.Count;
-
-                            //conver to json
-                            jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
-
-                            //send to steam
-                            SteamMatchmaking.SetLobbyData(CurrentlyJoinedLobby.LobbyID, "0", jdata);
-                        }
-
-                        ///Go through joined members:
-                        ///if they have a member object, ignore
-                        ///if they do not have a member object, make one for them
-                        ///if there exists a member not in the lobby anymore, remove them
-                        if (Hosting) {
-
-                            //get number of members
-                            int numberOfMembers = SteamMatchmaking.GetNumLobbyMembers(CurrentlyJoinedLobby.LobbyID);
-
-
-                            //clone lobby member list to see users that left
-                            Dictionary<CSteamID, SteamnetPlayer> comparator = new Dictionary<CSteamID, SteamnetPlayer>(CurrentlyJoinedLobby.LobbyMembers);
-
-                            //go through each member and resolve each one
-                            for (int i = 0; i < numberOfMembers; i++) {
-
-                                var userId = SteamMatchmaking.GetLobbyMemberByIndex(CurrentlyJoinedLobby.LobbyID, i);
-
-                                //if the user is in the lobby
-                                if (CurrentlyJoinedLobby.LobbyMembers.ContainsKey(userId)) {
-
-                                }
-
-                                //if the user does not exists, make a profile for him
-                                else {
-                                    CurrentlyJoinedLobby.LobbyMembers.Add(userId, new SteamnetPlayer(userId));
-                                }
-
-                                //if a user joined then left, they will have a lobby member but no returned id to go with it
-                                comparator.Remove(userId);
-                            }
-
-                            //finally, remove those users that should no longer be in lobby
-                            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in comparator) {
-                                CurrentlyJoinedLobby.LobbyMembers.Remove(n.Key);
-                            }
-                        }
-
-                        //For both clients and servers, if we are in game get into the game, ensure we are in lobby before loading
-                        if (CurrentlyJoinedLobby.LobbyState == EGameState.InGame && SceneManager.GetActiveScene().buildIndex == 0) {
-                            SceneManager.LoadScene(CurrentlyJoinedLobby.MapIndex);
                         }
                     }
+
+                    //Sync lobby state to steam server
+                    if (Hosting) {
+
+                        //Set relevent lobby data
+                        CurrentlyJoinedLobby.ConnectedPlayers = CurrentlyJoinedLobby.LobbyMembers.Count;
+
+                        //conver to json
+                        jdata = JsonConvert.SerializeObject(CurrentlyJoinedLobby);
+
+                        //send to steam
+                        SteamMatchmaking.SetLobbyData(CurrentlyJoinedLobby.LobbyID, "0", jdata);
+                    }
+
+                    //For both clients and servers, if we are in game get into the game, ensure we are in lobby before loading
+                    if (CurrentlyJoinedLobby.LobbyState == EGameState.InGame && SceneManager.GetActiveScene().buildIndex == 0) {
+                        SceneManager.LoadScene(CurrentlyJoinedLobby.MapIndex);
+                    }
                 }
+
                 catch (Exception e) {
                     Debug.Log($"Error in network loop {e.Message}");
                 }
+
+                //reiterate based off network updates per second
                 yield return new WaitForSeconds(NetUpdatesPerSecond);
             }
         }
@@ -586,7 +555,7 @@ namespace SteamNet {
                 CurrentlyJoinedLobby.LobbyID = (CSteamID)param.m_ulSteamIDLobby;
 
                 //create lobby member for the current user
-                CurrentlyJoinedLobby.LobbyMembers.Add(MySteamID, new SteamnetPlayer(MySteamID));
+                CurrentlyJoinedLobby.AddNewPlayer(new SteamnetPlayer(MySteamID));
                
 
             }
@@ -626,17 +595,72 @@ namespace SteamNet {
             SteamMatchmaking.JoinLobby(LobbyID);
         }
 
+        //Called on lobby member state change, used by hosts when a user joins/leaves
+        private void OnLobbyChatUpdate(LobbyChatUpdate_t param) {
+
+            //Check users entering or leaving
+            switch ((EChatMemberStateChange)param.m_ulSteamIDUserChanged) {
+
+
+                //User disconnected or left
+                case (EChatMemberStateChange.k_EChatMemberStateChangeDisconnected | EChatMemberStateChange.k_EChatMemberStateChangeLeft): {
+
+                        //if in game, stop game
+                        if (CurrentLobbyData.MatchStarted) {
+                            EndMatch($"Player {SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUserChanged)}");
+                        }
+
+                        //If the host leaves, leave the lobby
+                        if ((CSteamID)param.m_ulSteamIDUserChanged == CurrentLobbyData.Host) {
+
+                        }
+
+                        //Only hosts do anything here
+                        if (Hosting) {
+
+                            //Player disconneted, remove them from the list of players
+                            CurrentLobbyData.RemovePlayer((CSteamID)param.m_ulSteamIDUserChanged);
+
+                        }
+                        break;
+                    }
+
+                //User entered the lobby
+                case EChatMemberStateChange.k_EChatMemberStateChangeEntered: {
+
+                        //Only hosts can add members
+                        if (Hosting) {
+
+                            //If we are in a match, do NOT let the new player in
+                            //TODO: let them in, but only let them spectate?
+                            if (CurrentLobbyData.MatchStarted) {
+                                break;
+                            }
+
+                            //Create user in match
+                            CurrentLobbyData.AddNewPlayer(new SteamnetPlayer((CSteamID)param.m_ulSteamIDUserChanged));
+
+                        }
+
+                        break;
+                    }
+            }
+
+        }
+
+
         //Called when we enter a lobby
         private void OnLobbyEntered(LobbyEnter_t param) {
+
             //reset lobby request
             LobbyRequest = false;
 
             //if the lobby is joined sucessfully
             if (param.m_EChatRoomEnterResponse == 1) {
 
-                //if we are hosting a user just joined
+                //if we are hosting a user just joined, adding the user is handled below
                 if (NetworkState == ENetworkState.Hosting) {
-
+                    Debug.Log($"User {param.m_ulSteamIDLobby} joined the lobby");
                 }
 
                 //if we are not hosting we just joined a lobby
@@ -655,8 +679,9 @@ namespace SteamNet {
 
         //Called when we want to join a friend's game, leave our current lobby and join theirs 
         private void OnJoinLobbyRequest(GameLobbyJoinRequested_t param) {
+
             //leave any lobbies we are a part of
-            LeaveLobby("");
+            LeaveLobby("Joining different lobby");
 
             //Join remote lobby
             SteamMatchmaking.JoinLobby(param.m_steamIDLobby);
@@ -789,7 +814,7 @@ namespace SteamNet {
                 }
 
                 //If the timer hits 0, signal game start
-                if (Hosting && CurrentLobbyData.GameStartingIn == 0) {
+                if (Hosting && CurrentLobbyData.GameStartingIn < 0) {
 
                     //If the timer gets to 0, signal game start
                     BeginMatch();
@@ -822,6 +847,30 @@ namespace SteamNet {
                 //Load desired level
                 SceneManager.LoadScene(CurrentLobbyData.MapIndex + 1);
             }
+        }
+
+        /// <summary>
+        /// Call to end the game
+        /// this can be because a win condition was met or a user disconnected
+        /// but it is not up to this function to decide this
+        /// </summary>
+        public void EndMatch(string reason) {
+
+            Debug.Log($"Game ended: {reason}");
+
+            if(Hosting) {
+
+                //Set relative lobby data
+                CurrentLobbyData.MatchStarted = false;
+
+            }
+
+            if (Connected | Hosting) {
+             
+                //Return to lobby
+                SceneManager.LoadScene(0);
+            }
+
         }
 
         // Called from getting information about a lobby
