@@ -70,7 +70,11 @@ namespace InvincibleEngine.UnitFramework.Components {
         [Header("Particle Effects")] 
         [SerializeField] protected ParticleSystem BuildEffect;
         [SerializeField] protected ParticleSystem DeathEffect;
-        
+
+        //Public: Network Properties
+        public ushort AssetID;
+        public ushort NetID;
+
         // Protected: Time Slicing
         protected int SliceIndex;
 

@@ -5,11 +5,7 @@ using UnityEngine;
 
 namespace VektorLibrary.EntityFramework.Components {
     public abstract class EntityBehavior : MonoBehaviour {
-
-        //Unique ID  for asset and network tracking
-        public ushort NetID;
-        public ushort AssetID;
-
+               
         // Property: Registered
         public bool Registered { get; private set; }
 

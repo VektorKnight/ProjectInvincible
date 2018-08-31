@@ -28,7 +28,6 @@ namespace InvincibleEngine.Managers {
         /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void GenerateManifest() {
-            Debug.Log("<color=blue>Asset Manager generating manifest...</Color>");
 
             //----------------------------------------------------
             #region  Generate manifest of all generic unit behaviors for spawning

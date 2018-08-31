@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114452327220674322}
   - component: {fileID: 114767232516170514}
   m_Layer: 5
-  m_Name: GameplayCanvas
+  m_Name: GameplayCanvas(Depreciated)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

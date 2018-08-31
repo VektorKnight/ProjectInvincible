@@ -8,13 +8,35 @@ using UnityEngine;
 /// </summary>
 public class UIBehavior : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    //------------------------------------
+    #region virtual methods
+    //------------------------------------
+    
+    public virtual void OnMatchStart() {
+
+    }
+
+
+    #endregion
+
+
+
+    //------------------------------------
+    #region Subscribe overrides
+    //------------------------------------
+
+    //Subscribe 
+    private void OnEnable() {
+        MatchManager.OnMatchStartEvent += OnMatchStart;
+    }
+
+    //Unsubscribe
+    private void OnDisable() {
+        MatchManager.OnMatchStartEvent -= OnMatchStart;
+
+    }
+
+    #endregion
+
 }

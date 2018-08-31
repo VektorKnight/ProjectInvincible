@@ -37,6 +37,18 @@ public class MatchManager : MonoBehaviour {
     // Singleton Instance Accessor
     public static MatchManager Instance { get; private set; }
 
+
+    //------------------------------------
+    #region Events
+    //------------------------------------
+
+    public delegate void _DOnMatchStart();
+    public static event _DOnMatchStart OnMatchStartEvent;
+
+
+    #endregion
+
+
     ///Force the game to start in the lobby scene, as we move toward an online
     ///match based game it is simply too hard to put checks everywhere that bypass
     ///the expected state of the game and list of players. Maps from the build settings
@@ -157,12 +169,15 @@ public class MatchManager : MonoBehaviour {
                 Debug.Log("Player can afford building, spawning it");
 
                 //Instantiate object
-                GameObject n = Instantiate(Building.gameObject, point.WorldPosition, Orientation);
+                StructureBehavior n = Instantiate(Building.gameObject, point.WorldPosition, Orientation).GetComponent<StructureBehavior>();
 
                 //Set ownership to the player that built it
-                n.GetComponent<StructureBehavior>().PlayerOwner = playerSource;
+                n.PlayerOwner = playerSource;
+
+                //Register Entity
+                SteamNetManager.Instance.RegisterNetworkedUnit(n);
                 
-                //
+                //Occypy grid points
                 GridSystem.OnOccupyGrid(GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y));
 
                 return true;
@@ -187,6 +202,9 @@ public class MatchManager : MonoBehaviour {
     /// This should spawn in command centers for each player, give economy, etc.
     /// </summary>
     public void OnMatchStart(bool isHost) {
+
+        //Call events
+        OnMatchStartEvent?.Invoke();
 
         // Generate Grid
         GridSystem.GenerateGrid();

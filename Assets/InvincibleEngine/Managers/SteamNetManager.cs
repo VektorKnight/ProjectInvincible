@@ -23,6 +23,7 @@ using System.Globalization;
 using InvincibleEngine;
 using InvincibleEngine.Managers;
 using InvincibleEngine.UnitFramework.Enums;
+using InvincibleEngine.UnitFramework.Components;
 
 namespace SteamNet {
 
@@ -50,6 +51,8 @@ namespace SteamNet {
         [SerializeField] public LobbyData CurrentlyJoinedLobby = new LobbyData();
         [SerializeField] public List<LobbyData> OnlineLobbies = new List<LobbyData>();
 
+        //Unit tracking
+        Dictionary<ushort, UnitBehavior> AllUnits = new Dictionary<ushort, UnitBehavior>(); 
 
         //-----------------------------------
         #region Ease of use static properties
@@ -92,7 +95,7 @@ namespace SteamNet {
             set {
                 Debug.Log("Entity tracking toggled");
                 _TrackingEntities = value;
-                OnTrackEntitiesToggle();
+
             }
         }
 
@@ -203,19 +206,7 @@ namespace SteamNet {
 
                     //Run steam callbacks
                     SteamAPI.RunCallbacks();
-
-                    //Ensure that if the host left the lobby we leave
-                    if (Connected) {
-
-                        //Check to ensure the host has not left, if he did, leave lobby
-                        //There is a chance that the lobby owner ID is 0 on initial start
-                        if (SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != CurrentlyJoinedLobby.Host) {
-                            if ((ulong)SteamMatchmaking.GetLobbyOwner(CurrentlyJoinedLobby.LobbyID) != 0) {
-                                LeaveLobby("Host has left the lobby");
-                            }
-                        }
-                    }
-
+                    
                     //Sync lobby state to steam server
                     if (Hosting) {
 
@@ -227,6 +218,9 @@ namespace SteamNet {
 
                         //send to steam
                         SteamMatchmaking.SetLobbyData(CurrentlyJoinedLobby.LobbyID, "0", jdata);
+
+                        //Run entity tracking
+                        OnTrackEntities();
                     }
 
                     //For both clients and servers, if we are in game get into the game, ensure we are in lobby before loading
@@ -365,45 +359,38 @@ namespace SteamNet {
         /// </summary>
 
 
-        //Called on togggle entities, if we are a client then remove all entities in scene
-        public void OnTrackEntitiesToggle() {
+       //List of entity updates
+       List<N_ENT> messageList = new List<N_ENT>();
+       List<byte> buffer = new List<byte>();
 
-
-        }
-
-        //TODO: implement a system for syncing fields by custom serializer and using a priority system OR keyframing
-
+        //Only called from host, for now send all information about all entities
         public void OnTrackEntities() {
 
-            //do nothing if not tracking entities
-            if (!TrackingEntities) {
-                return;
+            //Prepare buffers
+            messageList.Clear();
+            buffer.Clear();
+            
+            //Go through each entity, pack their data, and send to all clients
+            foreach (KeyValuePair<ushort, UnitBehavior> n in AllUnits) {
+
+                //Create message and populate with data, TODO: make the unit do this
+                N_ENT message = new N_ENT();
+                message.NetID = n.Key;
+                message.ObjectID = n.Value.AssetID;
+                message.P = n.Value.transform.position;
+                message.R = n.Value.transform.eulerAngles;
+
+                //Add message to sending
+                messageList.Add(message);
+                
             }
 
-            ///if hosting, scrape all necessary data and relay it to all clients
-            ///this posts a session request that the other users must accept on frist time send 
-            if (Hosting) {
-
-                List<byte> buffer = new List<byte>();
-
-
-
-                //after entities are zipped, send to all remote connections
-                foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in CurrentlyJoinedLobby.LobbyMembers) {
-
-                    //Dont sent messages to ourself, duh
-                    if (n.Key == MySteamID) {
-                        continue;
-                    }
-
-                    //Debug to console
-                    if (DebugLogs) Debug.Log($"Entity tracking packet sent of size {buffer.Count} to user {n.Value.DisplayName}");
-
-                    //Sends the collection of synced entities to all users
-                    SteamNetworking.SendP2PPacket(n.Key, buffer.ToArray(), (uint)buffer.Count, EP2PSend.k_EP2PSendReliable);
-                }
-
+            foreach(N_ENT n in messageList) {
+                Debug.Log($"Entity found with net ID: {n.NetID}, Asset ID: {n.ObjectID}, and position: {n.P}");
+                HexSerialize.Zip(buffer, n, 1200);
+                Debug.Log($"entity serialized, buffer is now of size {buffer.Count}");
             }
+
 
         }
 
@@ -459,14 +446,31 @@ namespace SteamNet {
         }
 
 
-        //fetches a new ID from list of available IDs
-        public ushort GenerateID() {
-            ushort pickedID = 0;
-            while (UsedIDs.Contains(pickedID)) {
-                pickedID++;
+        //fetches a new ID from list of available IDs and registers the unit with the net manager
+        public bool RegisterNetworkedUnit( UnitBehavior unit) {
+
+            try {
+                //Grab ID
+                ushort pickedID = 0;
+                while (UsedIDs.Contains(pickedID)) {
+                    pickedID++;
+                }
+                UsedIDs.Add(pickedID);
+
+                //register unit
+                unit.NetID = pickedID;
+                AllUnits.Add(pickedID,unit);
+
+                Debug.Log($"Unit {unit} registered with ID {pickedID}");
+                return true;
             }
-            UsedIDs.Add(pickedID);
-            return pickedID;
+
+
+            catch (Exception e) {
+                return false;
+            }
+
+
         }
 
         #endregion
@@ -480,16 +484,18 @@ namespace SteamNet {
 
             Debug.Log("Remote session request recieved, accepting and opening port");
             SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
-
+           
         }
 
 
         /// <summary>
         /// Sends a message to the host if connected to one, or sends a message to all connected clients if hosting a game
         /// doing this generates GC as the buffer and data stream must be filled with bytes and destroyed, this is normal
+        /// 
+        /// if a client, leave params empty as this will default to host, or don't I don't care
         /// </summary>
         /// <param name="message"></param>
-        public void SendDataToLobby(object[] message) {
+        public void SendDataToLobby(object[] message, params CSteamID[] destinations) {
 
             //Prepare buffer of serialized message
             List<byte> buffer = new List<byte>();
@@ -501,6 +507,13 @@ namespace SteamNet {
 
             //If hosting, relay to all clients
             if (Hosting) {
+
+                //Loop through all destination players and send them the message
+                foreach(CSteamID n in destinations) {
+
+                    Debug.Log($"Sending packet to {SteamFriends.GetFriendPersonaName(n)} of size {buffer.Count}");
+
+                }
 
             }
 
@@ -605,14 +618,16 @@ namespace SteamNet {
                 //User disconnected or left
                 case (EChatMemberStateChange.k_EChatMemberStateChangeDisconnected | EChatMemberStateChange.k_EChatMemberStateChangeLeft): {
 
-                        //if in game, stop game
-                        if (CurrentLobbyData.MatchStarted) {
-                            EndMatch($"Player {SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUserChanged)}");
-                        }
+                        //if connected, leave lobby only if host leaves
+                        if (Connected) {
 
-                        //If the host leaves, leave the lobby
-                        if ((CSteamID)param.m_ulSteamIDUserChanged == CurrentLobbyData.Host) {
+                            //If the host leaves, leave the lobby and/or game
+                            if ((CSteamID)param.m_ulSteamIDUserChanged == CurrentLobbyData.Host) {
 
+                                EndMatch("Host has left the lobby");
+
+                                LeaveLobby("Host has left the lobby");
+                            }
                         }
 
                         //Only hosts do anything here
@@ -620,6 +635,11 @@ namespace SteamNet {
 
                             //Player disconneted, remove them from the list of players
                             CurrentLobbyData.RemovePlayer((CSteamID)param.m_ulSteamIDUserChanged);
+
+                            //if in game, stop game since a player left, clients will check for this seperately
+                            if (CurrentLobbyData.MatchStarted) {
+                                EndMatch($"Player {SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUserChanged)}");
+                            }
 
                         }
                         break;
