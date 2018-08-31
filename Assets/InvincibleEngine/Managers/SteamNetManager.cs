@@ -583,7 +583,7 @@ namespace SteamNet {
 
             //display message
             if (reason.Length > 0) {
-                UIMessage.GlobalMessage.DisplayMessage(reason);
+                Debug.Log(reason);
             }
 
             //Leave the lobby
