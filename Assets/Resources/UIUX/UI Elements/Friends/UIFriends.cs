@@ -25,7 +25,7 @@ public class UIFriends : UIBehavior {
             n.SetData(changed, id);
 
             //add to list
-            CurrentlyDisplayedLobbies.Add(n.LobbyID, n);
+            CurrentlyDisplayedLobbies.Add(id, n);
 
         }
 
