@@ -53,11 +53,8 @@ namespace HexSerializer {
                 byte[] b;
 
                 if (IsGenericEnumerable(f.GetType())) {
-                    Debug.Log("found collection");
-
                     List<byte> p = new List<byte>();
                     foreach (var n in (IEnumerable)f) {
-                        Debug.Log("forech going for f" + n.GetType());
                         List<byte> x = new List<byte>();
                         if (!x.Zip(n, maxBuffer)) {
                             return false;
@@ -147,7 +144,6 @@ namespace HexSerializer {
                         var Result = Activator.CreateInstance(typeof(List<>).MakeGenericType(IType));
                         List<byte> x = c;
                         while (x.Count > 0) {
-                            Debug.Log(x.Count);
                             object objTemp = Unzip(x.SubList<byte>(1))[0].obj;
                             Result.GetType().GetMethod("Add").Invoke(Result, new[] { objTemp });
                         }
@@ -235,7 +231,6 @@ namespace HexSerializer {
 
         public static object FromByte(byte[] src, Type type) {
             //if object is ours, deserialize in classic way
-            Debug.Log(type);
 
             if (type.Namespace == "SteamNet") {
                 return Unzip(src.ToList())[0].obj;

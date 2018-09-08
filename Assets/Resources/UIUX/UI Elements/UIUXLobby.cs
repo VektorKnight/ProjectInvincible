@@ -3,29 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIUXLobby : MonoBehaviour {
+public class UIUXLobby : UIBehavior {
+
+    //Private: List of all lobby elements
+    [SerializeField] private RectTransform MainLobby;
+
+    //Match Started
+    public override void OnMatchStart() {
+        base.OnMatchStart();
+    }
     
-    //List of all game menu
-    public List<GameObject> MenuList;
+    //Lobby Joined
+    public override void OnJoinLobby() {
+        base.OnJoinLobby();
 
-    //Variables
-    private int ActiveMenu;
-
-    private void Start() {
-
-       
-
-    }
-
-    //Main Menu change
-    public void OnMenuChange(int menuIndex) {
-
-
-    }
-
-    private void Update() {
-
-      
-
+        //Show Main Lobby
+        MainLobby.gameObject.SetActive(true);
     }
 }

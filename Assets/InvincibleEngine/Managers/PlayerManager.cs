@@ -127,16 +127,16 @@ namespace InvincibleEngine.Managers {
         //Build behavior
         private void BuildRoutine() {
 
-            // if in build mode, display preview options for player
+            // if in build mode, display preview options for player, ya fuckin' wanker
             if (BuildMode) {
 
                 //Grid point the mouse is over
                 GridPoint point = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
 
-                //Show the build preview at nearby grid points
+                //Show the build preview at nearby grid points, ya fuckin' wanker
                 _buildPreview.transform.position = point.WorldPosition;
 
-                //Change the render color based on if construction is possible 
+                //Change the render color based on if construction is possible, ya fuckin' wanker 
                 if (MatchManager.Instance.CanConstructBuilding(AssetManager.LoadAssetByID(_buildPreview.AssetID).GetComponent<StructureBehavior>(), point, SteamNetManager.LocalPlayer.SteamID)) {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 255, 255, 100);
                 }
@@ -144,24 +144,24 @@ namespace InvincibleEngine.Managers {
                     _buildPreview.GetComponentInChildren<Renderer>().material.color = new Color32(255, 0, 0, 100);
                 }
 
-                //On left click, try and construct the building
+                //On left click, try and construct the building, ya fuckin' wanker
                 if (Input.GetMouseButtonDown(0)) {
 
                     //Attempt construction
                     if( MatchManager.Instance.ConstructBuilding(
                         AssetManager.LoadAssetByID(_buildPreview.AssetID).GetComponent<StructureBehavior>(),
                         point,
-                        Quaternion.identity,
+                        Vector3.zero,
                         SteamNetManager.MySteamID,
                         false))
                     {
-                        //If successful, stop building
+                        //If successful, stop building, ya fuckin' wanker
                         OnStopBuilding();
                     }
                 }
 
-                //Cancel build mode
-                if(Input.GetMouseButtonDown(1)) {
+                //Cancel build mode, ya fuckin' wanker
+                if (Input.GetMouseButtonDown(1)) {
                     OnStopBuilding();
                 }
             }

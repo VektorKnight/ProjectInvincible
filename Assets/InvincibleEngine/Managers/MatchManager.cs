@@ -20,6 +20,7 @@ using SteamNet;
 using InvincibleEngine;
 using InvincibleEngine.UnitFramework.Components;
 using InvincibleEngine.UnitFramework.DataTypes;
+using InvincibleEngine.UnitFramework.Enums;
 
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.Managers;
@@ -30,6 +31,9 @@ using VektorLibrary.Utility;
 /// Controls match behavior, statistics, order dispatch, and any other behavior for the game
 /// </summary>
 public class MatchManager : MonoBehaviour {
+
+    //All gameplay units in scene
+    public Dictionary<ushort, UnitBehavior> AllUnits = new Dictionary<ushort, UnitBehavior>();
 
     //Match manager properties
     [SerializeField] public GridSystem GridSystem = new GridSystem();
@@ -77,22 +81,6 @@ public class MatchManager : MonoBehaviour {
         DontDestroyOnLoad(Instance.gameObject);
 
     }
-
-    /*
-    private void OnDrawGizmos() {
-        foreach (KeyValuePair<Vector2Int, GridPoint> n in GridSystem.GridPoints) {
-
-            if (n.Value.IsOpen()) {
-                Gizmos.color = Color.green;
-            }
-            else {
-                Gizmos.color = Color.red;
-
-            }
-            Gizmos.DrawWireCube(n.Value.WorldPosition, Vector3.one);
-        }
-    }
-    */
 
     //----------------------------------------------------
     #region  Game flow control, spawning players and command centers on Game Start
@@ -144,7 +132,7 @@ public class MatchManager : MonoBehaviour {
         bool c = GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y).AreOpen();
 
         return (a & b & c) ? true : false;
-        
+
     }
 
     /// <summary>
@@ -153,7 +141,7 @@ public class MatchManager : MonoBehaviour {
     /// <param name="BuildingID">Building asset ID</param>
     /// <param name="Location">cooresponding grid coordinates</param>
     /// <param name="Orientation">rotation in degrees between 0 and 360</param>
-    public bool ConstructBuilding(StructureBehavior Building, GridPoint point, Quaternion Orientation, CSteamID playerSource, bool bypassRequirements) {
+    public bool ConstructBuilding(StructureBehavior Building, GridPoint point, Vector3 Orientation, CSteamID playerSource, bool bypassRequirements) {
 
         //if we are connected to a server, send a build request
         if (SteamNetManager.Instance.Connected) {
@@ -161,25 +149,16 @@ public class MatchManager : MonoBehaviour {
         }
 
         //if we are hosting, attempt to construct building
-        if (SteamNetManager.Instance.Hosting && (bypassRequirements||CanConstructBuilding(Building, point, playerSource))) {
+        if (SteamNetManager.Instance.Hosting && (bypassRequirements || CanConstructBuilding(Building, point, playerSource))) {
 
             Debug.Log("Spawning building, checking to see if player has enough econ for it");
+
             //if the player can afford it, construct it
-            if ( SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+
                 Debug.Log("Player can afford building, spawning it");
 
-                //Instantiate object
-                StructureBehavior n = Instantiate(Building.gameObject, point.WorldPosition, Orientation).GetComponent<StructureBehavior>();
-
-                //Set ownership to the player that built it
-                n.PlayerOwner = playerSource;
-
-                //Register Entity
-                SteamNetManager.Instance.RegisterNetworkedUnit(n);
-                
-                //Occypy grid points
-                GridSystem.OnOccupyGrid(GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y));
-
+                SpawnUnit(SteamNetManager.Instance.GetNetworkID(), Building.AssetID, point.WorldPosition, Orientation, SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Team, playerSource);
                 return true;
 
             }
@@ -187,9 +166,30 @@ public class MatchManager : MonoBehaviour {
 
         //return false if nothing worked
         return false;
-       
+
     }
 
+    /// <summary>
+    /// call to finally spawn unit, all instantiations for networked units MUST be done here
+    /// </summary>
+    public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, ETeam team, CSteamID owner) {
+
+        //Spawn physical object
+        UnitBehavior newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
+
+        //Set values
+        newUnit.PlayerOwner = owner;
+        newUnit.NetID = netID;
+        newUnit.SetTeam(team);
+
+        //Add unit to list
+        AllUnits.Add(netID, newUnit);
+    }
+
+    public void DestroyUnit(ushort netID) {
+        Destroy(AllUnits[netID]);
+        AllUnits.Remove(netID);
+    }
 
     #endregion
 
@@ -212,7 +212,7 @@ public class MatchManager : MonoBehaviour {
         // Locate all spawn points
         GameObject[] spawnPoints = GameObject.FindGameObjectsWithTag("SpawnPoint");
         int spawnIndex = 0;
-        
+
         // Try to spawn in the camera system prefab
         try {
             // Destroy any existing camera systems
@@ -222,7 +222,7 @@ public class MatchManager : MonoBehaviour {
                                                       "The existing camera system will be destroyed.");
                 Destroy(cam.gameObject);
             }
-            
+
             // Load the Camera System prefab from the resources folder and try to spawn it
             var cameraSystem = Resources.Load<InvincibleCamera>("Objects/Common/OverheadCamera");
             Instantiate(cameraSystem, spawnPoints[0].transform.position, Quaternion.identity);
@@ -236,12 +236,12 @@ public class MatchManager : MonoBehaviour {
         if (isHost) {
 
             foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
-                DevConsole.Log("MatchManager", $"Spawning Command Center and setting initial economy values for <b>{n.Value.DisplayName}</b>");
+                Debug.Log($"Spawning Command Center and setting initial economy values for <b>{n.Value.DisplayName}</b>");
                 //Give each player starting resources
                 n.Value.Economy.Resources = SteamNetManager.CurrentLobbyData.StartingResources;
 
                 //For each player, spawn them (for now) a command center into a spawn point round robin, assign the building to them
-                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Quaternion.identity, n.Key, true);
+                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Vector3.zero, n.Key, true);
 
                 //Move to next spawn point
                 spawnIndex++;
@@ -254,6 +254,41 @@ public class MatchManager : MonoBehaviour {
     public void EndMatch() {
 
     }
+    #endregion
+
+    //----------------------------------------------------
+    #region Network packet resolution
+    //----------------------------------------------------
+
+    /// <summary>
+    /// Takes a collection of network updates and assigns to units
+    /// if no unit exists with the 
+    /// </summary>
+    /// <param name="messages"></param>
+    public void OnNetworkMessage(IEnumerable<AmbiguousTypeHolder> messages) {
+
+        //go through each message and resolve it
+        foreach (AmbiguousTypeHolder n in messages) {
+
+            //Entity update
+            
+            if (n.type == typeof(N_ENT)) {
+                N_ENT u = (N_ENT)n.obj;
+
+                //Check to see if the entity exists
+                if (AllUnits.ContainsKey(u.NetID)) {
+                    AllUnits[u.NetID].transform.position = u.P;
+                    AllUnits[u.NetID].transform.eulerAngles = u.R;
+                }
+
+                //if not, spawn this unit
+                else {
+                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, ETeam.Blue, (CSteamID)u.Owner);
+                }
+            }
+        }
+    }
+
     #endregion
 
 }

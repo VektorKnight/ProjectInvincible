@@ -80,6 +80,7 @@ namespace SteamNet {
         public Vector3 P, R, V, A;
         public ushort NetID;
         public ushort ObjectID;
+        public ulong Owner;
 
     }
 
@@ -190,6 +191,15 @@ namespace SteamNet {
     [Serializable]
     public class LobbyData {
 
+        //Constructor
+        public LobbyData(CSteamID lobbyID) {
+            LobbyID = lobbyID;
+        }
+
+        public LobbyData() {
+
+        }
+
         //Lobby Properties
         [SerializeField] public CSteamID LobbyID;
         [SerializeField] public CSteamID Host;
@@ -205,7 +215,6 @@ namespace SteamNet {
         //Match Properties
         [SerializeField] public int MapIndex = 1;
         [SerializeField] public bool MatchStarted = false;
-
 
 
         //-----------------------------------

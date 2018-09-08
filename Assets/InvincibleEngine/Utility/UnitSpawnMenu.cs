@@ -76,8 +76,9 @@ namespace InvincibleEngine.Utility {
             DevConsole.Log("DebugTools", $"Spawning <b>{_spawnCount}</b> instance(s) of <b>{_spawnableUnits[_selectedUnit].name}</b> at <b>{InvincibleCamera.MouseData.WorldPosition}</b>");
             var spawnGrid = VektorUtility.CenteredGrid(InvincibleCamera.MouseData.WorldPosition, _spawnCount, 1.25f);
             for (var i = 0; i < _spawnCount; i++) {
-                var unit = Instantiate(_spawnableUnits[_selectedUnit], spawnGrid[i], Quaternion.identity);
-                unit.SetTeam(_selectedTeam);
+                MatchManager.Instance.SpawnUnit(SteamNet.SteamNetManager.Instance.GetNetworkID(), _spawnableUnits[_selectedUnit].AssetID, spawnGrid[i], Vector3.zero, _selectedTeam, SteamNet.SteamNetManager.MySteamID);
+              //  var unit = Instantiate(_spawnableUnits[_selectedUnit], spawnGrid[i], Quaternion.identity);
+              //  unit.SetTeam(_selectedTeam);
             }
             _readyToSpawn = false;
         }
