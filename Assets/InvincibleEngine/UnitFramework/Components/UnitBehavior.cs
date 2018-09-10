@@ -389,7 +389,6 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         // Sim Update Callback
         public override void OnSimUpdate(float fixedDelta, bool isHost) {
-
             // Exit if this object is dying
             if (Dying) return;
 
