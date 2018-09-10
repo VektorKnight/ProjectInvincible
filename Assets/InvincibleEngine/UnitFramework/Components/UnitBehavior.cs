@@ -28,7 +28,7 @@ namespace InvincibleEngine.UnitFramework.Components {
     /// Base methods for this class should be called first in any overrides.
     /// </summary>
     [RequireComponent(typeof(GlowingObject))]
-    public partial class UnitBehavior : EntityBehavior, IUnit {
+    public class UnitBehavior : EntityBehavior, IUnit {
         // Constant: Team Layers Start/End
         public static readonly int[] TeamLayerBounds = { 11, 18 };
 

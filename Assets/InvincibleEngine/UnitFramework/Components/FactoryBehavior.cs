@@ -23,11 +23,12 @@ namespace InvincibleEngine.UnitFramework.Components {
         public IReadOnlyList<UnitBehavior> BuildableUnits => _buildableUnits.AsReadOnly();
         public List<KeyValuePair<UnitBehavior, int>> BuildList { get; protected set; }
         public UnitBehavior CurrentUnit { get; protected set; }
-        public bool ReadyToBuild { get; protected set; } = false;
+        public bool ReadyToBuild { get; protected set; }
         public bool PauseBuilding = false;
+        public bool LoopQueue = false;
 
         // Entity Callback Overrides
-        #region Entity Callback overrides
+        #region Entity Callback Overrides
         // Initialization
         public override void OnRegister() {
             // Call base method
@@ -105,16 +106,16 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
         #endregion
 
-        // UI Event Handlers
-        #region UI Event Handlers
+        // Unit Factory Methods
+        #region Unit Factory Methods
 
         /// <summary>
-        /// Tries to queue a build order.
+        /// Tries to add a new build order to the build list.
         /// </summary>
         /// <param name="unitIndex">The index of the unit in the buildable units list.</param>
         /// <param name="count">The number to build.</param>
         /// /// <returns>True if successful, false if not.</returns>
-        protected virtual bool TryQueueOrder(int unitIndex, int count = 1) {
+        public virtual bool TryAddOrder(int unitIndex, int count = 1) {
             // Exit if the index is outside the bounds or the entry is null
             var unit = (unitIndex > 0 && unitIndex < _buildableUnits.Count) ? _buildableUnits[unitIndex] : null;
             if (unit == null) return false;
@@ -135,7 +136,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// </summary>
         /// <param name="orderIndex">The index of the order in the build list.</param>
         /// <returns>True if successful, false if not.</returns>
-        protected virtual bool TryCancelOrder(int orderIndex) {
+        public virtual bool TryCancelOrder(int orderIndex) {
             // Exit if the index is invalid
             var valid = orderIndex > 0 && orderIndex < BuildList.Count;
             if (!valid) return false;
@@ -153,7 +154,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// <param name="orderIndex">The index of the order in the build list.</param>
         /// <param name="count">The new count for the order.</param>
         /// <returns>True if successful, false if not.</returns>
-        protected virtual bool TryEditOrder(int orderIndex, int count) {
+        public virtual bool TryEditOrder(int orderIndex, int count) {
             // Exit if the index is invalid
             var valid = orderIndex > 0 && orderIndex < BuildList.Count;
             if (!valid) return false;
