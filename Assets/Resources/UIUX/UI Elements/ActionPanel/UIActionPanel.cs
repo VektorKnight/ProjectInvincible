@@ -29,26 +29,21 @@ public class UIActionPanel : MonoBehaviour {
     
     // OnUnitsSelected event handler
     private void OnUnitsSelected(List<UnitBehavior> units) {
+        // Return if the list is empty
+        if (units.Count == 0) return;
 
-        try {
-            _CurrentlySelectedObject = units[0];
+        _CurrentlySelectedObject = units[0];
 
+        // Generate actions for object
+        foreach (var n in _CurrentlySelectedObject.ConstructionOptions) {
+            //instantiate object
+            var u = Instantiate(ActionPrefab, transform);
 
-
-            // Generate actions for object
-            foreach (var n in _CurrentlySelectedObject.ConstructionOptions) {
-
-                //instantiate object
-                var u = Instantiate(ActionPrefab, transform);
-
-                // Set values for object
-                u.Action = n.PrefabBuild;
-                u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
-            }
+            // Set values for object
+            u.Action = n.PrefabBuild;
+            u.DisplayImage.sprite = n.PrefabBuild.IconSprite;
         }
-        catch (Exception e) {
-            Debug.Log(e);
-        }
+        
     }
     
     // OnUnitsDeselected event handler

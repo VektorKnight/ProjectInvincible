@@ -20,7 +20,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4874692807865004}
   - component: {fileID: 120815015143815700}
-  - component: {fileID: 114692333684541016}
+  - component: {fileID: 114222332592410430}
+  - component: {fileID: 114432867657596078}
+  - component: {fileID: 65560785726501686}
   m_Layer: 0
   m_Name: Struct_VehicleFactory
   m_TagString: Untagged
@@ -153,7 +155,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1151602042146494}
   m_LocalRotation: {x: -4.3297806e-17, y: 0.70710677, z: 4.3297803e-17, w: 0.7071068}
-  m_LocalPosition: {x: 448.94388, y: 8.002197, z: 65.60173}
+  m_LocalPosition: {x: 498.4618, y: 4.49, z: 315.98776}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4788483052093282}
@@ -247,7 +249,19 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1290587417636508}
   m_Mesh: {fileID: 4300002, guid: 502d0bfa3a7115c458378ce14800aa06, type: 3}
---- !u!114 &114692333684541016
+--- !u!65 &65560785726501686
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1151602042146494}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 8, y: 8, z: 8}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114222332592410430
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -255,32 +269,65 @@ MonoBehaviour:
   m_GameObject: {fileID: 1151602042146494}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff203a0b605c6e749bf8777d5a60a19b, type: 3}
+  m_Script: {fileID: 11500000, guid: 6d7835d277c941249bee7ef877d8a342, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LerpFactor: 10
+--- !u!114 &114432867657596078
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1151602042146494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: beca12fb69df4ef46bb402c034f553a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerOwner:
     m_SteamID: 0
   _unitType: 0
   Health: 100
-  _cost: 100
-  _iconSprite: {fileID: 21300000, guid: b8c41b09a2b9d8043887bfbc0774eb15, type: 3}
+  _iconSprite: {fileID: 21300000, guid: e3b5615ba0eaa6d488eee765f8aa0704, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
+  ShieldPrefab: {fileID: 0}
+  ShieldAnchor: {fileID: 0}
+  CalculateShieldRadius: 0
+  ShieldRadius: 0
+  ShieldHealth: 100
+  ShieldRechargeRate: 20
+  ShieldRechargeDelay: 5
+  WeaponPrefab: {fileID: 0}
+  WeaponAnchor: {fileID: 0}
   AutoAcquireTargets: 0
+  TargetingMode: 1
   ScanRadius: 50
-  ScanIntervalRange: {x: 0.2, y: 0.4}
-  DeathEffect: {fileID: 0}
+  _cost: 100
+  BuildTime: 4
   ConstructionOptions: []
-  BuildOptions:
-  - {fileID: 0}
+  BuildOptions: []
+  BuildEffect: {fileID: 0}
+  DeathEffect: {fileID: 0}
+  AssetID: 0
+  NetID: 0
+  Priority: 0
+  Bounds: {x: 1, y: 1}
+  DrawGizmos: 0
   CanBeProduced: 0
-  BuildTime: 5
-  BuildResources: 0
   Origin: {x: 0, y: 0, z: 0}
   Height: 0
-  BuildPoint: {fileID: 1193794369722732}
+  BuildPoint: {fileID: 1151602042146494}
   EnergyGen: 0
-  ResourceGen: 1
+  ResourceGen: 0
   BuildingEffect: {fileID: 0}
+  _buildableUnits:
+  - {fileID: 114607497393256244, guid: 2d7fb3b3bcf6ace458c1596bba5978bb, type: 2}
+  - {fileID: 114505020768901190, guid: d6ec5ba2d0d07344d98b555e4d61f788, type: 2}
+  _buildSpawn: {fileID: 4874692807865004}
+  _exitWaypoint: {fileID: 4874692807865004}
+  _buildEffect: {fileID: 0}
+  PauseBuilding: 0
+  LoopQueue: 0
 --- !u!120 &120815015143815700
 LineRenderer:
   m_ObjectHideFlags: 1

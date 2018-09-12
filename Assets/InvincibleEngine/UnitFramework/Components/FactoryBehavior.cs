@@ -8,7 +8,7 @@ using InvincibleEngine.UnitFramework.Enums;
 using UnityEngine;
 
 namespace InvincibleEngine.UnitFramework.Components {
-    class FactoryBehavior : StructureBehavior {
+    public class FactoryBehavior : StructureBehavior {
         // Unity Inspector
         [Header("Unit Factory Config")] 
         [SerializeField] private List<UnitBehavior> _buildableUnits;    // Units that this factory can build
@@ -26,6 +26,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool ReadyToBuild { get; protected set; }
         public bool PauseBuilding = false;
         public bool LoopQueue = false;
+
+        // Build List Event Callbacks
+        public delegate void BuildListChanged();
+        public event BuildListChanged OnBuildListChanged;
 
         // Entity Callback Overrides
         #region Entity Callback Overrides
@@ -55,6 +59,13 @@ namespace InvincibleEngine.UnitFramework.Components {
             CommandParser.RegisterHandler(UnitCommands.Move, MoveCommandHandler);
             CommandParser.RegisterHandler(UnitCommands.Stop, StopCommandHandler);
             CommandParser.RegisterHandler(UnitCommands.Hold, HoldCommandHandler);
+
+            // Declare unit feature set
+            Features = UnitFeatures.Factory | 
+                       UnitFeatures.Defensive;
+
+            // Initialize the build list
+            BuildList = new List<KeyValuePair<UnitBehavior, int>>();
         }
 
         // Simulation Update
@@ -117,15 +128,24 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// /// <returns>True if successful, false if not.</returns>
         public virtual bool TryAddOrder(int unitIndex, int count = 1) {
             // Exit if the index is outside the bounds or the entry is null
-            var unit = (unitIndex > 0 && unitIndex < _buildableUnits.Count) ? _buildableUnits[unitIndex] : null;
+            var unit = (unitIndex >= 0 && unitIndex < _buildableUnits.Count) ? _buildableUnits[unitIndex] : null;
             if (unit == null) return false;
 
             // Exit if the count is less than 1
             if (count < 1) return false;
 
-            // Create a new build order KVP and add it to the build list
-            var buildOrder = new KeyValuePair<UnitBehavior, int>(unit, count);
-            BuildList.Add(buildOrder);
+            // Edit the last order if the units are the same, otherwise add to the end
+            if (BuildList.Count > 0 && BuildList[BuildList.Count - 1].Key == unit) {
+                var newOrder = new KeyValuePair<UnitBehavior, int>(unit, BuildList[BuildList.Count - 1].Value + count);
+                BuildList[BuildList.Count - 1] = newOrder;
+            }
+            else {
+                var buildOrder = new KeyValuePair<UnitBehavior, int>(unit, count);
+                BuildList.Add(buildOrder);
+            }
+
+            // Invoke the build list event
+            OnBuildListChanged?.Invoke();
             
             // Return true for success
             return true;
@@ -138,11 +158,14 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// <returns>True if successful, false if not.</returns>
         public virtual bool TryCancelOrder(int orderIndex) {
             // Exit if the index is invalid
-            var valid = orderIndex > 0 && orderIndex < BuildList.Count;
+            var valid = orderIndex >= 0 && orderIndex < BuildList.Count;
             if (!valid) return false;
 
             // Remove the specified order from the build list
             BuildList.RemoveAt(orderIndex);
+
+            // Invoke the build list event
+            OnBuildListChanged?.Invoke();
 
             // Return true for success
             return true; 
@@ -156,7 +179,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// <returns>True if successful, false if not.</returns>
         public virtual bool TryEditOrder(int orderIndex, int count) {
             // Exit if the index is invalid
-            var valid = orderIndex > 0 && orderIndex < BuildList.Count;
+            var valid = orderIndex >= 0 && orderIndex < BuildList.Count;
             if (!valid) return false;
 
             // Exit if the count is less than 1
@@ -166,6 +189,9 @@ namespace InvincibleEngine.UnitFramework.Components {
             var originalOrder = BuildList[orderIndex];
             var newOrder = new KeyValuePair<UnitBehavior, int>(originalOrder.Key, count);
             BuildList[orderIndex] = newOrder;
+
+            // Invoke the build list event
+            OnBuildListChanged?.Invoke();
 
             // Return true for success
             return true;

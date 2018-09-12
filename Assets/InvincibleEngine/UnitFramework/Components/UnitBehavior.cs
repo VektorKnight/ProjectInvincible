@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.CameraSystem;
 using InvincibleEngine.Managers;
 using InvincibleEngine.SelectionSystem;
 using InvincibleEngine.UnitFramework.DataTypes;
-using InvincibleEngine.UnitFramework.Enums;
 using InvincibleEngine.UnitFramework.Interfaces;
 using InvincibleEngine.UnitFramework.Utility;
 using InvincibleEngine.WeaponSystem;
@@ -13,9 +13,6 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using VektorLibrary.Utility;
 using VektorLibrary.EntityFramework.Singletons;
-using Random = UnityEngine.Random;
-using InvincibleEngine.UnitFramework.Components;
-using InvincibleEngine;
 using SteamNet;
 
 #if UNITY_EDITOR
@@ -77,53 +74,54 @@ namespace InvincibleEngine.UnitFramework.Components {
         public ushort NetID;
         public ushort Priority;
 
-        // Protected: Time Slicing
+        // Time Slicing
         protected int SliceIndex;
 
-        // Protected: Unit Icon
+        // Unit Screen Sprites
         protected UnitScreenSprite Icon;
         protected UnitScreenSprite HealthBar;
 
-        // Protected: Selection Indicator
+        // Selection Indicator
         protected GlowingObject SelectionIndicator;
 
-        // Protected: Component References
+        // Component References
         protected MeshRenderer UnitRenderer;
         protected Collider[] UnitColliders;
         protected MaterialPropertyBlock MaterialProperties;
 
-        // Protected: Command Processing
+        // Command Processing
         protected CommandParser CommandParser = new CommandParser();
 
-        // Protected: Attached Objects
+        // Attached Objects
         protected EnergyShield ShieldReference;
         protected WeaponBehavior WeaponReference;
 
-        // Protected: Weapons & Combat
+        // Weapons & Combat
         protected WaitForSeconds ScanInterval;
         protected bool WaitingForTarget = true;
         protected float SqrScanRadius;
 
-        // Properties: Unit Metadata
+        // Unit Metadata
         public UnitType UnitType => _unitType;
         public ETeam UnitTeam { get; protected set; }
         public Color UnitColor { get; protected set; }
         public float CurrentHealth { get; protected set; }
         public Sprite IconSprite => _iconSprite;
         public UnitCommands SupportedCommands { get; protected set; }
+        public UnitFeatures Features { get; protected set; }
         public int Cost => _cost;
 
-        // Properties: Target Acquisition
+        // Target Acquisition
         public UnitBehavior CurrentTarget { get; protected set; }
         public LayerMask ScanLayers { get; protected set; }
         public float WeaponRange => ScanRadius;
 
-        // Properties: Unit State
+        // Unit State
         public bool Invulnerable { get; protected set; }
         public bool Selected { get; protected set; }
         public bool Dying { get; protected set; }
 
-        // Properties: Construction
+        // Construction
         public bool FullyBuilt { get; protected set; }
         public float BuildTimer { get; protected set; }
         public float BuildProgress { get; protected set; }
