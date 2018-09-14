@@ -26,7 +26,7 @@ namespace InvincibleEngine.UnitFramework.Components {
     /// </summary>
     [RequireComponent(typeof(GlowingObject))]
     public class UnitBehavior : EntityBehavior, IUnit {
-        // Constant: Team Layers Start/End
+        // Team Layers Start/End
         public static readonly int[] TeamLayerBounds = { 11, 18 };
 
         // Time Slicing Stuff
@@ -60,7 +60,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected float ScanRadius = 50f;
 
         [Header("Construction")]
-        [SerializeField] protected int _cost = 100;
+        [SerializeField] private int _buildCost = 100;
         [SerializeField] protected float BuildTime = 4f;
         [SerializeField] public BuildOption[] ConstructionOptions;
         [SerializeField] public UnitBehavior[] BuildOptions;
@@ -69,7 +69,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] protected ParticleSystem BuildEffect;
         [SerializeField] protected ParticleSystem DeathEffect;
 
-        //Public: Network Properties
+        // Public: Network Properties
         public ushort AssetID;
         public ushort NetID;
         public ushort Priority;
@@ -109,7 +109,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         public Sprite IconSprite => _iconSprite;
         public UnitCommands SupportedCommands { get; protected set; }
         public UnitFeatures Features { get; protected set; }
-        public int Cost => _cost;
+        public int BuildCost => _buildCost;
 
         // Target Acquisition
         public UnitBehavior CurrentTarget { get; protected set; }
@@ -129,7 +129,6 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool DrawGizmos;
 
         // Denotes whether this unit can be built from somewhere, eventually this should be changed 
-        // to a proper flag system that tells exactly where this unit can be made from
         public bool CanBeProduced;
 
         /// <summary>
@@ -154,14 +153,12 @@ namespace InvincibleEngine.UnitFramework.Components {
             }
         }
 
-        //----------------------------------------------------
-        #region  Engine registration and functionality
-        //----------------------------------------------------
-
+        // Entity Behavior Callbacks
+        #region Entity Behavior Callbacks
         // Initialization
         public override void OnRegister() {
             // Calculate time slicing index
-            GetTimeSlice();
+            GetTimeSlice(this);
 
             // Reference required components
             UnitRenderer = GetComponentInChildren<MeshRenderer>();
@@ -219,7 +216,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             SqrScanRadius = ScanRadius * ScanRadius;
 
             // Calculate the scan layers based on the unit team
-            CalculateLayers();
+            CalculateLayers(this);
 
             // Spawn in and initialize the weapon prefab if set
             if (WeaponPrefab != null) {
@@ -240,149 +237,6 @@ namespace InvincibleEngine.UnitFramework.Components {
 
             // Call base method
             base.OnRegister();
-        }
-
-        // Calculate and set this unit's time slice index
-        protected virtual void GetTimeSlice() {
-            // Populate and shuffle the stack of slices if it's empty
-            if (SliceIntervals.Count == 0) {
-                // Generate an array of intervals
-                for (var i = 0; i < TimeSlicingWindow; i++)
-                    IntervalBuffer[i] = i;
-
-                // Shuffle the intervals
-                IntervalBuffer.Shuffle();
-
-                // Add the shuffled intervals to the stack
-                for (var i = 0; i < IntervalBuffer.Length; i++) {
-                    SliceIntervals.Push(IntervalBuffer[i]);
-                }
-            }
-
-            // Grab an interval from the stack
-            SliceIndex = SliceIntervals.Pop();
-        }
-
-        // Calculate the layers and masks for this unit
-        protected virtual void CalculateLayers() {
-            // Make sure this unit's layer is set to match it's team
-            gameObject.layer = TeamLayerBounds[0] + (int)UnitTeam;
-
-            // Reset the scan mask to be safe
-            ScanLayers = new LayerMask();
-
-            // Calculate the scan layers for target acquisition
-            foreach (var team in Enum.GetValues(typeof(ETeam))) {
-                // Skip this unit's team
-                if ((ETeam)team == UnitTeam) continue;
-
-                // Set the appropriate bit flags
-                ScanLayers = ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int)team);
-            }
-        }
-
-        // Time Slicing Update
-        protected virtual void OnIntervalUpdate() {
-            // Exit if we don't want automatic scanning
-            if (AutoAcquireTargets)
-                ScanForTargets();
-        }
-
-        //Quick grab net fields
-        public N_ENT GetLowNetFields() {
-
-            //Set up network package
-            N_ENT package = new N_ENT();
-
-            //Grab data
-            package.NetID = NetID;
-            package.ObjectID = AssetID;
-            package.P = transform.position;
-            package.R = transform.eulerAngles;
-            package.Owner = (ulong)PlayerOwner;
-
-            Priority = 0;
-            return package;
-        }
-
-        //Set low net fields
-        public void SetLowNetFields(N_ENT fields) {
-
-        }
-
-        //Grab full network fields
-        public N_ENT GetNetFields(bool full) {
-
-            //Set up network package
-            N_ENT package = new N_ENT();
-
-            //Grab data
-            package.NetID = NetID;
-            package.ObjectID = AssetID;
-            package.P = transform.position;
-            package.R = transform.eulerAngles;
-            package.Owner = (ulong)PlayerOwner;
-
-            //Fetch all fields 
-            if(full) {
-
-            }
-
-            //Set priority to 0 and return
-            Priority = 0;
-            return package;
-        }
-        
-        //Set high net fields
-        public void SetNetFields(bool full, N_ENT fields) {
-
-
-
-        }
-
-
-        #endregion
-
-        //----------------------------------------------------
-        #region  Unit functionality, damage and game affecting behavior, command resolver
-        //----------------------------------------------------
-
-        // Post-Build Initialization
-        protected virtual void OnBuildComplete() {
-            // Exit if already built
-            if (FullyBuilt) return;
-
-            // Stop build effect particle system
-            if (BuildEffect != null) {
-                BuildEffect.Stop();
-            }
-
-            // Enable unit colliders
-            foreach (var col in UnitColliders) {
-                col.enabled = true;
-            }
-
-            // Enable shadow casting and emission
-            MaterialProperties.SetFloat("_EmissionPower", 10f);
-            UnitRenderer.SetPropertyBlock(MaterialProperties);
-            UnitRenderer.shadowCastingMode = ShadowCastingMode.On;
-
-            // Spawn in and initialize the energy shield prefab if set
-            if (ShieldPrefab != null) {
-
-                // Set shield anchor to this transform if null
-                if (ShieldAnchor == null) ShieldAnchor = transform;
-
-                // Calculate shield radius if necessary
-                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
-
-                // Instantiate and initialize the energy shield
-                ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
-                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
-            }
-
-            // Set built flag
-            FullyBuilt = true;
         }
 
         // Sim Update Callback
@@ -468,26 +322,79 @@ namespace InvincibleEngine.UnitFramework.Components {
                 HealthBar?.SetRender(false);
             }
         }
+        #endregion
 
-        // Processes a given command
-        public virtual void ProcessCommand(UnitCommand command) {
-            // Exit if this object is dying or not built
-            if (Dying || !FullyBuilt) return;
-
-            // Relay the command to the parser
-            CommandParser.ProcessCommand(command);
+        // Base Unit Functionality
+        #region Base Unit Functionality
+        // Time Slicing Update
+        protected virtual void OnIntervalUpdate() {
+            // Exit if we don't want automatic scanning
+            if (AutoAcquireTargets)
+                ScanForTargets();
         }
 
-        // Applies the specified damage value to this unit
-        public virtual void ApplyDamage(float damage) {
+        // Called when this unit finishes building
+        protected virtual void OnBuildComplete() {
+            // Exit if already built
+            if (FullyBuilt) return;
+
+            // Stop build effect particle system
+            if (BuildEffect != null) {
+                BuildEffect.Stop();
+            }
+
+            // Enable unit colliders
+            foreach (var col in UnitColliders) {
+                col.enabled = true;
+            }
+
+            // Enable shadow casting and emission
+            MaterialProperties.SetFloat("_EmissionPower", 10f);
+            UnitRenderer.SetPropertyBlock(MaterialProperties);
+            UnitRenderer.shadowCastingMode = ShadowCastingMode.On;
+
+            // Spawn in and initialize the energy shield prefab if set
+            if (ShieldPrefab != null) {
+
+                // Set shield anchor to this transform if null
+                if (ShieldAnchor == null) ShieldAnchor = transform;
+
+                // Calculate shield radius if necessary
+                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
+
+                // Instantiate and initialize the energy shield
+                ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
+                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
+            }
+
+            // Set built flag
+            FullyBuilt = true;
+        }
+
+        // Called when this unit is selected
+        public virtual void OnSelected() {
             // Exit if this object is dying or not built
             if (Dying || !FullyBuilt) return;
 
-            // Exit if this unit is marked as invulnerable
-            if (Invulnerable) return;
+            // Set icon state to selected
+            Icon?.SetSelected(true);
+            SelectionIndicator?.SetTargetColor(UnitColor);
 
-            // Subtract the damage value from this unit's health
-            CurrentHealth -= damage;
+            // Set selected flag
+            Selected = true;
+        }
+
+        // Called when this unit is deselected
+        public virtual void OnDeselected() {
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
+
+            // Set icon state to unselected
+            Icon?.SetSelected(false);
+            SelectionIndicator?.SetTargetColor(Color.black);
+
+            // Set selected flag
+            Selected = false;
         }
 
         // Called when this unit is dealt lethal damage
@@ -526,11 +433,26 @@ namespace InvincibleEngine.UnitFramework.Components {
             Destroy(gameObject);
         }
 
-        #endregion
+        // Processes a given command
+        public virtual void ProcessCommand(UnitCommand command) {
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
 
-        //----------------------------------------------------
-        #region  Selection display, command recieve, and 
-        //----------------------------------------------------
+            // Relay the command to the parser
+            CommandParser.ProcessCommand(command);
+        }
+
+        // Applies the specified damage value to this unit
+        public virtual void ApplyDamage(float damage) {
+            // Exit if this object is dying or not built
+            if (Dying || !FullyBuilt) return;
+
+            // Exit if this unit is marked as invulnerable
+            if (Invulnerable) return;
+
+            // Subtract the damage value from this unit's health
+            CurrentHealth -= damage;
+        }
 
         // Target scanning routine
         protected virtual void ScanForTargets() {
@@ -577,36 +499,105 @@ namespace InvincibleEngine.UnitFramework.Components {
             Icon?.SetColor(UnitColor);
 
             // Recalculate layers and update the scanner
-            CalculateLayers();
+            CalculateLayers(this);
         }
-
-        // Called when this unit is selected
-        public virtual void OnSelected() {
-            // Exit if this object is dying or not built
-            if (Dying || !FullyBuilt) return;
-
-            // Set icon state to selected
-            Icon?.SetSelected(true);
-            SelectionIndicator?.SetTargetColor(UnitColor);
-
-            // Set selected flag
-            Selected = true;
-        }
-
-        // Called when this unit is deselected
-        public virtual void OnDeselected() {
-            // Exit if this object is dying or not built
-            if (Dying || !FullyBuilt) return;
-
-            // Set icon state to unselected
-            Icon?.SetSelected(false);
-            SelectionIndicator?.SetTargetColor(Color.black);
-
-            // Set selected flag
-            Selected = false;
-        }
-
         #endregion
 
+        // Networking & Synchronization
+        #region Networking & Synchronization
+        //Quick grab net fields
+        public N_ENT GetLowNetFields() {
+
+            //Set up network package
+            N_ENT package = new N_ENT();
+
+            //Grab data
+            package.NetID = NetID;
+            package.ObjectID = AssetID;
+            package.P = transform.position;
+            package.R = transform.eulerAngles;
+            package.Owner = (ulong)PlayerOwner;
+
+            Priority = 0;
+            return package;
+        }
+
+        //Set low net fields
+        public void SetLowNetFields(N_ENT fields) {
+
+        }
+
+        //Grab full network fields
+        public N_ENT GetNetFields(bool full) {
+
+            //Set up network package
+            N_ENT package = new N_ENT();
+
+            //Grab data
+            package.NetID = NetID;
+            package.ObjectID = AssetID;
+            package.P = transform.position;
+            package.R = transform.eulerAngles;
+            package.Owner = (ulong)PlayerOwner;
+
+            //Fetch all fields 
+            if(full) {
+
+            }
+
+            //Set priority to 0 and return
+            Priority = 0;
+            return package;
+        }
+        
+        //Set high net fields
+        public void SetNetFields(bool full, N_ENT fields) {
+
+
+
+        }
+        #endregion
+
+        // Static Utility Methods
+        #region Static Utility Methods
+        // Calculate and set this unit's time slice index
+        protected static void GetTimeSlice(UnitBehavior unit) {
+            // Populate and shuffle the stack of slices if it's empty
+            if (SliceIntervals.Count == 0) {
+                // Generate an array of intervals
+                for (var i = 0; i < TimeSlicingWindow; i++)
+                    IntervalBuffer[i] = i;
+
+                // Shuffle the intervals
+                IntervalBuffer.Shuffle();
+
+                // Add the shuffled intervals to the stack
+                for (var i = 0; i < IntervalBuffer.Length; i++) {
+                    SliceIntervals.Push(IntervalBuffer[i]);
+                }
+            }
+
+            // Grab an interval from the stack
+            unit.SliceIndex = SliceIntervals.Pop();
+        }
+
+        // Calculate the layers and masks for this unit
+        protected static void CalculateLayers(UnitBehavior unit) {
+            // Make sure this unit's layer is set to match it's team
+            unit.gameObject.layer = TeamLayerBounds[0] + (int)unit.UnitTeam;
+
+            // Reset the scan mask to be safe
+            unit.ScanLayers = new LayerMask();
+
+            // Calculate the scan layers for target acquisition
+            foreach (var team in Enum.GetValues(typeof(ETeam))) {
+                // Skip this unit's team
+                if ((ETeam)team == unit.UnitTeam) continue;
+
+                // Set the appropriate bit flags
+                unit.ScanLayers = unit.ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int)team);
+            }
+        }
+        #endregion
     }
 }

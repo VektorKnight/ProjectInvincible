@@ -17,7 +17,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private List<UnitBehavior> _buildableUnits;    // Units that this factory can build
         [SerializeField] private Transform _buildSpawn;                 // Local position where units will spawn
         [SerializeField] private Transform _exitWaypoint;               // Completed units will move towards this to exit
-        [SerializeField] private float _buildDelay = 2f;              // How long the factory pauses before building another unit
+        [SerializeField] private float _buildDelay = 2f;                // How long the factory pauses before building another unit
         [SerializeField] private ParticleSystem _buildEffect;           // Particle system that players while a unit builds
 
         /// <summary>

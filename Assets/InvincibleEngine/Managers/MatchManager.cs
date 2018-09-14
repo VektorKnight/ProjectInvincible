@@ -127,7 +127,7 @@ public class MatchManager : MonoBehaviour {
     public bool CanConstructBuilding(StructureBehavior Building, GridPoint point, CSteamID player) {
 
         //Check all conditions
-        bool a = SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.Cost);
+        bool a = SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.BuildCost);
         bool b = Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen();
         bool c = GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y).AreOpen();
 
@@ -154,7 +154,7 @@ public class MatchManager : MonoBehaviour {
             Debug.Log("Spawning building, checking to see if player has enough econ for it");
 
             //if the player can afford it, construct it
-            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.BuildCost)) {
 
                 Debug.Log("Player can afford building, spawning it");
 
