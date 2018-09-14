@@ -94,6 +94,23 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1969196866639964
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4004449282746168}
+  - component: {fileID: 33499679634850130}
+  - component: {fileID: 23630892429417320}
+  m_Layer: 0
+  m_Name: Exit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
 --- !u!4 &4002688042777068
 Transform:
   m_ObjectHideFlags: 1
@@ -106,6 +123,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4788483052093282}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4004449282746168
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1969196866639964}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 20}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_Children: []
+  m_Father: {fileID: 4874692807865004}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4320392569309540
 Transform:
@@ -155,11 +185,12 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1151602042146494}
   m_LocalRotation: {x: -4.3297806e-17, y: 0.70710677, z: 4.3297803e-17, w: 0.7071068}
-  m_LocalPosition: {x: 498.4618, y: 4.49, z: 315.98776}
+  m_LocalPosition: {x: 722.8317, y: 0, z: 350.87668}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4788483052093282}
   - {fileID: 4739782891461892}
+  - {fileID: 4004449282746168}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -180,6 +211,41 @@ MeshRenderer:
   m_Materials:
   - {fileID: 2100000, guid: 04a961bd64c2c5c43943ddc809c219c7, type: 2}
   - {fileID: 2100000, guid: 04a961bd64c2c5c43943ddc809c219c7, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!23 &23630892429417320
+MeshRenderer:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1969196866639964}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_Materials:
+  - {fileID: 2100000, guid: a17b097a72d362c40bcf25d275485c20, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -235,6 +301,13 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!33 &33499679634850130
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1969196866639964}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &33718369369476884
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -308,7 +381,7 @@ MonoBehaviour:
   BuildOptions: []
   BuildEffect: {fileID: 0}
   DeathEffect: {fileID: 0}
-  AssetID: 0
+  AssetID: 3
   NetID: 0
   Priority: 0
   Bounds: {x: 1, y: 1}
@@ -324,7 +397,8 @@ MonoBehaviour:
   - {fileID: 114607497393256244, guid: 2d7fb3b3bcf6ace458c1596bba5978bb, type: 2}
   - {fileID: 114505020768901190, guid: d6ec5ba2d0d07344d98b555e4d61f788, type: 2}
   _buildSpawn: {fileID: 4874692807865004}
-  _exitWaypoint: {fileID: 4874692807865004}
+  _exitWaypoint: {fileID: 4004449282746168}
+  _buildDelay: 6
   _buildEffect: {fileID: 0}
   PauseBuilding: 0
   LoopQueue: 0

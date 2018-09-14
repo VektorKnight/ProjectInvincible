@@ -4,8 +4,11 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
+using InvincibleEngine.UnitFramework.DataTypes;
 using InvincibleEngine.UnitFramework.Enums;
+using SteamNet;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace InvincibleEngine.UnitFramework.Components {
     public class FactoryBehavior : StructureBehavior {
@@ -14,6 +17,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private List<UnitBehavior> _buildableUnits;    // Units that this factory can build
         [SerializeField] private Transform _buildSpawn;                 // Local position where units will spawn
         [SerializeField] private Transform _exitWaypoint;               // Completed units will move towards this to exit
+        [SerializeField] private float _buildDelay = 2f;              // How long the factory pauses before building another unit
         [SerializeField] private ParticleSystem _buildEffect;           // Particle system that players while a unit builds
 
         /// <summary>
@@ -26,6 +30,9 @@ namespace InvincibleEngine.UnitFramework.Components {
         public bool ReadyToBuild { get; protected set; }
         public bool PauseBuilding = false;
         public bool LoopQueue = false;
+
+        // Build Timer
+        protected float BuildDelayTimer;
 
         // Build List Event Callbacks
         public delegate void BuildListChanged();
@@ -73,7 +80,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Call base method
             base.OnSimUpdate(fixedDelta, isHost);
 
-
+            // Process build orders
+            ProcessOrders(fixedDelta);
         }
 
         #endregion
@@ -86,6 +94,18 @@ namespace InvincibleEngine.UnitFramework.Components {
             ReadyToBuild = true;
         }
 
+        // OnSelected Callback
+        public override void OnSelected() {
+            _exitWaypoint.gameObject.SetActive(true);
+            base.OnSelected();
+        }
+
+        // OnDeselected Callback
+        public override void OnDeselected() {
+            _exitWaypoint.gameObject.SetActive(false);
+            base.OnDeselected();
+        }
+
         #endregion
 
         // Unit Command Handlers
@@ -96,7 +116,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// a move command to units once they finish building.
         /// </summary>
         protected virtual void MoveCommandHandler(object data) {
-
+            _exitWaypoint.position = (Vector3)data;
         }
 
         /// <summary>
@@ -104,7 +124,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         /// This clears the build list and cancels any other pending actions.
         /// </summary>
         protected virtual void StopCommandHandler(object data) {
-
+            BuildList.Clear();
         }
 
         /// <summary>
@@ -117,8 +137,8 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
         #endregion
 
-        // Unit Factory Methods
-        #region Unit Factory Methods
+        // Public Factory Methods
+        #region Public Factory Methods
 
         /// <summary>
         /// Tries to add a new build order to the build list.
@@ -195,6 +215,54 @@ namespace InvincibleEngine.UnitFramework.Components {
 
             // Return true for success
             return true;
+        }
+        #endregion
+
+        // Protected Factory Methods
+        #region Protected Factory Methods
+        // Called repeatedly to process the build list and related functions
+        protected virtual void ProcessOrders(float deltaTime) {
+            // Check the status of the current order if possible
+            if (CurrentUnit != null && !ReadyToBuild) {
+                // Exit if the current unit is not complete
+                if (!CurrentUnit.FullyBuilt) return;
+
+                CurrentUnit.ProcessCommand(new UnitCommand(UnitCommands.Move, _exitWaypoint.position));
+
+                // Update the build delay timer
+                if (BuildDelayTimer > 0f) {
+                    BuildDelayTimer -= deltaTime;
+                    return;
+                }
+
+                // Reset the current unit reference and ready flag
+                CurrentUnit = null;
+                ReadyToBuild = true;
+
+                // We're done here
+                return;
+            }
+            
+            // Exit if the build list is empty
+            if (BuildList.Count == 0) return;
+
+            // Process the order at the front of the list (index 0)
+            var order = BuildList[0];
+            CurrentUnit = MatchManager.Instance.SpawnUnit(SteamNetManager.Instance.GetNetworkID(), order.Key.AssetID, _buildSpawn.position,
+                _buildSpawn.rotation.eulerAngles, UnitTeam, SteamNetManager.LocalPlayer.SteamID);
+
+            BuildDelayTimer = _buildDelay;
+
+            // Decrement the order count or remove it if the count will be zero
+            if (order.Value - 1 == 0) {
+                TryCancelOrder(0);
+            }
+            else {
+                TryEditOrder(0, order.Value - 1);
+            }
+
+            // Set the ready to build flag to false
+            ReadyToBuild = false;
         }
         #endregion
     }

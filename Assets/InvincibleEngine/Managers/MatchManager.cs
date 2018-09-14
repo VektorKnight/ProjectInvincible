@@ -172,10 +172,10 @@ public class MatchManager : MonoBehaviour {
     /// <summary>
     /// call to finally spawn unit, all instantiations for networked units MUST be done here
     /// </summary>
-    public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, ETeam team, CSteamID owner) {
+    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, ETeam team, CSteamID owner) {
 
         //Spawn physical object
-        UnitBehavior newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
+        var newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
 
         //Set values
         newUnit.PlayerOwner = owner;
@@ -184,6 +184,9 @@ public class MatchManager : MonoBehaviour {
 
         //Add unit to list
         AllUnits.Add(netID, newUnit);
+
+        // Return unit reference
+        return newUnit;
     }
 
     public void DestroyUnit(ushort netID) {
@@ -218,17 +221,17 @@ public class MatchManager : MonoBehaviour {
             // Destroy any existing camera systems
             var existingCameras = FindObjectsOfType<InvincibleCamera>();
             foreach (var cam in existingCameras) {
-                DevConsole.LogWarning("MatchManager", "Found existing camera system in scene on match start!\n" +
+                Debug.LogWarning("MatchManager: Found existing camera system in scene on match start!\n" +
                                                       "The existing camera system will be destroyed.");
                 Destroy(cam.gameObject);
             }
 
             // Load the Camera System prefab from the resources folder and try to spawn it
-            var cameraSystem = Resources.Load<InvincibleCamera>("Objects/Common/OverheadCamera");
+            var cameraSystem = AssetManager.LoadAsset<InvincibleCamera>("Objects/Common/OverheadCamera");
             Instantiate(cameraSystem, spawnPoints[0].transform.position, Quaternion.identity);
         }
         catch (Exception e) {
-            DevConsole.LogError("MatchManager", $"Error spawning in camera system prefab!\n" +
+            Debug.LogError("MatchManager: Error spawning in camera system prefab!\n" +
                                                 e.Message);
         }
 

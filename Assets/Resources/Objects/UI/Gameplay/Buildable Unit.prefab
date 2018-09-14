@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 222998867685618664}
   - component: {fileID: 114111816967155810}
   - component: {fileID: 114616414162182712}
+  - component: {fileID: 114879959025624436}
   m_Layer: 5
   m_Name: Buildable Unit
   m_TagString: Untagged
@@ -138,9 +139,33 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 114111816967155810}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 114879959025624436}
+        m_MethodName: OnClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114879959025624436
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1346692617551540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aff3f95e5ac6a1e4b8afbdabe2368cc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preview: {fileID: 114111816967155810}
+  _icon: {fileID: 114497068566658002}
 --- !u!222 &222693756198752636
 CanvasRenderer:
   m_ObjectHideFlags: 1

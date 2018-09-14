@@ -106,8 +106,8 @@ namespace InvincibleEngine.Managers {
                 }
                 
                 // Log an error to the console and remove the corrupted object from the cache
-                DevConsole.LogError("AssetManager", $"Type mismatch occurred on cached asset <b>{path}</b>!\n" +
-                                                    $"Will attempt to load from disk instead.");
+                Debug.LogError($"AssetManager: Type mismatch occurred on cached asset {path}!\n" +
+                                                    "Will attempt to load from disk instead.");
                 
                 _cachedAssets.Remove(path);
             }
@@ -121,14 +121,14 @@ namespace InvincibleEngine.Managers {
                 _cachedAssets.Add(path, new CachedAsset(loadedAsset, typeof(T), loadedAsset.GetHashCode()));
                 
                 // Log a message to the console
-                DevConsole.Log("AssetManager", $"Successfully loaded and cached asset at <b>{path}</b>.");
+                Debug.Log($"AssetManager: Successfully loaded and cached asset at {path}.");
                 
                 // Return the loaded asset
                 return loadedAsset;
             }
             
             // Log an error to the console and return null
-            DevConsole.LogError("AssetManager", $"Failed to load the specified asset at <b>{path}</b>!");
+            Debug.LogError($"AssetManager: Failed to load the specified asset at {path}!");
             return null;
         }
     }

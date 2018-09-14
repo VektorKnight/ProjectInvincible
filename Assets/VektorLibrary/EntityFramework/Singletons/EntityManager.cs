@@ -63,7 +63,7 @@ namespace InvincibleEngine {
             _entityBehaviors = new HashedArray<EntityBehavior>(2048);
             
             // Log to dev console
-            DevConsole.Log("EntityManager", $"Simulation started with fixed timestep of {FIXED_TIMESTEP * 1000f}ms and maximum margin of {MAX_STEP_MARGIN * 1000f}ms");
+            Debug.Log($"EntityManager: Simulation started with fixed timestep of {FIXED_TIMESTEP * 1000f}ms and maximum margin of {MAX_STEP_MARGIN * 1000f}ms");
 
             // We're done here
             _initialized = true;
@@ -104,7 +104,7 @@ namespace InvincibleEngine {
                         behavior.OnEconomyUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                     }
                     catch (Exception e) {
-                        DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnEconomyUpdate</b>!\n" +
+                        Debug.LogError($"EntityManager: Exception ticking entity {i} at OnEconomyUpdate!\n" +
                                                              "Entity will be removed from the collection!\n" +
                                                              e.Message);
                         #if UNITY_EDITOR
@@ -123,7 +123,7 @@ namespace InvincibleEngine {
                         behavior.OnSimUpdate(FIXED_TIMESTEP, SteamNetManager.Instance.Hosting);
                     }
                     catch (Exception e) {
-                        DevConsole.LogError("EntityManager", $"Exception ticking entity {i} at <b>OnSimUpdate</b>!\n" +
+                        Debug.LogError($"EntityManager: Exception ticking entity {i} at OnSimUpdate!\n" +
                                                              "Entity will be removed from the collection!\n" +
                                                              e.Message);
                         #if UNITY_EDITOR
@@ -152,7 +152,7 @@ namespace InvincibleEngine {
                     behavior.OnRenderUpdate(Time.deltaTime);
                 }
                 catch (Exception e) {
-                    DevConsole.LogError("EntityManager", $"Exception ticking entity {i} <b>OnRenderUpdate</b>!\n" +
+                    Debug.LogError($"EntityManager: Exception ticking entity {i} OnRenderUpdate!\n" +
                                                          "Entity will be removed from the collection!\n" +
                                                          e.Message);
                     #if UNITY_EDITOR

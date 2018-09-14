@@ -11,6 +11,7 @@ namespace InvincibleEngine.CameraSystem {
         
         // Private: Required References
         private Camera _camera;
+        private int _screenHeight;
         
         // Preload method
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -30,19 +31,29 @@ namespace InvincibleEngine.CameraSystem {
         private void Initialize() {
             // Instantiate and reference required components
             _camera = gameObject.AddComponent<Camera>();
+
+            _screenHeight = Screen.height;
             
             // Initialize the camera
             _camera.clearFlags = CameraClearFlags.Depth;
             _camera.cullingMask = 1 << LayerMask.NameToLayer("ScreenSprites");
             _camera.orthographic = true;
             _camera.renderingPath = RenderingPath.Forward;
-            _camera.orthographicSize = Screen.height / 2f;
+            _camera.orthographicSize = _screenHeight / 2f;
         }
         
         // Append a sprite to the screen layer
         public static void AppendSprite(UnitScreenSprite sprite) {
             sprite.SetParent(Instance.transform);
             sprite.SetScreenPosition(Vector2.zero);
+        }
+
+        // Unity update
+        private void Update() {
+            if (Screen.height == _screenHeight) return;
+            // Recalculate the camera orthographic size
+            _screenHeight = Screen.height;
+            _camera.orthographicSize = _screenHeight / 2f;
         }
     }
 }

@@ -104,7 +104,7 @@ namespace InvincibleEngine.CameraSystem {
                 return Instance._camera.WorldToScreenPoint(position);
             }
             catch (Exception ex) {
-                DevConsole.LogError("CameraSystem", "An exception occured in method <b>GetScreenPosition(Vector3)</b>!\n" +
+                Debug.LogError("CameraSystem: An exception occured in method <b>GetScreenPosition(Vector3)</b>!\n" +
                                                     ex.Message);
                 return Vector2.zero;
             }
@@ -129,7 +129,7 @@ namespace InvincibleEngine.CameraSystem {
                 return false;
             }
             catch (Exception ex) {
-                DevConsole.LogError("CameraSystem", "An exception occured in method <b>UpdateVisibility(UnitBehavior, MeshRenderer)</b>!\n" +
+                Debug.LogError("CameraSystem: An exception occured in method UpdateVisibility(UnitBehavior, MeshRenderer)!\n" +
                                                     ex.Message);
                 return false;
             }
@@ -155,7 +155,7 @@ namespace InvincibleEngine.CameraSystem {
         public static void ToggleVSync() {
             var syncEnabled = QualitySettings.vSyncCount == 1;
             QualitySettings.vSyncCount = syncEnabled ? 0 : 1;
-            DevConsole.Log("CameraSystem", $"Vertical Sync Enabled: <b>{!syncEnabled}</b>");
+            Debug.Log($"CameraSystem: Vertical Sync Enabled: {!syncEnabled}");
         }
         
         /// <summary>
@@ -168,7 +168,7 @@ namespace InvincibleEngine.CameraSystem {
                 Instance.transform.position += Quaternion.Euler(0f, Instance.transform.eulerAngles.y, 0f) * moveVector;
             }
             catch (Exception e) {
-                DevConsole.LogError("CameraSystem", "Exception occured at call to static function: Pan\n" +
+                Debug.LogError($"CameraSystem: Exception occured at call to static function: Pan\n" +
                                                     e.Message);
             }
         }
@@ -207,8 +207,8 @@ namespace InvincibleEngine.CameraSystem {
             }
             
             // Register commands with the dev console
-            DevConsole.RegisterCommand("togglePostFX", TogglePostFX);
-            DevConsole.RegisterCommand("togglevsync", ToggleVSync);
+            //DevConsole.RegisterCommand("togglePostFX", TogglePostFX);
+            //DevConsole.RegisterCommand("togglevsync", ToggleVSync);
             
             // Ensure the camera object is centered and aligned
             _camera.transform.localPosition = Vector3.zero;
@@ -232,11 +232,11 @@ namespace InvincibleEngine.CameraSystem {
             var gameCanvas = Resources.Load<Canvas>("Objects/Common/GameplayCanvas");
             if (gameCanvas != null) {
                 _gameplayCanvas = Instantiate(gameCanvas, Vector3.zero, Quaternion.identity);
-                DevConsole.Log("CameraSystem", "Successfully loaded and instantiated GameplayCanvas!");
+                Debug.Log("CameraSystem: Successfully loaded and instantiated GameplayCanvas!");
             }
             else {
-                DevConsole.LogError("CameraSystem", "Error loading GameplayCanvas!\n" +
-                                                    "Please ensure the prefab is present in <b>Objects/Common</b>");
+                Debug.LogError("CameraSystem: Error loading GameplayCanvas!\n" +
+                                                    "Please ensure the prefab is present in Objects/Common");
             }
             
             // Try to load and instantiate debug canvas if in development mode or editor
@@ -244,11 +244,11 @@ namespace InvincibleEngine.CameraSystem {
             var debugCanvas = Resources.Load<Canvas>("Objects/Common/DebugCanvas");
             if (gameCanvas != null) {
                 _debugCanvas = Instantiate(debugCanvas, Vector3.zero, Quaternion.identity);
-                DevConsole.Log("CameraSystem", "Successfully loaded and instantiated DebugCanvas!");
+                Debug.Log("CameraSystem: Successfully loaded and instantiated DebugCanvas!");
             }
             else {
-                DevConsole.LogError("CameraSystem", "Error loading DebugCanvas!\n" +
-                                                    "Please ensure the prefab is present in <b>Objects/Common</b>");
+                Debug.LogError("CameraSystem: Error loading DebugCanvas!\n" +
+                                                    "Please ensure the prefab is present in Objects/Common");
             }
             #endif
             
