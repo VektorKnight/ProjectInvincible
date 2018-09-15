@@ -43,10 +43,10 @@ namespace InvincibleEngine.UnitFramework.Components {
         [SerializeField] private Sprite _iconSprite;
         [SerializeField] private Sprite _healthSprite;
 
-        [Header("Energy Shield")]
+        [Header("Energy Shield")] 
+        [SerializeField] protected bool SpawnShield;
         [SerializeField] protected EnergyShield ShieldPrefab;
         [SerializeField] protected Transform ShieldAnchor;
-        [SerializeField] protected bool CalculateShieldRadius = true;
         [SerializeField] protected float ShieldRadius;
         [SerializeField] protected float ShieldHealth = 100f;
         [SerializeField] protected float ShieldRechargeRate = 20f;
@@ -211,6 +211,11 @@ namespace InvincibleEngine.UnitFramework.Components {
                 ScreenSpriteManager.AppendSprite(HealthBar);
                 HealthBar.SetSelected(false);
             }
+            
+            // Load the default energy shield template object if not set
+            if (ShieldPrefab == null && SpawnShield) {
+                ShieldPrefab = AssetManager.LoadAsset<EnergyShield>("Objects/Templates/UnitShield");
+            }
 
             // Initialize the target scanner and supporting objects
             SqrScanRadius = ScanRadius * ScanRadius;
@@ -360,11 +365,11 @@ namespace InvincibleEngine.UnitFramework.Components {
                 if (ShieldAnchor == null) ShieldAnchor = transform;
 
                 // Calculate shield radius if necessary
-                var radius = CalculateShieldRadius ? Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : ShieldRadius;
+                var radius = Mathf.Abs(ShieldRadius) <= float.Epsilon ? 2.5f * Vector3.Distance(UnitRenderer.bounds.center, UnitRenderer.bounds.max) : Mathf.Abs(ShieldRadius);
 
                 // Instantiate and initialize the energy shield
                 ShieldReference = Instantiate(ShieldPrefab, ShieldAnchor.position, Quaternion.identity);
-                ShieldReference.Initialize(ShieldRadius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
+                ShieldReference.Initialize(radius, ShieldHealth, ShieldRechargeRate, ShieldRechargeDelay, gameObject.layer);
             }
 
             // Set built flag

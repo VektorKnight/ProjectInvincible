@@ -47,7 +47,7 @@ namespace InvincibleEngine.UnitFramework.Components {
 
             // Check for invalid configuration
             if (_buildSpawn == null || _exitWaypoint == null) {
-                Debug.LogException(new ArgumentNullException("The build spawn and exit waypoint cannot be null!"));
+                Debug.LogException(new ArgumentNullException($"The build spawn and exit waypoint cannot be null!"));
                 OnDeath();
             }
 

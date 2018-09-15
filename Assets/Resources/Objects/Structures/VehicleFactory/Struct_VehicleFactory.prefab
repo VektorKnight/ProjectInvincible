@@ -22,7 +22,6 @@ GameObject:
   - component: {fileID: 120815015143815700}
   - component: {fileID: 114222332592410430}
   - component: {fileID: 114432867657596078}
-  - component: {fileID: 65560785726501686}
   m_Layer: 0
   m_Name: Struct_VehicleFactory
   m_TagString: Untagged
@@ -47,7 +46,7 @@ GameObject:
   m_IsActive: 1
 --- !u!1 &1290587417636508
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
@@ -55,6 +54,7 @@ GameObject:
   - component: {fileID: 4320392569309540}
   - component: {fileID: 33778554910260666}
   - component: {fileID: 23084807873295132}
+  - component: {fileID: 65045291070758226}
   m_Layer: 0
   m_Name: VehicleFactory_Building_Export
   m_TagString: Untagged
@@ -62,24 +62,9 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1426376515080072
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4788483052093282}
-  m_Layer: 0
-  m_Name: Struct_VehicleFactory
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
 --- !u!1 &1651427835994888
 GameObject:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
@@ -87,6 +72,7 @@ GameObject:
   - component: {fileID: 4002688042777068}
   - component: {fileID: 33718369369476884}
   - component: {fileID: 23816405347585192}
+  - component: {fileID: 65830727736359338}
   m_Layer: 0
   m_Name: VehicleFactory_Carriage_Export
   m_TagString: Untagged
@@ -117,11 +103,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1651427835994888}
-  m_LocalRotation: {x: -4.3297806e-17, y: 0.70710677, z: 4.3297803e-17, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalRotation: {x: -4.329781e-17, y: 0.70710677, z: 4.32978e-17, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4788483052093282}
+  m_Father: {fileID: 4874692807865004}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4004449282746168
@@ -135,7 +121,7 @@ Transform:
   m_LocalScale: {x: 2, y: 2, z: 2}
   m_Children: []
   m_Father: {fileID: 4874692807865004}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4320392569309540
 Transform:
@@ -143,11 +129,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1290587417636508}
-  m_LocalRotation: {x: -4.3297806e-17, y: 0.70710677, z: 4.3297803e-17, w: 0.7071068}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalRotation: {x: -4.329781e-17, y: 0.70710677, z: 4.32978e-17, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4788483052093282}
+  m_Father: {fileID: 4874692807865004}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4739782891461892
@@ -161,22 +147,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4874692807865004}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4788483052093282
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1426376515080072}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 4320392569309540}
-  - {fileID: 4002688042777068}
-  m_Father: {fileID: 4874692807865004}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4874692807865004
 Transform:
@@ -185,10 +156,11 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1151602042146494}
   m_LocalRotation: {x: -4.3297806e-17, y: 0.70710677, z: 4.3297803e-17, w: 0.7071068}
-  m_LocalPosition: {x: 722.8317, y: 0, z: 350.87668}
+  m_LocalPosition: {x: 693.17413, y: -0.0000038146973, z: 474.95468}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4788483052093282}
+  - {fileID: 4320392569309540}
+  - {fileID: 4002688042777068}
   - {fileID: 4739782891461892}
   - {fileID: 4004449282746168}
   m_Father: {fileID: 0}
@@ -322,18 +294,30 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1290587417636508}
   m_Mesh: {fileID: 4300002, guid: 502d0bfa3a7115c458378ce14800aa06, type: 3}
---- !u!65 &65560785726501686
+--- !u!65 &65045291070758226
 BoxCollider:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1151602042146494}
+  m_GameObject: {fileID: 1290587417636508}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 8, y: 8, z: 8}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 18, y: 4.5, z: 16}
+  m_Center: {x: -0.000061035156, y: 2.25, z: 0.000030517578}
+--- !u!65 &65830727736359338
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1651427835994888}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 8.343742, y: 4.2517767, z: 14.5625}
+  m_Center: {x: -0.000061035156, y: 4.1229944, z: 0.000030517578}
 --- !u!114 &114222332592410430
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -363,9 +347,9 @@ MonoBehaviour:
   Health: 100
   _iconSprite: {fileID: 21300000, guid: e3b5615ba0eaa6d488eee765f8aa0704, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
+  SpawnShield: 1
   ShieldPrefab: {fileID: 0}
   ShieldAnchor: {fileID: 0}
-  CalculateShieldRadius: 0
   ShieldRadius: 0
   ShieldHealth: 100
   ShieldRechargeRate: 20
@@ -375,7 +359,7 @@ MonoBehaviour:
   AutoAcquireTargets: 0
   TargetingMode: 1
   ScanRadius: 50
-  _cost: 100
+  _buildCost: 100
   BuildTime: 4
   ConstructionOptions: []
   BuildOptions: []

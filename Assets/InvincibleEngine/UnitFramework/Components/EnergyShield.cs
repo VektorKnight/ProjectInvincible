@@ -49,7 +49,7 @@ namespace InvincibleEngine.UnitFramework.Components {
             // Set the layer of the shield to the specified team layer
             gameObject.layer = teamLayer;
             
-            // Set the scale of the shield to the radius / 2
+            // Set the scale of the shield to the radius
             transform.localScale = Vector3.one * radius;
             
             // Set config values
