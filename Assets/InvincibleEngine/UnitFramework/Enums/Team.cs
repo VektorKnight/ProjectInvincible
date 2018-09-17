@@ -19,6 +19,8 @@ namespace InvincibleEngine.UnitFramework.Enums{
 
     }
 
+    //              DEPRICATED                //
+    /*
     //Implicit convertion
     public static class ETeamConvert {
         public static Color EColor(this ETeam team) {
@@ -53,7 +55,6 @@ namespace InvincibleEngine.UnitFramework.Enums{
                     return Color.black;
             }
         }
-
+        */
     }
 
-}

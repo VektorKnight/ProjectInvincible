@@ -248,8 +248,11 @@ namespace InvincibleEngine.UnitFramework.Components {
 
             // Process the order at the front of the list (index 0)
             var order = BuildList[0];
-            CurrentUnit = MatchManager.Instance.SpawnUnit(SteamNetManager.Instance.GetNetworkID(), order.Key.AssetID, _buildSpawn.position,
-                _buildSpawn.rotation.eulerAngles, UnitTeam, SteamNetManager.LocalPlayer.SteamID);
+            CurrentUnit = MatchManager.Instance.SpawnUnit(
+                SteamNetManager.Instance.GetNetworkID(),
+                order.Key.AssetID, _buildSpawn.position,
+                _buildSpawn.rotation.eulerAngles,
+                PlayerOwner);
 
             BuildDelayTimer = _buildDelay;
 

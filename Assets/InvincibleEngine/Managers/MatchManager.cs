@@ -173,19 +173,41 @@ public class MatchManager : MonoBehaviour {
 
         //return false if nothing worked
         return false;
-
     }
 
-   
+    /// <summary>
+    /// FUNCTION NOT YET READY
+    /// Call to construct a unit, if called from a client this will return an empty unit
+    /// </summary>
+    /// <param name="unit">Unit to spawn</param>
+    /// <param name="position">Unit position</param>
+    /// <param name="rotation">Unit rotaiton</param>
+    /// <param name="owner">Owner of the unit to spawn</param>
+    /// <returns></returns>
+    public UnitBehavior ConstructUnit(UnitBehavior unit, Vector3 position, Vector3 rotation, CSteamID owner) {
+
+        //If hosting, check resource availability and spawn the unit
+        if(SteamNetManager.Instance.Hosting) {
+
+
+            return new UnitBehavior();
+        }
+
+        //If a client, send a request for the host factory to build a unit 
+        if(SteamNetManager.Instance.Connected) {
+
+
+            return new UnitBehavior();
+        }
+
+        //If nothing works, temporary
+        return null;
+    }
 
     /// <summary>
     /// call to finally spawn unit, all instantiations for networked units MUST be done here
     /// </summary>
-<<<<<<< HEAD
-    public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, CSteamID owner) {
-=======
-    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, PlayerTeam team, CSteamID owner) {
->>>>>>> abba111f889a94044a08b3dd381d69f8324d6103
+    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, CSteamID owner) {
 
         //Spawn physical object
         var newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
@@ -309,11 +331,8 @@ public class MatchManager : MonoBehaviour {
 
                 //if not, spawn this unit
                 else {
-<<<<<<< HEAD
+
                     SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, (CSteamID)u.Owner);
-=======
-                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, PlayerTeam.Blue, (CSteamID)u.Owner);
->>>>>>> abba111f889a94044a08b3dd381d69f8324d6103
                 }
             }
         }
