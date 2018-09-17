@@ -19,7 +19,7 @@ namespace InvincibleEngine.Utility {
         
         // Private: Current Settings
         private int _selectedUnit;
-        private ETeam _selectedTeam;
+        private PlayerTeam _selectedTeam = PlayerTeam.Red;
         private int _spawnCount = 1;
         
         // Private: State
@@ -36,7 +36,7 @@ namespace InvincibleEngine.Utility {
             }
             
             // Initialize the team dropdown
-            foreach (var team in Enum.GetNames(typeof(ETeam))) {
+            foreach (var team in Enum.GetNames(typeof(PlayerTeam))) {
                 _unitTeam.options.Add(new Dropdown.OptionData(team));
             }
         }
@@ -58,7 +58,7 @@ namespace InvincibleEngine.Utility {
         
         // Callback for team dropdown
         public void OnTeamChanged(int value) {
-            _selectedTeam = (ETeam) value;
+            _selectedTeam = (PlayerTeam) (int)Mathf.Pow(2f, value);
         }
         
         // Callback for the spawn count field

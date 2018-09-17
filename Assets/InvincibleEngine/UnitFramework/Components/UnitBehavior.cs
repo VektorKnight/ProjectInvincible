@@ -103,7 +103,7 @@ namespace InvincibleEngine.UnitFramework.Components {
 
         // Unit Metadata
         public UnitType UnitType => _unitType;
-        public ETeam UnitTeam { get; protected set; }
+        public PlayerTeam UnitTeam { get; protected set; }
         public Color UnitColor { get; protected set; }
         public float CurrentHealth { get; protected set; }
         public Sprite IconSprite => _iconSprite;
@@ -435,7 +435,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             InvincibleCamera.VisibleObjects.Remove(this);
 
             // Destroy this object
-            Destroy(gameObject);
+            MatchManager.Instance.DestroyUnit(NetID);
+            //Destroy(gameObject);
         }
 
         // Processes a given command
@@ -464,7 +465,8 @@ namespace InvincibleEngine.UnitFramework.Components {
             // If we are waiting for a target, initiate a scan
             if (WaitingForTarget) {
                 // Scan for targets in range
-                CurrentTarget = ObjectScanner.ScanForObject<UnitBehavior>(transform.position, ScanRadius, ScanLayers, TargetingMode);
+                //CurrentTarget = ObjectScanner.ScanForObject<UnitBehavior>(transform.position, ScanRadius, ScanLayers, TargetingMode);
+                CurrentTarget = UnitScanner.ScanForUnit(transform.position, ScanRadius, UnitTeam, TargetingMode);
 
                 // Set waiting flag to true if target found
                 WaitingForTarget = CurrentTarget == null;
@@ -494,7 +496,7 @@ namespace InvincibleEngine.UnitFramework.Components {
         }
 
         // Set this unit's team and update related objects
-        public virtual void SetTeam(ETeam team) {
+        public virtual void SetTeam(PlayerTeam team) {
             // Exit if this object is dying
             if (Dying) return;
 
@@ -595,9 +597,9 @@ namespace InvincibleEngine.UnitFramework.Components {
             unit.ScanLayers = new LayerMask();
 
             // Calculate the scan layers for target acquisition
-            foreach (var team in Enum.GetValues(typeof(ETeam))) {
+            foreach (var team in Enum.GetValues(typeof(PlayerTeam))) {
                 // Skip this unit's team
-                if ((ETeam)team == unit.UnitTeam) continue;
+                if ((PlayerTeam)team == unit.UnitTeam) continue;
 
                 // Set the appropriate bit flags
                 unit.ScanLayers = unit.ScanLayers | (int)Mathf.Pow(2, TeamLayerBounds[0] + (int)team);

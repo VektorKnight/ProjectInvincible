@@ -25,6 +25,7 @@ using InvincibleEngine.UnitFramework.Enums;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.Managers;
 using InvincibleEngine.CameraSystem;
+using VektorLibrary.Collections;
 using VektorLibrary.Utility;
 
 /// <summary>
@@ -32,7 +33,9 @@ using VektorLibrary.Utility;
 /// </summary>
 public class MatchManager : MonoBehaviour {
 
-    //All gameplay units in scene
+    // All gameplay units in scene
+    public HashedArray<UnitBehavior> UnitList = new HashedArray<UnitBehavior>(1024);
+
     public Dictionary<ushort, UnitBehavior> AllUnits = new Dictionary<ushort, UnitBehavior>();
 
     //Match manager properties
@@ -172,7 +175,7 @@ public class MatchManager : MonoBehaviour {
     /// <summary>
     /// call to finally spawn unit, all instantiations for networked units MUST be done here
     /// </summary>
-    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, ETeam team, CSteamID owner) {
+    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, PlayerTeam team, CSteamID owner) {
 
         //Spawn physical object
         var newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
@@ -184,16 +187,20 @@ public class MatchManager : MonoBehaviour {
 
         //Add unit to list
         AllUnits.Add(netID, newUnit);
+        UnitList.Add(newUnit);
 
         // Return unit reference
         return newUnit;
     }
 
+    /// <summary>
+    /// Destroys a unit by it's network ID.
+    /// </summary>
     public void DestroyUnit(ushort netID) {
-        Destroy(AllUnits[netID]);
+        UnitList.Remove(AllUnits[netID]);
+        Destroy(AllUnits[netID].gameObject);
         AllUnits.Remove(netID);
     }
-
     #endregion
 
     //----------------------------------------------------
@@ -286,7 +293,7 @@ public class MatchManager : MonoBehaviour {
 
                 //if not, spawn this unit
                 else {
-                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, ETeam.Blue, (CSteamID)u.Owner);
+                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, PlayerTeam.Blue, (CSteamID)u.Owner);
                 }
             }
         }

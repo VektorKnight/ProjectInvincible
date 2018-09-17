@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 /// <summary>
@@ -66,6 +67,9 @@ internal class DebugConsole : MonoBehaviour {
     #region Message Handlers
     // MessageReceived Event Handler (Unity Redirect)
     private void HandleLog(string message, string stackTrace, LogType type) {
+        // Fetch the current time
+        var time = DateTime.Now.ToString("hh:mm:ss");
+
         // Set based on the log type
         var logTrace = false;
 
@@ -89,12 +93,13 @@ internal class DebugConsole : MonoBehaviour {
 
         // Log messages to the console
         if (logTrace) {
-            Console.WriteLine(message);
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine($"[{time}] {message}\n");
+            Console.WriteLine("-BEGIN STACK TRACE-");
             Console.WriteLine(stackTrace);
+            Console.WriteLine("-END STACK TRACE-\n");
         }
         else {
-            Console.WriteLine(message);
+            Console.WriteLine($"[{time}] {message}");
         }
 
         // Make sure we don't lose user input

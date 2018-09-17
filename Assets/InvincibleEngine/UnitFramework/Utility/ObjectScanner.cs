@@ -15,7 +15,7 @@ namespace InvincibleEngine.UnitFramework.Utility {
     /// </summary>
     public static class ObjectScanner {
         // Set this to some power of two larger than the maximum expected size
-        private const int BUFFER_SIZE = 8192;
+        private const int BUFFER_SIZE = 16384;
         
         // Buffer for raw physics data
         private static readonly Collider[] ScanBuffer = new Collider[BUFFER_SIZE];
