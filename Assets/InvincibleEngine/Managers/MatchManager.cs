@@ -158,9 +158,13 @@ public class MatchManager : MonoBehaviour {
 
                 Debug.Log("Player can afford building, spawning it");
 
-                SpawnUnit(SteamNetManager.Instance.GetNetworkID(), Building.AssetID, point.WorldPosition, Orientation, SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Team, playerSource);
-                return true;
+                SpawnUnit(SteamNetManager.Instance.GetNetworkID(),
+                    Building.AssetID, 
+                    point.WorldPosition,
+                    Orientation, 
+                    playerSource);
 
+                return true;
             }
         }
 
@@ -169,18 +173,20 @@ public class MatchManager : MonoBehaviour {
 
     }
 
+   
+
     /// <summary>
     /// call to finally spawn unit, all instantiations for networked units MUST be done here
     /// </summary>
-    public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, ETeam team, CSteamID owner) {
+    public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, CSteamID owner) {
 
         //Spawn physical object
         UnitBehavior newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
 
         //Set values
         newUnit.PlayerOwner = owner;
+        newUnit.SetTeam(SteamNetManager.CurrentLobbyData.LobbyMembers[owner].Team);
         newUnit.NetID = netID;
-        newUnit.SetTeam(team);
 
         //Add unit to list
         AllUnits.Add(netID, newUnit);
@@ -205,6 +211,9 @@ public class MatchManager : MonoBehaviour {
 
         //Call events
         OnMatchStartEvent?.Invoke();
+
+        //Reset all values for new match
+        AllUnits.Clear();
 
         // Generate Grid
         GridSystem.GenerateGrid();
@@ -235,13 +244,17 @@ public class MatchManager : MonoBehaviour {
         // If hosting, Spawn command centers for each player in the match and assign them their starting resources
         if (isHost) {
 
-            foreach (KeyValuePair<CSteamID, SteamnetPlayer> n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
+            foreach (var n in SteamNetManager.CurrentLobbyData.LobbyMembers) {
                 Debug.Log($"Spawning Command Center and setting initial economy values for <b>{n.Value.DisplayName}</b>");
                 //Give each player starting resources
                 n.Value.Economy.Resources = SteamNetManager.CurrentLobbyData.StartingResources;
 
                 //For each player, spawn them (for now) a command center into a spawn point round robin, assign the building to them
-                ConstructBuilding(AssetManager.CommandCenter, GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position), Vector3.zero, n.Key, true);
+                SpawnUnit(SteamNetManager.Instance.GetNetworkID(),
+                    AssetManager.CommandCenter.AssetID,
+                    GridSystem.WorldToGridPoint(spawnPoints[spawnIndex].transform.position).WorldPosition,
+                    Vector3.zero,
+                    n.Key);
 
                 //Move to next spawn point
                 spawnIndex++;
@@ -270,8 +283,7 @@ public class MatchManager : MonoBehaviour {
         //go through each message and resolve it
         foreach (AmbiguousTypeHolder n in messages) {
 
-            //Entity update
-            
+            //Entity update            
             if (n.type == typeof(N_ENT)) {
                 N_ENT u = (N_ENT)n.obj;
 
@@ -283,7 +295,7 @@ public class MatchManager : MonoBehaviour {
 
                 //if not, spawn this unit
                 else {
-                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, ETeam.Blue, (CSteamID)u.Owner);
+                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, (CSteamID)u.Owner);
                 }
             }
         }

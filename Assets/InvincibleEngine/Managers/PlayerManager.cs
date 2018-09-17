@@ -128,7 +128,7 @@ namespace InvincibleEngine.Managers {
         private void BuildRoutine() {
 
             // if in build mode, display preview options for player, ya fuckin' wanker
-            if (BuildMode) {
+            if (BuildMode) {               
 
                 //Grid point the mouse is over
                 GridPoint point = MatchManager.Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition);
@@ -147,16 +147,25 @@ namespace InvincibleEngine.Managers {
                 //On left click, try and construct the building, ya fuckin' wanker
                 if (Input.GetMouseButtonDown(0)) {
 
-                    //Attempt construction
-                    if( MatchManager.Instance.ConstructBuilding(
+                    //if host, construct building
+                    if (SteamNetManager.Instance.Hosting) {
+
+                        //Attempt construction
+                        if (MatchManager.Instance.ConstructBuilding(
                         AssetManager.LoadAssetByID(_buildPreview.AssetID).GetComponent<StructureBehavior>(),
                         point,
                         Vector3.zero,
                         SteamNetManager.MySteamID,
-                        false))
-                    {
-                        //If successful, stop building, ya fuckin' wanker
-                        OnStopBuilding();
+                        false)) {
+                            //If successful, stop building, ya fuckin' wanker
+                            OnStopBuilding();
+                        }
+
+                    }
+
+                    //if client, ask host to construct building
+                    if(SteamNetManager.Instance.Connected) {
+
                     }
                 }
 

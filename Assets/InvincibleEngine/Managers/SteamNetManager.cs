@@ -405,7 +405,6 @@ namespace SteamNet {
                 N_ENT message = n.GetLowNetFields();
                 
                 if (!HexSerialize.Zip(buffer, message, 1200)) {
-
                     break;
                 }
             }
@@ -461,8 +460,8 @@ namespace SteamNet {
         public ushort GetNetworkID() {
             ushort pickedID = 0;
             try {
-                //Grab ID
 
+                //Grab ID
                 while (UsedIDs.Contains(pickedID)) {
                     pickedID++;
                 }
@@ -679,6 +678,9 @@ namespace SteamNet {
                         EndMatch($"Player {SteamFriends.GetFriendPersonaName((CSteamID)param.m_ulSteamIDUserChanged)}");
                     }
 
+                    //Leave the lobby entirely 
+                    LeaveLobby("A player has quit");
+
                 }
 
             }
@@ -850,6 +852,7 @@ namespace SteamNet {
                     BeginMatch();
                 }
 
+                //Wait one second in real time
                 yield return new WaitForSeconds(1);
             }
         }

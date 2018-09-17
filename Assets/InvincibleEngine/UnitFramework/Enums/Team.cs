@@ -5,6 +5,7 @@ using UnityEngine;
 namespace InvincibleEngine.UnitFramework.Enums{
 
     //Team enumerators
+    [Serializable]
     public enum ETeam {
         Red = 0,
         Green = 1,
@@ -13,7 +14,9 @@ namespace InvincibleEngine.UnitFramework.Enums{
         Purple = 4,
         Orange = 5,
         Pink = 6,
-        Teal = 7
+        Teal = 7,
+        White = 8
+
     }
 
     //Implicit convertion
@@ -44,8 +47,10 @@ namespace InvincibleEngine.UnitFramework.Enums{
                 case ETeam.Teal:
                     return Color.cyan;
                     break;
-                default:
+                case ETeam.White:
                     return Color.white;
+                default:
+                    return Color.black;
             }
         }
 

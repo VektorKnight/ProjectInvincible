@@ -62,7 +62,7 @@ class RebugManager : MonoBehaviour {
         else
             System.Console.ForegroundColor = ConsoleColor.White;
 
-        System.Console.WriteLine(message);
+        System.Console.WriteLine($"{message} at {stackTrace}");
 
         // If we were typing something re-add it.
         input.RedrawInputLine();

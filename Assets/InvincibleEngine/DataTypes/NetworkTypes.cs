@@ -107,6 +107,22 @@ namespace SteamNet {
     /// </summary>
     public class N_RDY { }
 
+
+    /// <summary>
+    /// Send to host to construct a building
+    /// </summary>
+    public class N_CST {
+        
+    }
+
+    /// <summary>
+    /// Send to host to build a unit
+    /// </summary>
+    public class N_BLD {
+
+    }
+
+
     #endregion
 
     //----------------------------------------------------

@@ -42,5 +42,4 @@ public class UIPlayerSlot : MonoBehaviour {
     public void TeamChangeRequest(int team) {
         SteamNetManager.Instance.BroadcastChatMessage(new N_TMC(team));
     }
-
 }
