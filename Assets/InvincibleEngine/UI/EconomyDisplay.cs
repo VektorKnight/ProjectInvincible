@@ -22,7 +22,7 @@ namespace InvincibleEngine.UI {
             var nullError = _resourcesText == null && _energyText == null;
 
             if (nullError) {
-                DevConsole.LogError("EconomyDisplay", "Improper component setup on {name}!\n" +
+                Debug.LogError("EconomyDisplay: Improper component setup on {name}!\n" +
                                                       "UI object(s) will not be updated");
                 return;
             }

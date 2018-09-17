@@ -372,7 +372,7 @@ namespace InvincibleEngine.Managers {
             }
             
             // Invoke OnUnitsSelected event
-            if (_selectionBox.size.sqrMagnitude > 0f)
+            if (_selectedUnits.Count > 0)
                 OnUnitsSelected?.Invoke(_selectedUnits);
 
             // Reset the selection rect

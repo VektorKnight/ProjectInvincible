@@ -766,7 +766,7 @@ namespace SteamNet {
                     N_TMC m = (N_TMC)n.obj;
 
                     if (Hosting) {
-                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].Team = (ETeam)m.team;
+                        CurrentlyJoinedLobby.LobbyMembers[(CSteamID)param.m_ulSteamIDUser].Team = (PlayerTeam)m.team;
                     }
                 }
 

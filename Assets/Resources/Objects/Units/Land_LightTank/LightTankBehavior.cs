@@ -25,6 +25,9 @@ namespace GameAssets.Resources.Objects.Units.Land_DebugTank {
 			CommandParser.RegisterHandler(UnitCommands.Move, MoveCommandHandler);
 			CommandParser.RegisterHandler(UnitCommands.AMove, MoveCommandHandler);
 			CommandParser.RegisterHandler(UnitCommands.Stop, StopCommandHandler);
+
+            // Declare unit features
+		    Features = UnitFeatures.Offensive;
 			
 			// Reference required components
 			_navAgent = GetComponent<NavMeshAgent>();			

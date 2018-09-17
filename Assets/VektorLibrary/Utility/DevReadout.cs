@@ -16,7 +16,6 @@ namespace VektorLibrary.Utility {
         // Unity Inspector
         [Header("Debug Readout Config")] 
         [SerializeField] private KeyCode _toggleKey = KeyCode.F2;
-        [SerializeField] private KeyCode _showTargetingKey = KeyCode.F3;
         [SerializeField] private Text _debugText;
         
         // Private: Debug Fields
@@ -27,11 +26,9 @@ namespace VektorLibrary.Utility {
         
         // Private: State
         private bool _enabled;
-        private bool _showTargeting;
         
         // Property: State
         public static bool Enabled => Instance._enabled;
-        public static bool ShowTargeting => Instance._showTargeting;
         
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Preload() {

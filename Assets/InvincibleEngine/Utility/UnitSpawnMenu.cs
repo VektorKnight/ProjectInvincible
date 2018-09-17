@@ -19,7 +19,7 @@ namespace InvincibleEngine.Utility {
         
         // Private: Current Settings
         private int _selectedUnit;
-        private ETeam _selectedTeam;
+        private PlayerTeam _selectedTeam = PlayerTeam.Red;
         private int _spawnCount = 1;
         
         // Private: State
@@ -36,7 +36,7 @@ namespace InvincibleEngine.Utility {
             }
             
             // Initialize the team dropdown
-            foreach (var team in Enum.GetNames(typeof(ETeam))) {
+            foreach (var team in Enum.GetNames(typeof(PlayerTeam))) {
                 _unitTeam.options.Add(new Dropdown.OptionData(team));
             }
         }
@@ -58,7 +58,7 @@ namespace InvincibleEngine.Utility {
         
         // Callback for team dropdown
         public void OnTeamChanged(int value) {
-            _selectedTeam = (ETeam) value;
+            _selectedTeam = (PlayerTeam) (int)Mathf.Pow(2f, value);
         }
         
         // Callback for the spawn count field
@@ -73,7 +73,7 @@ namespace InvincibleEngine.Utility {
         
         // Method for spawning a unit based on current settings
         public void SpawnUnit() {
-            DevConsole.Log("DebugTools", $"Spawning <b>{_spawnCount}</b> instance(s) of <b>{_spawnableUnits[_selectedUnit].name}</b> at <b>{InvincibleCamera.MouseData.WorldPosition}</b>");
+            Debug.Log($"DebugTools: Spawning {_spawnCount} instance(s) of {_spawnableUnits[_selectedUnit].name} at {InvincibleCamera.MouseData.WorldPosition}");
             var spawnGrid = VektorUtility.CenteredGrid(InvincibleCamera.MouseData.WorldPosition, _spawnCount, 1.25f);
             for (var i = 0; i < _spawnCount; i++) {
                 MatchManager.Instance.SpawnUnit(

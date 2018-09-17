@@ -126,8 +126,7 @@ MonoBehaviour:
     m_SteamID: 0
   _unitType: 0
   Health: 100
-  _cost: 100
-  _iconSprite: {fileID: 21300000, guid: eee522fbd27e68a4eb433d71bad9692d, type: 3}
+  _iconSprite: {fileID: 21300000, guid: 90c4492469be89f4c9ea78c4cabad319, type: 3}
   _healthSprite: {fileID: 21300000, guid: f23e0f784933dd54dac691eeff914170, type: 3}
   ShieldPrefab: {fileID: 114099295224392054, guid: b5685ae7aff991149bc620e65bded9b1,
     type: 2}
@@ -142,10 +141,18 @@ MonoBehaviour:
   AutoAcquireTargets: 0
   TargetingMode: 1
   ScanRadius: 50
-  DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
-    type: 2}
+  _buildCost: 100
+  BuildTime: 4
   ConstructionOptions: []
   BuildOptions: []
+  BuildEffect: {fileID: 0}
+  DeathEffect: {fileID: 198000012777718758, guid: acf39d9f4addf294d93fa56fa373961b,
+    type: 2}
+  AssetID: 7
+  NetID: 0
+  Priority: 0
+  Bounds: {x: 1, y: 1}
+  DrawGizmos: 0
   CanBeProduced: 0
 --- !u!195 &195013169612023080
 NavMeshAgent:

@@ -25,6 +25,7 @@ using InvincibleEngine.UnitFramework.Enums;
 using VektorLibrary.EntityFramework.Components;
 using InvincibleEngine.Managers;
 using InvincibleEngine.CameraSystem;
+using VektorLibrary.Collections;
 using VektorLibrary.Utility;
 
 /// <summary>
@@ -32,7 +33,9 @@ using VektorLibrary.Utility;
 /// </summary>
 public class MatchManager : MonoBehaviour {
 
-    //All gameplay units in scene
+    // All gameplay units in scene
+    public HashedArray<UnitBehavior> UnitList = new HashedArray<UnitBehavior>(1024);
+
     public Dictionary<ushort, UnitBehavior> AllUnits = new Dictionary<ushort, UnitBehavior>();
 
     //Match manager properties
@@ -127,7 +130,7 @@ public class MatchManager : MonoBehaviour {
     public bool CanConstructBuilding(StructureBehavior Building, GridPoint point, CSteamID player) {
 
         //Check all conditions
-        bool a = SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.Cost);
+        bool a = SteamNetManager.CurrentLobbyData.LobbyMembers[player].Economy.SuffucientResources(Building.BuildCost);
         bool b = Instance.GridSystem.WorldToGridPoint(InvincibleCamera.MouseData.WorldPosition).IsOpen();
         bool c = GridSystem.WorldToGridPoints(point.WorldPosition, Building.Bounds.x, Building.Bounds.y).AreOpen();
 
@@ -154,7 +157,7 @@ public class MatchManager : MonoBehaviour {
             Debug.Log("Spawning building, checking to see if player has enough econ for it");
 
             //if the player can afford it, construct it
-            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.Cost)) {
+            if (SteamNetManager.CurrentLobbyData.LobbyMembers[playerSource].Economy.OnUseResources(Building.BuildCost)) {
 
                 Debug.Log("Player can afford building, spawning it");
 
@@ -178,10 +181,14 @@ public class MatchManager : MonoBehaviour {
     /// <summary>
     /// call to finally spawn unit, all instantiations for networked units MUST be done here
     /// </summary>
+<<<<<<< HEAD
     public void SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, CSteamID owner) {
+=======
+    public UnitBehavior SpawnUnit(ushort netID, ushort assetID, Vector3 position, Vector3 rotation, PlayerTeam team, CSteamID owner) {
+>>>>>>> abba111f889a94044a08b3dd381d69f8324d6103
 
         //Spawn physical object
-        UnitBehavior newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
+        var newUnit = Instantiate(AssetManager.LoadAssetByID(assetID), position, Quaternion.Euler(rotation));
 
         //Set values
         newUnit.PlayerOwner = owner;
@@ -190,13 +197,20 @@ public class MatchManager : MonoBehaviour {
 
         //Add unit to list
         AllUnits.Add(netID, newUnit);
+        UnitList.Add(newUnit);
+
+        // Return unit reference
+        return newUnit;
     }
 
+    /// <summary>
+    /// Destroys a unit by it's network ID.
+    /// </summary>
     public void DestroyUnit(ushort netID) {
-        Destroy(AllUnits[netID]);
+        UnitList.Remove(AllUnits[netID]);
+        Destroy(AllUnits[netID].gameObject);
         AllUnits.Remove(netID);
     }
-
     #endregion
 
     //----------------------------------------------------
@@ -227,17 +241,17 @@ public class MatchManager : MonoBehaviour {
             // Destroy any existing camera systems
             var existingCameras = FindObjectsOfType<InvincibleCamera>();
             foreach (var cam in existingCameras) {
-                DevConsole.LogWarning("MatchManager", "Found existing camera system in scene on match start!\n" +
+                Debug.LogWarning("MatchManager: Found existing camera system in scene on match start!\n" +
                                                       "The existing camera system will be destroyed.");
                 Destroy(cam.gameObject);
             }
 
             // Load the Camera System prefab from the resources folder and try to spawn it
-            var cameraSystem = Resources.Load<InvincibleCamera>("Objects/Common/OverheadCamera");
+            var cameraSystem = AssetManager.LoadAsset<InvincibleCamera>("Objects/Common/OverheadCamera");
             Instantiate(cameraSystem, spawnPoints[0].transform.position, Quaternion.identity);
         }
         catch (Exception e) {
-            DevConsole.LogError("MatchManager", $"Error spawning in camera system prefab!\n" +
+            Debug.LogError("MatchManager: Error spawning in camera system prefab!\n" +
                                                 e.Message);
         }
 
@@ -295,7 +309,11 @@ public class MatchManager : MonoBehaviour {
 
                 //if not, spawn this unit
                 else {
+<<<<<<< HEAD
                     SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, (CSteamID)u.Owner);
+=======
+                    SpawnUnit(u.NetID, u.ObjectID, u.P, u.R, PlayerTeam.Blue, (CSteamID)u.Owner);
+>>>>>>> abba111f889a94044a08b3dd381d69f8324d6103
                 }
             }
         }

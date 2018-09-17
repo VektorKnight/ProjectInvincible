@@ -177,7 +177,7 @@ namespace SteamNet {
         //Player properties
         [SerializeField] public bool IsReady = false;
         [SerializeField] public CSteamID SteamID;
-        [SerializeField] public ETeam Team = 0;
+        [SerializeField] public PlayerTeam Team = PlayerTeam.Red;
         [SerializeField] public Economy Economy = new Economy();
 
         //Player useful information

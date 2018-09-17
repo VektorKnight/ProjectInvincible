@@ -55,8 +55,8 @@ namespace VektorLibrary.EntityFramework.Singletons {
 			if (pooledObjRef != null) {
 				MultiObjectPool.NewObjectPool(obj, DEFAULT_POOL_SIZE, Instance.transform);
 				
-				DevConsole.Log("ObjectManager", "Created new object pool!\n" +
-				               $"<b>Object:</b> {obj.name}, <b>Size:</b> {DEFAULT_POOL_SIZE}");
+				Debug.Log("ObjectManager: Created new object pool!\n" +
+				               $"Object: {obj.name}, Size: {DEFAULT_POOL_SIZE}");
 				
 				return MultiObjectPool.GetObject(obj, position, rotation);
 			}

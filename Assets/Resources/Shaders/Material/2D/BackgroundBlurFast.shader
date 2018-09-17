@@ -72,7 +72,7 @@ Shader "InvincibleEngine/UI/BackgroundBlurFast" {
                 // Grab the blurred pass sample and mask it by the main texture alpha
                 fixed4 blurSample = tex2D(_DSGrabTex, screenPos) * _BackTint * 2;
 
-                if (mainTexSample.a > 0.8)
+                if (mainTexSample.a > 0.5)
                     blurSample = saturate(blurSample * mainTexSample.a);
                 else
                     blurSample *= 0.0;
