@@ -12,6 +12,15 @@ namespace VektorLibrary.EntityFramework.Components {
         // Property: Terminating
         public bool Terminating { get; private set; }
 
+        // Property: Network states
+        public bool Hosting {
+            get { return SteamNetManager.Instance.Hosting ? true : false; }
+        }
+        public bool Connected {
+            get { return SteamNetManager.Instance.Connected ? true : false; }
+        }
+
+
         //Owner of object, -1 is the empty player
         public CSteamID PlayerOwner;
 
